@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
@@ -19,7 +19,13 @@ const navItems = [
 
 export default function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_authenticated');
+    navigate('/admin/login');
+  };
 
   return (
     <div className="min-h-screen flex bg-muted">
@@ -51,9 +57,9 @@ export default function AdminLayout() {
             );
           })}
           <div className="pt-4 border-t border-sidebar-border mt-4">
-            <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
-              <LogOut className="h-4 w-4" /> Retour à la vitrine
-            </Link>
+            <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors w-full text-left">
+              <LogOut className="h-4 w-4" /> Se déconnecter
+            </button>
           </div>
         </nav>
       </aside>
