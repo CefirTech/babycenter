@@ -57,13 +57,13 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 shrink-0" /> Cocody Riviera, Abidjan, Côte d'Ivoire</li>
               <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> +225 07 08 09 10 11</li>
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> contact@minichic.ci</li>
+              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> contact@babycenter.ci</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-background/10 text-center text-xs text-background/40">
-          © {new Date().getFullYear()} MiniChic. Tous droits réservés.
+          © {new Date().getFullYear()} BABYCENTER. Tous droits réservés.
         </div>
       </div>
     </footer>
