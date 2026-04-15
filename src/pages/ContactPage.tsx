@@ -32,7 +32,7 @@ export default function ContactPage() {
             {[
               { icon: MapPin, label: 'Adresse', value: 'Cocody Riviera, Abidjan, Côte d\'Ivoire' },
               { icon: Phone, label: 'Téléphone', value: '+225 07 08 09 10 11' },
-              { icon: Mail, label: 'Email', value: 'contact@minichic.ci' },
+              { icon: Mail, label: 'Email', value: 'contact@babycenter.ci' },
               { icon: Clock, label: 'Horaires', value: 'Lun-Sam : 9h-19h' },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-start gap-4">

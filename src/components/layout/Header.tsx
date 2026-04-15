@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingBag, Heart, User, Menu, X, Search } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
-import { Button } from '@/components/ui/button';
+
 
 const navLinks = [
   { label: 'Accueil', href: '/' },
@@ -27,7 +27,7 @@ export default function Header() {
 
         {/* Logo */}
         <Link to="/" className="font-heading text-xl md:text-2xl font-bold tracking-tight text-primary">
-          Mini<span className="text-accent">Chic</span>
+          BABY<span className="text-accent">CENTER</span>
         </Link>
 
         {/* Desktop nav */}
@@ -55,10 +55,8 @@ export default function Header() {
               </span>
             )}
           </Link>
-          <Link to="/admin" className="hidden md:inline-flex">
-            <Button variant="ghost" size="sm" className="text-foreground/70">
-              <User className="h-4 w-4 mr-1" /> Admin
-            </Button>
+          <Link to="/admin" className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Administration">
+            <User className="h-5 w-5" />
           </Link>
         </div>
       </div>
@@ -73,7 +71,7 @@ export default function Header() {
               </Link>
             ))}
             <Link to="/admin" onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
-              <User className="h-4 w-4" /> Administration
+              <User className="h-4 w-4" /> Admin
             </Link>
           </div>
         </nav>
