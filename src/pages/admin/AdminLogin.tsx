@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Lock, Mail, Eye, EyeOff, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -93,7 +93,13 @@ export default function AdminLogin() {
             </Button>
           </form>
 
-          <p className="text-xs text-muted-foreground text-center mt-6">
+          <div className="mt-6 pt-4 border-t border-border">
+            <Link to="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Store className="h-4 w-4" /> Retour à la vitrine
+            </Link>
+          </div>
+
+          <p className="text-xs text-muted-foreground text-center mt-4">
             Démo : admin@babycenter.ci / admin123
           </p>
         </div>
