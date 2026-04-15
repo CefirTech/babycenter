@@ -19,10 +19,10 @@ export default function Footer() {
                 <MessageCircle className="h-4 w-4" />
               </a>
               <a href="#" className="p-2 rounded-full bg-background/10 hover:bg-primary transition-colors" aria-label="Instagram">
-                <Instagram className="h-4 w-4" />
+                <Mail className="h-4 w-4" />
               </a>
               <a href="#" className="p-2 rounded-full bg-background/10 hover:bg-primary transition-colors" aria-label="Facebook">
-                <Facebook className="h-4 w-4" />
+                <Phone className="h-4 w-4" />
               </a>
             </div>
           </div>
