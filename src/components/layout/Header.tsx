@@ -70,7 +70,7 @@ export default function Header() {
                 {l.label}
               </Link>
             ))}
-            <Link to="/admin" onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
+            <Link to="/admin/login" onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
               <User className="h-4 w-4" /> Admin
             </Link>
           </div>
