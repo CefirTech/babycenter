@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# BABYCENTER - Boutique Premium Vêtements Enfants
 
-TODO: Document your project here
+Boutique en ligne de vêtements élégants pour enfants de 0 à 16 ans.
