@@ -1,0 +1,83 @@
+import { Link } from 'react-router-dom';
+import { ShoppingBag, Heart, User, Menu, X, Search } from 'lucide-react';
+import { useState } from 'react';
+import { useCart } from '@/contexts/CartContext';
+import { Button } from '@/components/ui/button';
+
+const navLinks = [
+  { label: 'Accueil', href: '/' },
+  { label: 'Boutique', href: '/boutique' },
+  { label: 'Nouveautés', href: '/boutique?filtre=nouveau' },
+  { label: 'Promotions', href: '/promotions' },
+  { label: 'À propos', href: '/a-propos' },
+  { label: 'Contact', href: '/contact' },
+];
+
+export default function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { itemCount } = useCart();
+
+  return (
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      <div className="container flex items-center justify-between h-16 md:h-20">
+        {/* Mobile menu btn */}
+        <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+
+        {/* Logo */}
+        <Link to="/" className="font-heading text-xl md:text-2xl font-bold tracking-tight text-primary">
+          Mini<span className="text-accent">Chic</span>
+        </Link>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-8">
+          {navLinks.map(l => (
+            <Link key={l.href} to={l.href} className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors">
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <button className="hidden md:flex p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Rechercher">
+            <Search className="h-5 w-5" />
+          </button>
+          <button className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Favoris">
+            <Heart className="h-5 w-5" />
+          </button>
+          <Link to="/panier" className="relative p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Panier">
+            <ShoppingBag className="h-5 w-5" />
+            {itemCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+                {itemCount}
+              </span>
+            )}
+          </Link>
+          <Link to="/admin" className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm" className="text-foreground/70">
+              <User className="h-4 w-4 mr-1" /> Admin
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Mobile nav */}
+      {mobileOpen && (
+        <nav className="md:hidden border-t border-border bg-background animate-fade-in">
+          <div className="container py-4 flex flex-col gap-3">
+            {navLinks.map(l => (
+              <Link key={l.href} to={l.href} onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary">
+                {l.label}
+              </Link>
+            ))}
+            <Link to="/admin" onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
+              <User className="h-4 w-4" /> Administration
+            </Link>
+          </div>
+        </nav>
+      )}
+    </header>
+  );
+}
