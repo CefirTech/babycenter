@@ -55,7 +55,7 @@ export default function Header() {
               </span>
             )}
           </Link>
-          <Link to="/admin" className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Administration">
+          <Link to="/admin/login" className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Administration">
             <User className="h-5 w-5" />
           </Link>
         </div>
