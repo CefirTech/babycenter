@@ -51,7 +51,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <a href="https://wa.me/2250708091011" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" variant="outline" className="border-background/40 text-background hover:bg-background/10 font-semibold px-8">
+                <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8">
                   <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                 </Button>
               </a>
