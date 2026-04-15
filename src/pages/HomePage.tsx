@@ -28,7 +28,7 @@ export default function HomePage() {
     <div>
       {/* Hero */}
       <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
-        <img src={heroImg} alt="Collection enfants MiniChic" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <img src={heroImg} alt="Collection enfants BABYCENTER" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/60 via-foreground/30 to-transparent" />
         <div className="relative container h-full flex items-center">
           <motion.div

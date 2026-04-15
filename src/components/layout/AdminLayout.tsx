@@ -32,7 +32,7 @@ export default function AdminLayout() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-sidebar-foreground transform transition-transform lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
           <Link to="/admin" className="font-heading text-xl font-bold text-sidebar-primary-foreground">
-            Mini<span className="text-accent">Chic</span>
+          BABY<span className="text-accent">CENTER</span>
             <span className="text-xs ml-2 text-sidebar-foreground/50 font-body">Admin</span>
           </Link>
           <button className="lg:hidden text-sidebar-foreground" onClick={() => setSidebarOpen(false)}>

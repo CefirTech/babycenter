@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <h3 className="font-heading text-2xl font-bold text-background mb-4">
-              Mini<span className="text-accent">Chic</span>
+              BABY<span className="text-accent">CENTER</span>
             </h3>
             <p className="text-sm leading-relaxed text-background/60 mb-4">
               Boutique premium de vêtements pour enfants de 0 à 16 ans. Élégance, qualité et confort pour vos petits trésors.
