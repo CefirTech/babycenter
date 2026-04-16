@@ -42,7 +42,7 @@ export default function HomePage() {
               L'élégance pour vos <span className="text-accent">petits trésors</span>
             </h1>
             <p className="text-base md:text-lg text-background/80 mb-8 leading-relaxed">
-              Découvrez notre sélection premium de vêtements pour enfants de 0 à 16 ans. Qualité, style et confort.
+              Des vêtements raffinés qui grandissent avec vos enfants. Parce que chaque moment mérite le meilleur.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link to="/boutique">
