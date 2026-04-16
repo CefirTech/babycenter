@@ -50,7 +50,7 @@ export default function HomePage() {
                   Découvrir la collection
                 </Button>
               </Link>
-              <a href="https://wa.me/2250708091011" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/225015131060606" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8">
                   <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                 </Button>
@@ -200,7 +200,7 @@ export default function HomePage() {
         <div className="container text-center">
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary-foreground mb-3">Besoin d'aide ?</h2>
           <p className="text-primary-foreground/80 mb-6">Contactez-nous directement sur WhatsApp pour une assistance personnalisée</p>
-          <a href="https://wa.me/2250708091011" target="_blank" rel="noopener noreferrer">
+          <a href="https://wa.me/225015131060606" target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="bg-background text-foreground hover:bg-background/90 font-semibold px-8">
               <MessageCircle className="h-5 w-5 mr-2" /> Écrire sur WhatsApp
             </Button>
