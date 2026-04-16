@@ -55,8 +55,8 @@ export default function Footer() {
           <div>
             <h4 className="font-heading text-lg font-semibold text-background mb-4">Contact</h4>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 shrink-0" /> Cocody Riviera, Abidjan, Côte d'Ivoire</li>
-              <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> +225 07 08 09 10 11</li>
+              <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 shrink-0" /> Abidjan, Palmeraie Marché, Côte d'Ivoire</li>
+              <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> (+225) 01 51 31 06 06</li>
               <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> contact@babycenter.ci</li>
             </ul>
           </div>

@@ -30,8 +30,8 @@ export default function ContactPage() {
           <div className="space-y-6">
             <h2 className="font-heading text-xl font-semibold text-foreground mb-6">Nos coordonnées</h2>
             {[
-              { icon: MapPin, label: 'Adresse', value: 'Cocody Riviera, Abidjan, Côte d\'Ivoire' },
-              { icon: Phone, label: 'Téléphone', value: '+225 07 08 09 10 11' },
+              { icon: MapPin, label: 'Adresse', value: 'Abidjan, Palmeraie Marché, Côte d\'Ivoire' },
+              { icon: Phone, label: 'Téléphone', value: '(+225) 01 51 31 06 06' },
               { icon: Mail, label: 'Email', value: 'contact@babycenter.ci' },
               { icon: Clock, label: 'Horaires', value: 'Lun-Sam : 9h-19h' },
             ].map(({ icon: Icon, label, value }) => (
@@ -44,7 +44,7 @@ export default function ContactPage() {
             <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
               <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2"><MessageCircle className="h-5 w-5 text-green-600" /> WhatsApp</h3>
               <p className="text-sm text-muted-foreground mb-4">Contactez-nous directement sur WhatsApp pour une réponse rapide</p>
-              <a href="https://wa.me/2250708091011" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/225015131060606" target="_blank" rel="noopener noreferrer">
                 <Button className="bg-green-600 hover:bg-green-700 text-primary-foreground w-full font-semibold">Écrire sur WhatsApp</Button>
               </a>
             </div>
