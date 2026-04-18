@@ -31,6 +31,8 @@ import AdminPromotions from "@/pages/admin/AdminPromotions";
 import AdminReports from "@/pages/admin/AdminReports";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminActivityLog from "@/pages/admin/AdminActivityLog";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminProfile from "@/pages/admin/AdminProfile";
 import AdminLogin from "@/pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
@@ -73,6 +75,8 @@ const App = () => (
                   <Route path="promotions" element={<AdminPromotions />} />
                   <Route path="rapports" element={<AdminReports />} />
                   <Route path="parametres" element={<AdminSettings />} />
+                  <Route path="utilisateurs" element={<AdminUsers />} />
+                  <Route path="profil" element={<AdminProfile />} />
                   <Route path="journal" element={<AdminActivityLog />} />
                 </Route>
               </Route>

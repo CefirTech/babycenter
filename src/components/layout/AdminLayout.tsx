@@ -1,9 +1,10 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const navItems = [
+const baseNavItems = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
   { label: 'Produits', href: '/admin/produits', icon: Package },
   { label: 'Catégories', href: '/admin/categories', icon: Layers },
@@ -22,8 +23,11 @@ export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { signOut, user } = useAuth();
+  const { signOut, user, isAdmin } = useAuth();
   const initial = (user?.user_metadata?.display_name || user?.email || 'A').charAt(0).toUpperCase();
+  const navItems = isAdmin
+    ? [...baseNavItems.slice(0, 11), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, baseNavItems[11]]
+    : baseNavItems;
 
   const handleLogout = async () => {
     await signOut();
@@ -74,10 +78,27 @@ export default function AdminLayout() {
             <Menu className="h-5 w-5 text-foreground" />
           </button>
           <div className="flex-1" />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">{initial}</div>
-            <span className="text-sm font-medium text-foreground hidden md:block">{user?.user_metadata?.display_name || user?.email}</span>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 hover:bg-muted rounded-lg px-2 py-1 transition-colors">
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">{initial}</div>
+                <span className="text-sm font-medium text-foreground hidden md:block">{user?.user_metadata?.display_name || user?.email}</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="text-sm font-medium">{user?.user_metadata?.display_name || 'Compte'}</div>
+                <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/admin/profil')}><User className="h-4 w-4 mr-2" />Mon profil</DropdownMenuItem>
+              {isAdmin && <DropdownMenuItem onClick={() => navigate('/admin/utilisateurs')}><UserCog className="h-4 w-4 mr-2" />Utilisateurs</DropdownMenuItem>}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                <LogOut className="h-4 w-4 mr-2" />Se déconnecter
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">
           <Outlet />

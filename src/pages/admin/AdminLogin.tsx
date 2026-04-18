@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: 'Email invalide' }).max(255),
-  password: z.string().min(8, { message: 'Mot de passe trop court (8 caractères min)' }).max(100),
+  password: z.string().min(6, { message: 'Mot de passe trop court (6 caractères min)' }).max(100),
 });
 
 export default function AdminLogin() {
