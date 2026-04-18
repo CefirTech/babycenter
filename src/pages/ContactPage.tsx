@@ -44,7 +44,7 @@ export default function ContactPage() {
             <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
               <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2"><MessageCircle className="h-5 w-5 text-green-600" /> WhatsApp</h3>
               <p className="text-sm text-muted-foreground mb-4">Contactez-nous directement sur WhatsApp pour une réponse rapide</p>
-              <a href="https://wa.me/225015131060606" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/2250151310606" target="_blank" rel="noopener noreferrer">
                 <Button className="bg-green-600 hover:bg-green-700 text-primary-foreground w-full font-semibold">Écrire sur WhatsApp</Button>
               </a>
             </div>

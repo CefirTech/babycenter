@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
               <Button size="lg" onClick={handleAddToCart} disabled={variant.stock === 0} className="flex-1 font-semibold">
                 <ShoppingBag className="h-5 w-5 mr-2" /> Ajouter au panier
               </Button>
-              <a href={`https://wa.me/2250708091011?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex-1">
+              <a href={`https://wa.me/2250151310606?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex-1">
                 <Button size="lg" variant="outline" className="w-full font-semibold border-green-600 text-green-600 hover:bg-green-50">
                   <MessageCircle className="h-5 w-5 mr-2" /> Commander via WhatsApp
                 </Button>
