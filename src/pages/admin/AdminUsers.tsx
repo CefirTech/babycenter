@@ -15,12 +15,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { shortDateTime } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ImageUploader from '@/components/admin/ImageUploader';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type Role = 'admin' | 'manager' | 'vendeur';
 interface StaffUser {
   id: string;
   email: string | null;
   display_name: string | null;
+  avatar_url: string | null;
   created_at: string;
   last_sign_in_at: string | null;
   banned_until: string | null;
@@ -46,6 +49,7 @@ export default function AdminUsers() {
   const [cEmail, setCEmail] = useState('');
   const [cName, setCName] = useState('');
   const [cPwd, setCPwd] = useState('');
+  const [cAvatar, setCAvatar] = useState<string[]>([]);
   const [cRoles, setCRoles] = useState<Role[]>(['vendeur']);
 
   // Edit
@@ -53,6 +57,7 @@ export default function AdminUsers() {
   const [editUser, setEditUser] = useState<StaffUser | null>(null);
   const [eEmail, setEEmail] = useState('');
   const [eName, setEName] = useState('');
+  const [eAvatar, setEAvatar] = useState<string[]>([]);
   const [eRoles, setERoles] = useState<Role[]>([]);
 
   // Password
@@ -89,22 +94,22 @@ export default function AdminUsers() {
     if (!cEmail || cPwd.length < 6) { toast.error('Email + mot de passe (min 6) requis'); return; }
     setBusy(true);
     try {
-      const r = await call('create', { email: cEmail, password: cPwd, display_name: cName, roles: cRoles });
+      const r = await call('create', { email: cEmail, password: cPwd, display_name: cName, avatar_url: cAvatar[0] ?? null, roles: cRoles });
       await logActivity('create', 'user', r.user_id, { email: cEmail, roles: cRoles });
       toast.success('Utilisateur créé');
-      setCreateOpen(false); setCEmail(''); setCName(''); setCPwd(''); setCRoles(['vendeur']);
+      setCreateOpen(false); setCEmail(''); setCName(''); setCPwd(''); setCAvatar([]); setCRoles(['vendeur']);
       load();
     } catch (e: any) { toast.error(e.message); } finally { setBusy(false); }
   };
 
   const openEdit = (u: StaffUser) => {
-    setEditUser(u); setEEmail(u.email ?? ''); setEName(u.display_name ?? ''); setERoles(u.roles); setEditOpen(true);
+    setEditUser(u); setEEmail(u.email ?? ''); setEName(u.display_name ?? ''); setEAvatar(u.avatar_url ? [u.avatar_url] : []); setERoles(u.roles); setEditOpen(true);
   };
   const onEdit = async () => {
     if (!editUser) return;
     setBusy(true);
     try {
-      await call('update', { user_id: editUser.id, email: eEmail, display_name: eName });
+      await call('update', { user_id: editUser.id, email: eEmail, display_name: eName, avatar_url: eAvatar[0] ?? null });
       await call('set_roles', { user_id: editUser.id, roles: eRoles });
       await logActivity('update', 'user', editUser.id, { email: eEmail, roles: eRoles });
       toast.success('Utilisateur mis à jour');
@@ -202,8 +207,18 @@ export default function AdminUsers() {
                     return (
                       <TableRow key={u.id}>
                         <TableCell>
-                          <div className="font-medium text-foreground">{u.display_name || '—'} {isMe && <Badge variant="outline" className="ml-2">moi</Badge>}</div>
-                          <div className="text-xs text-muted-foreground">{u.email}</div>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9">
+                              {u.avatar_url && <AvatarImage src={u.avatar_url} alt={u.display_name || ''} />}
+                              <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                {(u.display_name || u.email || '?').slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="font-medium text-foreground">{u.display_name || '—'} {isMe && <Badge variant="outline" className="ml-2">moi</Badge>}</div>
+                              <div className="text-xs text-muted-foreground">{u.email}</div>
+                            </div>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
@@ -263,6 +278,10 @@ export default function AdminUsers() {
             <DialogDescription>Créez un compte staff (admin, manager ou vendeur).</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label>Photo de profil</Label>
+              <ImageUploader bucket="avatars" value={cAvatar} onChange={setCAvatar} multiple={false} shape="round" maxSizeMB={2} />
+            </div>
             <div><Label>Nom affiché</Label><Input value={cName} onChange={e => setCName(e.target.value)} placeholder="Marie Diallo" /></div>
             <div><Label>Email</Label><Input type="email" value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="marie@babycenter.ci" /></div>
             <div><Label>Mot de passe</Label><Input type="text" value={cPwd} onChange={e => setCPwd(e.target.value)} placeholder="min 6 caractères" /></div>
@@ -293,6 +312,10 @@ export default function AdminUsers() {
             <DialogDescription>{editUser?.email}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label>Photo de profil</Label>
+              <ImageUploader bucket="avatars" value={eAvatar} onChange={setEAvatar} multiple={false} shape="round" maxSizeMB={2} />
+            </div>
             <div><Label>Nom affiché</Label><Input value={eName} onChange={e => setEName(e.target.value)} /></div>
             <div><Label>Email</Label><Input type="email" value={eEmail} onChange={e => setEEmail(e.target.value)} /></div>
             <div>
