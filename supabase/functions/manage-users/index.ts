@@ -20,18 +20,23 @@ Deno.serve(async (req) => {
   const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
   try {
-    // Auth: caller must be admin
+    // Auth: décoder le JWT manuellement (signing-keys ES256, getUser ne fonctionne pas côté serveur)
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace("Bearer ", "");
     if (!token) return json({ error: "Non authentifié" }, 401);
 
-    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-      auth: { persistSession: false },
-    });
-    const { data: userData } = await userClient.auth.getUser();
-    const caller = userData?.user;
-    if (!caller) return json({ error: "Session invalide" }, 401);
+    let callerId: string | undefined;
+    let callerEmail: string | undefined;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      callerId = payload.sub;
+      callerEmail = payload.email;
+      if (payload.exp && Date.now() / 1000 > payload.exp) return json({ error: "Session expirée" }, 401);
+    } catch {
+      return json({ error: "Token invalide" }, 401);
+    }
+    if (!callerId) return json({ error: "Session invalide" }, 401);
+    const caller = { id: callerId, email: callerEmail };
 
     const { data: callerRoles } = await admin.from("user_roles").select("role").eq("user_id", caller.id);
     const isAdmin = (callerRoles ?? []).some((r: any) => r.role === "admin");
