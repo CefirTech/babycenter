@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
@@ -21,9 +22,11 @@ export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { signOut, user } = useAuth();
+  const initial = (user?.user_metadata?.display_name || user?.email || 'A').charAt(0).toUpperCase();
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_authenticated');
+  const handleLogout = async () => {
+    await signOut();
     navigate('/admin/login');
   };
 
@@ -72,8 +75,8 @@ export default function AdminLayout() {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">A</div>
-            <span className="text-sm font-medium text-foreground hidden md:block">Admin</span>
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">{initial}</div>
+            <span className="text-sm font-medium text-foreground hidden md:block">{user?.user_metadata?.display_name || user?.email}</span>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">

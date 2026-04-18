@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, Eye, EyeOff, Store } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Lock, Mail, Eye, EyeOff, Store, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().trim().email({ message: 'Email invalide' }).max(255),
+  password: z.string().min(8, { message: 'Mot de passe trop court (8 caractères min)' }).max(100),
+});
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -11,26 +18,37 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      toast({
+        title: 'Champs invalides',
+        description: parsed.error.errors[0].message,
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    // Demo login — will be replaced by Supabase auth
-    setTimeout(() => {
-      if (email === 'admin@babycenter.ci' && password === 'admin123') {
-        localStorage.setItem('admin_authenticated', 'true');
-        navigate('/admin');
-      } else {
-        toast({
-          title: 'Erreur de connexion',
-          description: 'Email ou mot de passe incorrect.',
-          variant: 'destructive',
-        });
-      }
-      setLoading(false);
-    }, 800);
+    setLoading(true);
+    const { error } = await signIn(parsed.data.email, parsed.data.password);
+    setLoading(false);
+
+    if (error) {
+      toast({
+        title: 'Erreur de connexion',
+        description: error.includes('Invalid') ? 'Email ou mot de passe incorrect.' : error,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/admin';
+    navigate(from, { replace: true });
   };
 
   return (
@@ -59,9 +77,10 @@ export default function AdminLogin() {
                   type="email"
                   placeholder="admin@babycenter.ci"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -74,14 +93,16 @@ export default function AdminLogin() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -89,7 +110,11 @@ export default function AdminLogin() {
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={loading}>
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Connexion…</>
+              ) : (
+                'Se connecter'
+              )}
             </Button>
           </form>
 
@@ -98,10 +123,6 @@ export default function AdminLogin() {
               <Store className="h-4 w-4" /> Retour à la vitrine
             </Link>
           </div>
-
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Démo : admin@babycenter.ci / admin123
-          </p>
         </div>
       </div>
     </div>
