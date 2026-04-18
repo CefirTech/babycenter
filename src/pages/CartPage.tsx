@@ -110,12 +110,56 @@ export default function CartPage() {
                 <MessageCircle className="h-4 w-4 mr-2" /> Commander via WhatsApp
               </Button>
             </a>
+            <Button size="lg" variant="outline" className="w-full font-semibold mt-2" onClick={() => setContactOpen(true)}>
+              <Phone className="h-4 w-4 mr-2" /> Être rappelé(e) par téléphone
+            </Button>
             <button onClick={clearCart} className="w-full text-sm text-muted-foreground hover:text-destructive mt-3 py-1 transition-colors">
               Vider le panier
             </button>
           </div>
         </div>
       </div>
+
+      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-heading">Laissez-nous votre numéro</DialogTitle>
+            <DialogDescription>
+              Nous vous rappellerons rapidement pour finaliser votre commande.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitLead} className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-foreground">Votre nom (optionnel)</label>
+              <input
+                value={lNom}
+                onChange={e => setLNom(e.target.value)}
+                placeholder="Marie Diallo"
+                className="mt-1 w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Téléphone *</label>
+              <input
+                type="tel"
+                required
+                value={lTel}
+                onChange={e => setLTel(e.target.value)}
+                placeholder="+225 07 00 00 00 00"
+                className="mt-1 w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div className="bg-secondary/40 border border-border rounded-lg p-3 text-xs text-muted-foreground max-h-32 overflow-y-auto">
+              <p className="font-medium text-foreground mb-1">Récapitulatif :</p>
+              <pre className="whitespace-pre-wrap font-sans">{recap}</pre>
+              <p className="font-semibold text-foreground mt-2">Total : {total.toLocaleString('fr-FR')} FCFA</p>
+            </div>
+            <Button type="submit" disabled={submitting} className="w-full" size="lg">
+              {submitting ? 'Envoi…' : 'Envoyer ma demande'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
