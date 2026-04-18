@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
+import ChatWidget from '@/components/storefront/ChatWidget';
 
 export default function StorefrontLayout() {
   return (
@@ -10,6 +11,7 @@ export default function StorefrontLayout() {
         <Outlet />
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 }

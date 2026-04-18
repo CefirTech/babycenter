@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft, MessageCircle } from 'lucide-react';
 
 export default function CartPage() {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
+
+  const whatsappMsg = encodeURIComponent(
+    `Bonjour, je souhaite commander :\n\n${items
+      .map(i => `• ${i.product.nom} (${i.variant.taille}/${i.variant.couleur}) × ${i.quantite} = ${((i.product.prix_promo ?? i.product.prix_vente) * i.quantite).toLocaleString('fr-FR')} FCFA`)
+      .join('\n')}\n\nTotal : ${total.toLocaleString('fr-FR')} FCFA`,
+  );
 
   if (items.length === 0) {
     return (
@@ -67,9 +73,14 @@ export default function CartPage() {
             <div className="flex justify-between font-semibold text-lg mb-6">
               <span>Total</span><span>{total.toLocaleString('fr-FR')} FCFA</span>
             </div>
-            <Link to="/checkout">
+            <Link to="/checkout" className="block">
               <Button size="lg" className="w-full font-semibold">Passer la commande</Button>
             </Link>
+            <a href={`https://wa.me/2250151310606?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="block mt-2">
+              <Button size="lg" variant="outline" className="w-full font-semibold border-green-600 text-green-600 hover:bg-green-50">
+                <MessageCircle className="h-4 w-4 mr-2" /> Commander via WhatsApp
+              </Button>
+            </a>
             <button onClick={clearCart} className="w-full text-sm text-muted-foreground hover:text-destructive mt-3 py-1 transition-colors">
               Vider le panier
             </button>

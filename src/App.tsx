@@ -14,6 +14,7 @@ import HomePage from "@/pages/HomePage";
 import BoutiquePage from "@/pages/BoutiquePage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
 import CartPage from "@/pages/CartPage";
+import CheckoutPage from "@/pages/CheckoutPage";
 import PromotionsPage from "@/pages/PromotionsPage";
 import ContactPage from "@/pages/ContactPage";
 import AboutPage from "@/pages/AboutPage";
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/boutique" element={<BoutiquePage />} />
                 <Route path="/produit/:slug" element={<ProductDetailPage />} />
                 <Route path="/panier" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/promotions" element={<PromotionsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/a-propos" element={<AboutPage />} />
