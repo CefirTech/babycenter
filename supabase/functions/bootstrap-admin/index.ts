@@ -1,6 +1,5 @@
-// Bootstrap the first admin account for BABYCENTER.
-// Idempotent: if a user with the email already exists, only ensures the admin role is assigned.
-// Once at least one admin exists, this function refuses to create new admins.
+// Bootstrap / réinitialise le compte admin BABYCENTER.
+// Si l'utilisateur existe déjà, on remet son mot de passe + on garantit le rôle admin.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -22,30 +21,23 @@ Deno.serve(async (req) => {
     const password = String(body.password || "");
     const display_name = String(body.display_name || "Admin");
 
-    if (!email || !password || password.length < 8) {
-      return new Response(JSON.stringify({ error: "email + password (min 8) requis" }), {
+    if (!email || !password || password.length < 6) {
+      return new Response(JSON.stringify({ error: "email + password (min 6) requis" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Check if any admin already exists
-    const { count: adminCount, error: countErr } = await admin
-      .from("user_roles").select("*", { count: "exact", head: true }).eq("role", "admin");
-    if (countErr) throw countErr;
-
-    // Try to find existing user by email
     const { data: list } = await admin.auth.admin.listUsers();
     const existing = list?.users?.find((u) => u.email?.toLowerCase() === email);
 
     let userId: string;
     if (existing) {
       userId = existing.id;
+      // Reset password + confirm email
+      await admin.auth.admin.updateUserById(userId, {
+        password, email_confirm: true, user_metadata: { display_name },
+      });
     } else {
-      if ((adminCount ?? 0) > 0) {
-        return new Response(JSON.stringify({ error: "Un admin existe déjà. Utilisez l'admin existant pour créer d'autres comptes." }), {
-          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
       const { data: created, error: createErr } = await admin.auth.admin.createUser({
         email, password, email_confirm: true, user_metadata: { display_name },
       });
@@ -53,13 +45,11 @@ Deno.serve(async (req) => {
       userId = created.user!.id;
     }
 
-    // Ensure admin role
-    const { error: roleErr } = await admin.from("user_roles").upsert(
+    await admin.from("user_roles").upsert(
       { user_id: userId, role: "admin" }, { onConflict: "user_id,role" },
     );
-    if (roleErr) throw roleErr;
 
-    return new Response(JSON.stringify({ success: true, user_id: userId, email }), {
+    return new Response(JSON.stringify({ success: true, user_id: userId, email, password_reset: !!existing }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
