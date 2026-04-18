@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ImageUploader from '@/components/admin/ImageUploader';
 
 const empty = () => ({ nom: '', description: '', genre: '', tranche_age: '', parent_id: null as string | null, image_url: '', ordre: 0 });
 
@@ -128,7 +129,10 @@ export default function AdminCategories() {
                 </SelectContent>
               </Select>
             </div>
-            <div><Label>Image URL</Label><Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} /></div>
+            <div>
+              <Label>Image de la catégorie</Label>
+              <ImageUploader bucket="category-images" value={form.image_url ? [form.image_url] : []} onChange={urls => setForm({ ...form, image_url: urls[0] || '' })} multiple={false} />
+            </div>
             <div><Label>Ordre d'affichage</Label><Input type="number" value={form.ordre} onChange={e => setForm({ ...form, ordre: +e.target.value })} /></div>
           </div>
           <DialogFooter>

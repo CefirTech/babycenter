@@ -1,8 +1,10 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const baseNavItems = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
@@ -24,7 +26,18 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { signOut, user, isAdmin } = useAuth();
-  const initial = (user?.user_metadata?.display_name || user?.email || 'A').charAt(0).toUpperCase();
+  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('profiles').select('display_name, avatar_url').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => setProfile(data ?? null));
+  }, [user, location.pathname]);
+
+  const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email || 'Compte';
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || '';
+  const initial = displayName.charAt(0).toUpperCase();
+
   const navItems = isAdmin
     ? [...baseNavItems.slice(0, 11), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, baseNavItems[11]]
     : baseNavItems;
@@ -80,14 +93,20 @@ export default function AdminLayout() {
           <div className="flex-1" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 hover:bg-muted rounded-lg px-2 py-1 transition-colors">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">{initial}</div>
-                <span className="text-sm font-medium text-foreground hidden md:block">{user?.user_metadata?.display_name || user?.email}</span>
+              <button className="flex items-center gap-2 hover:bg-muted rounded-lg pl-1 pr-3 py-1 transition-colors" title="Mon compte">
+                <Avatar className="h-9 w-9 border-2 border-primary/20">
+                  <AvatarImage src={avatarUrl} alt={displayName} />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">{initial}</AvatarFallback>
+                </Avatar>
+                <div className="hidden md:flex flex-col items-start leading-tight">
+                  <span className="text-sm font-medium text-foreground">{displayName}</span>
+                  <span className="text-xs text-muted-foreground truncate max-w-[180px]">{user?.email}</span>
+                </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">
-                <div className="text-sm font-medium">{user?.user_metadata?.display_name || 'Compte'}</div>
+                <div className="text-sm font-medium">{displayName}</div>
                 <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

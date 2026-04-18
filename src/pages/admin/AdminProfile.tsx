@@ -6,18 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Save, Key } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activity';
+import ImageUploader from '@/components/admin/ImageUploader';
 
 export default function AdminProfile() {
   const { user, roles } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Password change
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
@@ -26,9 +28,10 @@ export default function AdminProfile() {
   useEffect(() => {
     (async () => {
       if (!user) return;
-      const { data } = await supabase.from('profiles').select('display_name, email').eq('user_id', user.id).maybeSingle();
+      const { data } = await supabase.from('profiles').select('display_name, email, avatar_url').eq('user_id', user.id).maybeSingle();
       setDisplayName(data?.display_name ?? user.user_metadata?.display_name ?? '');
       setEmail(data?.email ?? user.email ?? '');
+      setAvatarUrl(data?.avatar_url ?? user.user_metadata?.avatar_url ?? '');
       setLoading(false);
     })();
   }, [user]);
@@ -37,16 +40,14 @@ export default function AdminProfile() {
     if (!user) return;
     setSaving(true);
     try {
-      const updates: any = { data: { display_name: displayName } };
+      const updates: any = { data: { display_name: displayName, avatar_url: avatarUrl } };
       if (email && email !== user.email) updates.email = email;
       const { error: authErr } = await supabase.auth.updateUser(updates);
       if (authErr) throw authErr;
-      await supabase.from('profiles').update({ display_name: displayName, email }).eq('user_id', user.id);
+      await supabase.from('profiles').update({ display_name: displayName, email, avatar_url: avatarUrl }).eq('user_id', user.id);
       await logActivity('update', 'own_profile', user.id);
-      toast.success(email !== user.email ? 'Profil mis à jour. Vérifiez votre email pour confirmer le changement.' : 'Profil mis à jour');
-    } catch (e: any) {
-      toast.error(e.message || 'Erreur');
-    } finally { setSaving(false); }
+      toast.success(email !== user.email ? 'Profil mis à jour. Vérifiez votre email.' : 'Profil mis à jour');
+    } catch (e: any) { toast.error(e.message || 'Erreur'); } finally { setSaving(false); }
   };
 
   const changePassword = async () => {
@@ -55,7 +56,6 @@ export default function AdminProfile() {
     if (!user?.email) { toast.error('Email manquant'); return; }
     setPwdSaving(true);
     try {
-      // Vérifier mot de passe actuel
       const { error: signErr } = await supabase.auth.signInWithPassword({ email: user.email, password: currentPwd });
       if (signErr) { toast.error('Mot de passe actuel incorrect'); setPwdSaving(false); return; }
       const { error } = await supabase.auth.updateUser({ password: newPwd });
@@ -63,12 +63,12 @@ export default function AdminProfile() {
       await logActivity('update', 'own_password', user.id);
       toast.success('Mot de passe modifié');
       setCurrentPwd(''); setNewPwd(''); setConfirmPwd('');
-    } catch (e: any) {
-      toast.error(e.message || 'Erreur');
-    } finally { setPwdSaving(false); }
+    } catch (e: any) { toast.error(e.message || 'Erreur'); } finally { setPwdSaving(false); }
   };
 
   if (loading) return <div className="p-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+
+  const initial = (displayName || email || 'A').charAt(0).toUpperCase();
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -80,6 +80,26 @@ export default function AdminProfile() {
       <Card>
         <CardHeader><CardTitle className="text-base font-heading">Informations</CardTitle></CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-xl font-semibold">{initial}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <Label>Photo de profil</Label>
+              <div className="mt-2">
+                <ImageUploader
+                  bucket="avatars"
+                  folder={user?.id}
+                  value={avatarUrl ? [avatarUrl] : []}
+                  onChange={(urls) => setAvatarUrl(urls[0] || '')}
+                  multiple={false}
+                  shape="round"
+                  maxSizeMB={2}
+                />
+              </div>
+            </div>
+          </div>
           <div>
             <Label>Rôles</Label>
             <div className="flex flex-wrap gap-1 mt-2">

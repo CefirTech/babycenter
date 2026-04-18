@@ -222,7 +222,7 @@ export default function AdminUsers() {
                         <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                           {u.last_sign_in_at ? shortDateTime(u.last_sign_in_at) : 'jamais'}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{shortDateTime(u.created_at)}</TableCell>
+                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{u.created_at ? shortDateTime(u.created_at) : '—'}</TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
