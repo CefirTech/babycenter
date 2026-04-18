@@ -93,14 +93,20 @@ export default function AdminLayout() {
           <div className="flex-1" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 hover:bg-muted rounded-lg px-2 py-1 transition-colors">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">{initial}</div>
-                <span className="text-sm font-medium text-foreground hidden md:block">{user?.user_metadata?.display_name || user?.email}</span>
+              <button className="flex items-center gap-2 hover:bg-muted rounded-lg pl-1 pr-3 py-1 transition-colors" title="Mon compte">
+                <Avatar className="h-9 w-9 border-2 border-primary/20">
+                  <AvatarImage src={avatarUrl} alt={displayName} />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">{initial}</AvatarFallback>
+                </Avatar>
+                <div className="hidden md:flex flex-col items-start leading-tight">
+                  <span className="text-sm font-medium text-foreground">{displayName}</span>
+                  <span className="text-xs text-muted-foreground truncate max-w-[180px]">{user?.email}</span>
+                </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">
-                <div className="text-sm font-medium">{user?.user_metadata?.display_name || 'Compte'}</div>
+                <div className="text-sm font-medium">{displayName}</div>
                 <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
