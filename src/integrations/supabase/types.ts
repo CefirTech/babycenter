@@ -183,6 +183,36 @@ export type Database = {
           },
         ]
       }
+      chat_leads: {
+        Row: {
+          contexte: string | null
+          created_at: string
+          id: string
+          message: string
+          nom: string | null
+          telephone: string
+          traite: boolean
+        }
+        Insert: {
+          contexte?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          nom?: string | null
+          telephone: string
+          traite?: boolean
+        }
+        Update: {
+          contexte?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          nom?: string | null
+          telephone?: string
+          traite?: boolean
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           adresse: string | null
