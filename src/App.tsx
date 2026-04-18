@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedAdminRoute from "@/components/auth/ProtectedAdminRoute";
 
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -21,7 +23,14 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminCustomers from "@/pages/admin/AdminCustomers";
-import AdminPlaceholder from "@/pages/admin/AdminPlaceholder";
+import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminSales from "@/pages/admin/AdminSales";
+import AdminExpenses from "@/pages/admin/AdminExpenses";
+import AdminCash from "@/pages/admin/AdminCash";
+import AdminPromotions from "@/pages/admin/AdminPromotions";
+import AdminReports from "@/pages/admin/AdminReports";
+import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminActivityLog from "@/pages/admin/AdminActivityLog";
 import AdminLogin from "@/pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
