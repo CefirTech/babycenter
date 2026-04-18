@@ -7,11 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Search, Edit, Eye, Trash2, Loader2, X } from 'lucide-react';
+import { Plus, Search, Edit, Eye, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fcfa, slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ImageUploader from '@/components/admin/ImageUploader';
 
 type Product = any;
 type Variant = { id?: string; taille: string; couleur: string; stock: number; seuil_alerte: number; sku?: string };
@@ -36,7 +37,6 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm());
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [imgInput, setImgInput] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -253,19 +253,8 @@ export default function AdminProducts() {
             <div><Label>Entretien</Label><Input value={form.entretien} onChange={e => setForm({ ...form, entretien: e.target.value })} /></div>
 
             <div className="md:col-span-2">
-              <Label>Images (URL)</Label>
-              <div className="flex gap-2">
-                <Input placeholder="https://..." value={imgInput} onChange={e => setImgInput(e.target.value)} />
-                <Button type="button" variant="outline" onClick={() => { if (imgInput) { setForm({ ...form, images: [...form.images, imgInput] }); setImgInput(''); } }}>Ajouter</Button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {form.images.map((u, i) => (
-                  <div key={i} className="relative">
-                    <img src={u} alt="" className="w-16 h-16 rounded object-cover" />
-                    <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"><X className="h-3 w-3" /></button>
-                  </div>
-                ))}
-              </div>
+              <Label>Images du produit</Label>
+              <ImageUploader bucket="product-images" value={form.images} onChange={imgs => setForm({ ...form, images: imgs })} multiple />
             </div>
 
             <div className="md:col-span-2">
