@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
   const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
   try {
-    // Auth: caller must be admin
+    // Auth: caller must be admin (use getClaims for new signing-keys system)
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace("Bearer ", "");
     if (!token) return json({ error: "Non authentifié" }, 401);
@@ -29,9 +29,10 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: `Bearer ${token}` } },
       auth: { persistSession: false },
     });
-    const { data: userData } = await userClient.auth.getUser();
-    const caller = userData?.user;
-    if (!caller) return json({ error: "Session invalide" }, 401);
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    const callerId = claimsData?.claims?.sub as string | undefined;
+    if (claimsErr || !callerId) return json({ error: "Session invalide" }, 401);
+    const caller = { id: callerId, email: claimsData?.claims?.email as string | undefined };
 
     const { data: callerRoles } = await admin.from("user_roles").select("role").eq("user_id", caller.id);
     const isAdmin = (callerRoles ?? []).some((r: any) => r.role === "admin");
