@@ -1,16 +1,45 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, ArrowLeft, MessageCircle, Phone } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function CartPage() {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
+  const [contactOpen, setContactOpen] = useState(false);
+  const [lNom, setLNom] = useState('');
+  const [lTel, setLTel] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const recap = items
+    .map(i => `• ${i.product.nom} (${i.variant.taille}/${i.variant.couleur}) × ${i.quantite} = ${((i.product.prix_promo ?? i.product.prix_vente) * i.quantite).toLocaleString('fr-FR')} FCFA`)
+    .join('\n');
 
   const whatsappMsg = encodeURIComponent(
-    `Bonjour, je souhaite commander :\n\n${items
-      .map(i => `• ${i.product.nom} (${i.variant.taille}/${i.variant.couleur}) × ${i.quantite} = ${((i.product.prix_promo ?? i.product.prix_vente) * i.quantite).toLocaleString('fr-FR')} FCFA`)
-      .join('\n')}\n\nTotal : ${total.toLocaleString('fr-FR')} FCFA`,
+    `Bonjour, je souhaite commander :\n\n${recap}\n\nTotal : ${total.toLocaleString('fr-FR')} FCFA`,
   );
+
+  const submitLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lTel.trim() || lTel.trim().length < 8) { toast.error('Numéro invalide'); return; }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from('chat_leads').insert({
+        nom: lNom.trim() || null,
+        telephone: lTel.trim(),
+        message: `Demande de commande :\n\n${recap}\n\nTotal : ${total.toLocaleString('fr-FR')} FCFA`,
+        contexte: 'panier',
+      });
+      if (error) throw error;
+      toast.success('Demande envoyée ! Nous vous rappellerons très vite.');
+      setContactOpen(false); setLNom(''); setLTel('');
+    } catch (err: any) {
+      toast.error(err.message || 'Erreur d\'envoi');
+    } finally { setSubmitting(false); }
+  };
 
   if (items.length === 0) {
     return (
