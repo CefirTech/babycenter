@@ -14,12 +14,18 @@ export default function CartPage() {
   const [lTel, setLTel] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const recap = items
-    .map(i => `• ${i.product.nom} (${i.variant.taille}/${i.variant.couleur}) × ${i.quantite} = ${((i.product.prix_promo ?? i.product.prix_vente) * i.quantite).toLocaleString('fr-FR')} FCFA`)
-    .join('\n');
+    .map(i => {
+      const prix = (i.product.prix_promo ?? i.product.prix_vente) * i.quantite;
+      const img = i.product.images?.[0] ? `\n  📷 ${i.product.images[0]}` : '';
+      const lien = `\n  🔗 ${origin}/produit/${i.product.slug}`;
+      return `🛍️ *${i.product.nom}*\n  Taille : ${i.variant.taille} | Couleur : ${i.variant.couleur}\n  Quantité : ${i.quantite} × ${(i.product.prix_promo ?? i.product.prix_vente).toLocaleString('fr-FR')} FCFA = ${prix.toLocaleString('fr-FR')} FCFA${img}${lien}`;
+    })
+    .join('\n\n');
 
   const whatsappMsg = encodeURIComponent(
-    `Bonjour, je souhaite commander :\n\n${recap}\n\nTotal : ${total.toLocaleString('fr-FR')} FCFA`,
+    `Bonjour, je souhaite commander :\n\n${recap}\n\n💰 *Total : ${total.toLocaleString('fr-FR')} FCFA*`,
   );
 
   const submitLead = async (e: React.FormEvent) => {
