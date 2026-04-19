@@ -37,16 +37,9 @@ export default function ProductDetailPage() {
   const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/produit/${product.slug}` : '';
   const imageUrl = product.images[0] || '';
   const whatsappMsg = encodeURIComponent(
-    `Bonjour, je suis intéressé(e) par cet article :\n\n` +
-    `🛍️ *${product.nom}*\n` +
-    `Référence : ${product.code_produit}\n` +
-    `Taille : ${variant.taille}\n` +
-    `Couleur : ${variant.couleur}\n` +
-    `Quantité : ${qty}\n` +
-    `Prix unitaire : ${prix.toLocaleString('fr-FR')} FCFA\n` +
-    `Total : ${(prix * qty).toLocaleString('fr-FR')} FCFA\n\n` +
-    (imageUrl ? `📷 Photo : ${imageUrl}\n` : '') +
-    `🔗 Fiche produit : ${productUrl}\n\nMerci !`
+    `Bonjour, je suis intéressé(e) par ${product.nom} (${variant.taille}, ${variant.couleur}) à ${prix.toLocaleString('fr-FR')} FCFA. Merci !` +
+    (imageUrl ? `\n\n📷 ${imageUrl}` : '') +
+    `\n🔗 ${productUrl}`
   );
 
   return (
@@ -136,7 +129,7 @@ export default function ProductDetailPage() {
                 <ShoppingBag className="h-5 w-5 mr-2" /> Ajouter au panier
               </Button>
               <a href={`https://wa.me/2250151310606?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex-1">
-                <Button size="lg" variant="outline" className="w-full font-semibold border-green-600 text-green-600 hover:bg-green-50">
+                <Button size="lg" className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white">
                   <MessageCircle className="h-5 w-5 mr-2" /> Commander via WhatsApp
                 </Button>
               </a>
