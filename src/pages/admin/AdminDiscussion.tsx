@@ -45,14 +45,19 @@ export default function AdminDiscussion() {
   }, []);
 
   const toggle = async (lead: Lead) => {
+    const newTraite = !lead.traite;
     const { error } = await supabase
       .from('chat_leads')
-      .update({ traite: !lead.traite })
+      .update({ traite: newTraite })
       .eq('id', lead.id);
     if (error) toast.error(error.message);
     else {
-      toast.success(lead.traite ? 'Marqué non traité' : 'Marqué comme traité');
-      if (selected?.id === lead.id) setSelected({ ...lead, traite: !lead.traite });
+      toast.success(newTraite ? 'Marqué comme traité' : 'Marqué non traité');
+      if (newTraite && filter === 'pending') {
+        setSelected(null);
+      } else if (selected?.id === lead.id) {
+        setSelected({ ...lead, traite: newTraite });
+      }
     }
   };
 
@@ -173,10 +178,16 @@ export default function AdminDiscussion() {
                     <MessageSquare className="h-4 w-4 mr-2" /> WhatsApp
                   </Button>
                 </a>
-                <Button size="sm" onClick={() => toggle(selected)}
-                  variant={selected.traite ? 'outline' : 'default'}>
-                  {selected.traite ? <><RotateCcw className="h-4 w-4 mr-2" />Rouvrir</> : <><CheckCircle2 className="h-4 w-4 mr-2" />Marquer traité</>}
-                </Button>
+                {!selected.traite && (
+                  <Button size="sm" onClick={() => toggle(selected)}>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />Marquer traité
+                  </Button>
+                )}
+                {selected.traite && filter !== 'pending' && (
+                  <Button size="sm" variant="outline" onClick={() => toggle(selected)}>
+                    <RotateCcw className="h-4 w-4 mr-2" />Rouvrir
+                  </Button>
+                )}
               </div>
 
               <div>
