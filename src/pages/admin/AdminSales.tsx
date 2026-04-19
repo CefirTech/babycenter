@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Minus, Search, Trash2, ShoppingCart, Loader2 } from 'lucide-react';
+import { Plus, Minus, Search, Trash2, ShoppingCart, Loader2, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { fcfa } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePagination } from '@/hooks/usePagination';
+import { exportListPDF } from '@/lib/pdf';
 
 type Line = { product_id: string; variant_id: string | null; product_nom: string; taille?: string; couleur?: string; prix_unitaire: number; quantite: number };
 
@@ -35,7 +37,7 @@ export default function AdminSales() {
       supabase.from('products').select('*').eq('statut', 'actif'),
       supabase.from('product_variants').select('*'),
       supabase.from('customers').select('id,nom').order('nom'),
-      supabase.from('sales').select('*').order('created_at', { ascending: false }).limit(20),
+      supabase.from('sales').select('*').order('created_at', { ascending: false }),
     ]);
     setProducts(p ?? []); setVariants(v ?? []); setCustomers(c ?? []); setSales(s ?? []);
     setLoading(false);
@@ -155,22 +157,48 @@ export default function AdminSales() {
       )}
 
       <Card><CardContent className="p-4">
-        <p className="font-semibold mb-3">Dernières ventes</p>
-        <div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead><tr className="text-left text-muted-foreground border-b border-border"><th className="py-2">N°</th><th>Date</th><th>Vendeur</th><th>Mode</th><th className="text-right">Total</th></tr></thead>
-          <tbody>{sales.map(s => (
-            <tr key={s.id} className="border-b border-border last:border-0">
-              <td className="py-2 font-medium">{s.numero_vente}</td>
-              <td>{new Date(s.created_at).toLocaleString('fr-FR')}</td>
-              <td>{s.vendeur_nom || '—'}</td>
-              <td>{s.mode_paiement}</td>
-              <td className="text-right font-medium">{fcfa(s.total)}</td>
-            </tr>
-          ))}
-          {sales.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-muted-foreground">Aucune vente</td></tr>}
-          </tbody>
-        </table></div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-semibold">Historique des ventes ({sales.length})</p>
+          <Button variant="outline" size="sm" onClick={() => exportListPDF({
+            title: 'Liste des ventes',
+            filename: `ventes-${new Date().toISOString().slice(0,10)}.pdf`,
+            head: ['N°', 'Date', 'Vendeur', 'Mode', 'Sous-total', 'Remise', 'Total'],
+            body: sales.map(s => [s.numero_vente, new Date(s.created_at).toLocaleString('fr-FR'), s.vendeur_nom || '—', s.mode_paiement, fcfa(s.sous_total), fcfa(s.remise), fcfa(s.total)]),
+          })}><FileDown className="h-4 w-4 mr-2" /> Export PDF</Button>
+        </div>
+        <SalesTable sales={sales} />
       </CardContent></Card>
     </div>
+  );
+}
+
+function SalesTable({ sales }: { sales: any[] }) {
+  const { page, setPage, totalPages, paged } = usePagination(sales, 10);
+  return (
+    <>
+      <div className="overflow-x-auto"><table className="w-full text-sm">
+        <thead><tr className="text-left text-muted-foreground border-b border-border"><th className="py-2">N°</th><th>Date</th><th>Vendeur</th><th>Mode</th><th className="text-right">Total</th></tr></thead>
+        <tbody>{paged.map(s => (
+          <tr key={s.id} className="border-b border-border last:border-0">
+            <td className="py-2 font-medium">{s.numero_vente}</td>
+            <td>{new Date(s.created_at).toLocaleString('fr-FR')}</td>
+            <td>{s.vendeur_nom || '—'}</td>
+            <td>{s.mode_paiement}</td>
+            <td className="text-right font-medium">{fcfa(s.total)}</td>
+          </tr>
+        ))}
+        {sales.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-muted-foreground">Aucune vente</td></tr>}
+        </tbody>
+      </table></div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm mt-3">
+          <span className="text-muted-foreground">Page {page} / {totalPages}</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
