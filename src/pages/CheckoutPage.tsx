@@ -6,16 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, Banknote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import orangeMoneyLogo from '@/assets/payments/orange-money.png';
+import waveLogo from '@/assets/payments/wave.png';
+import mtnMoneyLogo from '@/assets/payments/mtn-money.png';
+import moovMoneyLogo from '@/assets/payments/moov-money.png';
 
 const PAIEMENTS = [
-  { id: 'orange_money', label: 'Orange Money' },
-  { id: 'wave', label: 'Wave' },
-  { id: 'mtn_money', label: 'MTN Money' },
-  { id: 'moov_money', label: 'Moov Money' },
-  { id: 'especes', label: 'Espèces à la livraison' },
+  { id: 'orange_money', label: 'Orange Money', logo: orangeMoneyLogo },
+  { id: 'wave', label: 'Wave', logo: waveLogo },
+  { id: 'mtn_money', label: 'MTN Money', logo: mtnMoneyLogo },
+  { id: 'moov_money', label: 'Moov Money', logo: moovMoneyLogo },
+  { id: 'especes', label: 'Espèces à la livraison', logo: null },
 ] as const;
 
 export default function CheckoutPage() {
@@ -143,13 +147,27 @@ export default function CheckoutPage() {
 
             <section className="bg-card border border-border rounded-xl p-6">
               <h2 className="font-heading text-lg font-semibold mb-4">Mode de paiement</h2>
-              <RadioGroup value={form.mode_paiement} onValueChange={v => setForm({ ...form, mode_paiement: v as any })}>
-                {PAIEMENTS.map(p => (
-                  <label key={p.id} htmlFor={p.id} className="flex items-center gap-3 p-3 border border-border rounded-lg cursor-pointer hover:bg-secondary">
-                    <RadioGroupItem value={p.id} id={p.id} />
-                    <span className="text-sm font-medium">{p.label}</span>
-                  </label>
-                ))}
+              <RadioGroup value={form.mode_paiement} onValueChange={v => setForm({ ...form, mode_paiement: v as any })} className="grid sm:grid-cols-2 gap-3">
+                {PAIEMENTS.map(p => {
+                  const selected = form.mode_paiement === p.id;
+                  return (
+                    <label
+                      key={p.id}
+                      htmlFor={p.id}
+                      className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${selected ? 'border-primary bg-primary/5' : 'border-border hover:bg-secondary'}`}
+                    >
+                      <RadioGroupItem value={p.id} id={p.id} />
+                      <div className="flex items-center justify-center w-12 h-12 rounded-md bg-background border border-border shrink-0 overflow-hidden">
+                        {p.logo ? (
+                          <img src={p.logo} alt={p.label} width={48} height={48} loading="lazy" className="object-contain w-full h-full" />
+                        ) : (
+                          <Banknote className="h-6 w-6 text-muted-foreground" />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium">{p.label}</span>
+                    </label>
+                  );
+                })}
               </RadioGroup>
             </section>
           </div>

@@ -39,9 +39,13 @@ export default function AdminLogin() {
     setLoading(false);
 
     if (error) {
+      const lower = error.toLowerCase();
+      const isBanned = lower.includes('banned') || lower.includes('blocked') || lower.includes('user_banned') || lower.includes('disabled');
       toast({
-        title: 'Erreur de connexion',
-        description: error.includes('Invalid') ? 'Email ou mot de passe incorrect.' : error,
+        title: isBanned ? 'Compte bloqué' : 'Erreur de connexion',
+        description: isBanned
+          ? 'Veuillez contacter votre administrateur.'
+          : (lower.includes('invalid') ? 'Email ou mot de passe incorrect.' : error),
         variant: 'destructive',
       });
       return;
