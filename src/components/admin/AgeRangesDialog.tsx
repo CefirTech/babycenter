@@ -91,7 +91,7 @@ export default function AgeRangesDialog({ open, onOpenChange, ageRanges }: AgeRa
 
           <div className="space-y-2">
             {values.map((value, index) => (
-              <div key={`${index}-${value}`} className="flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2">
                 <Input
                   value={value}
                   onChange={(event) => updateValue(index, event.target.value)}
