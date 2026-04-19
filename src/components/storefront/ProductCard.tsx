@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { Product } from '@/data/mock-data';
+import type { SFProduct as Product } from '@/hooks/useStorefrontData';
 import { Heart } from 'lucide-react';
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -34,7 +34,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </button>
       </div>
       <div className="space-y-1">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider">{product.marque || product.saison}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">{product.marque || product.tranche_age}</p>
         <h3 className="font-medium text-sm md:text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors">
           {product.nom}
         </h3>

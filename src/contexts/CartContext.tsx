@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { Product, ProductVariant } from '@/data/mock-data';
+import type { SFProduct as Product, SFVariant as ProductVariant } from '@/hooks/useStorefrontData';
 
 export interface CartItem {
   product: Product;
