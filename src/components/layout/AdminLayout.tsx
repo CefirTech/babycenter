@@ -28,11 +28,29 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { signOut, user, isAdmin } = useAuth();
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+  const [unreadChats, setUnreadChats] = useState(0);
 
   useEffect(() => {
     if (!user) return;
     supabase.from('profiles').select('display_name, avatar_url').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => setProfile(data ?? null));
+  }, [user, location.pathname]);
+
+  useEffect(() => {
+    if (!user) return;
+    const loadCount = async () => {
+      const { count } = await supabase
+        .from('chat_leads')
+        .select('*', { count: 'exact', head: true })
+        .eq('traite', false);
+      setUnreadChats(count ?? 0);
+    };
+    loadCount();
+    const channel = supabase
+      .channel('chat_leads_badge')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => loadCount())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, [user, location.pathname]);
 
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email || 'Compte';
