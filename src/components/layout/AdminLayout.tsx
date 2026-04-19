@@ -62,9 +62,13 @@ export default function AdminLayout() {
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || '';
   const initial = displayName.charAt(0).toUpperCase();
 
+  // Masquer "Paramètres" pour vendeur/manager (admin uniquement)
+  const visibleBase = isAdmin
+    ? baseNavItems
+    : baseNavItems.filter((it) => it.href !== '/admin/parametres');
   const navItems = isAdmin
-    ? [...baseNavItems.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, baseNavItems[12]]
-    : baseNavItems;
+    ? [...visibleBase.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, visibleBase[12]]
+    : visibleBase;
 
   const handleLogout = async () => {
     await signOut();
