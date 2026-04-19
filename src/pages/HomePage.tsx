@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Truck, ShieldCheck, Headphones, MessageCircle, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
-import { products, categories } from '@/data/mock-data';
+import { useStorefrontData } from '@/hooks/useStorefrontData';
 import heroImg from '@/assets/hero-main.jpg';
 
 const fadeUp = {
@@ -20,9 +20,10 @@ const reviews = [
 ];
 
 export default function HomePage() {
-  const featured = products.filter(p => p.featured).slice(0, 8);
+  const { products, categories } = useStorefrontData();
+  const featured = products.filter(p => p.featured || p.tags.includes('nouveau')).slice(0, 8);
   const promos = products.filter(p => p.prix_promo !== null).slice(0, 4);
-  const bestsellers = products.slice(8, 12);
+  const bestsellers = products.filter(p => p.tags.includes('bestseller')).slice(0, 4);
 
   return (
     <div>

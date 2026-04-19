@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { products } from '@/data/mock-data';
+import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
+  const { products, loading } = useStorefrontData();
   const product = products.find(p => p.slug === slug);
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -19,7 +20,16 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="container py-20 text-center">
-        <p className="text-muted-foreground text-lg">Produit non trouvé</p>
+        <p className="text-muted-foreground text-lg">{loading ? 'Chargement...' : 'Produit non trouvé'}</p>
+        {!loading && <Link to="/boutique"><Button variant="outline" className="mt-4">Retour à la boutique</Button></Link>}
+      </div>
+    );
+  }
+
+  if (!product.variants.length) {
+    return (
+      <div className="container py-20 text-center">
+        <p className="text-muted-foreground text-lg">Ce produit n'a pas encore de variante disponible.</p>
         <Link to="/boutique"><Button variant="outline" className="mt-4">Retour à la boutique</Button></Link>
       </div>
     );
@@ -157,8 +167,7 @@ export default function ProductDetailPage() {
               <h3 className="font-semibold text-sm text-foreground mb-2">Détails</h3>
               <div className="grid grid-cols-2 gap-2 text-sm text-foreground/70">
                 <span>Référence</span><span className="font-medium text-foreground">{product.code_produit}</span>
-                <span>Tranche d'âge</span><span className="font-medium text-foreground">{product.tranche_age}</span>
-                <span>Saison</span><span className="font-medium text-foreground">{product.saison}</span>
+                <span>Tranche d'âge</span><span className="font-medium text-foreground">{product.tranche_age || '—'}</span>
                 <span>Genre</span><span className="font-medium text-foreground capitalize">{product.sexe}</span>
               </div>
             </div>
