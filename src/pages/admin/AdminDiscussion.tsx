@@ -73,6 +73,13 @@ export default function AdminDiscussion() {
     return true;
   });
 
+  // Désélectionne le message si il ne correspond plus au filtre actif
+  useEffect(() => {
+    if (selected && !filtered.find(l => l.id === selected.id)) {
+      setSelected(null);
+    }
+  }, [filter, selected, filtered]);
+
   const pendingCount = leads.filter(l => !l.traite).length;
 
   return (
@@ -106,9 +113,9 @@ export default function AdminDiscussion() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-4">
+      <div className="grid md:grid-cols-5 gap-4">
         {/* Liste */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl divide-y divide-border max-h-[70vh] overflow-y-auto">
+        <div className="md:col-span-2 bg-card border border-border rounded-xl divide-y divide-border max-h-[70vh] overflow-y-auto">
           {loading ? (
             <p className="p-6 text-sm text-muted-foreground text-center">Chargement…</p>
           ) : filtered.length === 0 ? (
@@ -138,7 +145,7 @@ export default function AdminDiscussion() {
         </div>
 
         {/* Détail */}
-        <div className="lg:col-span-3 bg-card border border-border rounded-xl p-6">
+        <div className="md:col-span-3 bg-card border border-border rounded-xl p-6">
           {!selected ? (
             <div className="text-center text-muted-foreground py-12">
               <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-30" />
