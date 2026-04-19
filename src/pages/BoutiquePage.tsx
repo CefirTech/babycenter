@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { products, categories } from '@/data/mock-data';
+import { useStorefrontData } from '@/hooks/useStorefrontData';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ const sexes = [
 ];
 
 export default function BoutiquePage() {
+  const { products, categories } = useStorefrontData();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
   const [ageFilter, setAgeFilter] = useState('');
@@ -28,7 +29,7 @@ export default function BoutiquePage() {
       if (sexeFilter && p.sexe !== sexeFilter) return false;
       return true;
     });
-  }, [search, catFilter, ageFilter, sexeFilter]);
+  }, [products, search, catFilter, ageFilter, sexeFilter]);
 
   const hasFilters = catFilter || ageFilter || sexeFilter;
 

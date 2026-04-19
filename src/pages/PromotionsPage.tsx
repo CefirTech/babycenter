@@ -1,7 +1,8 @@
-import { products } from '@/data/mock-data';
+import { useStorefrontData } from '@/hooks/useStorefrontData';
 import ProductCard from '@/components/storefront/ProductCard';
 
 export default function PromotionsPage() {
+  const { products } = useStorefrontData();
   const promos = products.filter(p => p.prix_promo !== null && p.statut === 'actif');
 
   return (
