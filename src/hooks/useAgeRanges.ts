@@ -78,13 +78,8 @@ export function useAgeRanges() {
 
     window.addEventListener('age-ranges:refresh', handleRefresh);
 
-    const poller = window.setInterval(() => {
-      load(false);
-    }, 20000);
-
     return () => {
       window.removeEventListener('age-ranges:refresh', handleRefresh);
-      window.clearInterval(poller);
       supabase.removeChannel(channel);
     };
   }, []);
