@@ -71,7 +71,10 @@ export default function AdminCategories() {
           <h1 className="font-heading text-2xl font-bold text-foreground">Catégories</h1>
           <p className="text-muted-foreground text-sm">{list.length} catégories</p>
         </div>
-        <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Nouvelle catégorie</Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => setAgeDialogOpen(true)}><Settings2 className="h-4 w-4 mr-2" /> Tranches d'âge</Button>
+          <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Nouvelle catégorie</Button>
+        </div>
       </div>
 
       <Card><CardContent className="p-0">
@@ -123,6 +126,21 @@ export default function AdminCategories() {
                 </Select>
               </div>
               <div><Label>Tranche âge</Label><Input value={form.tranche_age} onChange={e => setForm({ ...form, tranche_age: e.target.value })} placeholder="ex: 0-3 ans" /></div>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs font-medium text-foreground mb-2">Tranches d'âge disponibles</p>
+              <div className="flex flex-wrap gap-2">
+                {ageRanges.map((range) => (
+                  <button
+                    key={range}
+                    type="button"
+                    onClick={() => setForm({ ...form, tranche_age: range })}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${form.tranche_age === range ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary hover:text-foreground'}`}
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
             </div>
             <div><Label>Catégorie parente</Label>
               <Select value={form.parent_id || 'none'} onValueChange={v => setForm({ ...form, parent_id: v === 'none' ? null : v })}>
