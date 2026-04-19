@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Phone, CheckCircle2, RotateCcw, Search } from 'lucide-react';
+import { MessageSquare, Phone, CheckCircle2, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -24,40 +24,43 @@ export default function AdminDiscussion() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Lead | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (withLoader = true) => {
+    if (withLoader) setLoading(true);
     const { data, error } = await supabase
       .from('chat_leads')
       .select('*')
       .order('created_at', { ascending: false });
     if (error) toast.error(error.message);
     else setLeads(data ?? []);
-    setLoading(false);
+    if (withLoader) setLoading(false);
   };
 
   useEffect(() => {
     load();
+    const handleRefresh = () => load(false);
     const channel = supabase
       .channel('chat_leads_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => load(false))
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    window.addEventListener('chat-leads:refresh', handleRefresh);
+    return () => {
+      window.removeEventListener('chat-leads:refresh', handleRefresh);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const toggle = async (lead: Lead) => {
-    const newTraite = !lead.traite;
     const { error } = await supabase
       .from('chat_leads')
-      .update({ traite: newTraite })
+      .update({ traite: true })
       .eq('id', lead.id);
     if (error) toast.error(error.message);
     else {
-      toast.success(newTraite ? 'Marqué comme traité' : 'Marqué non traité');
-      if (newTraite && filter === 'pending') {
-        setSelected(null);
-      } else if (selected?.id === lead.id) {
-        setSelected({ ...lead, traite: newTraite });
-      }
+      const updatedLead = { ...lead, traite: true };
+      setLeads(prev => prev.map(item => item.id === lead.id ? updatedLead : item));
+      setSelected(current => current?.id === lead.id ? null : current);
+      window.dispatchEvent(new Event('chat-leads:refresh'));
+      toast.success('Marqué comme traité');
     }
   };
 

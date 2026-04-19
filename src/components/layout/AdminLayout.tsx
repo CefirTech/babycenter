@@ -46,11 +46,16 @@ export default function AdminLayout() {
       setUnreadChats(count ?? 0);
     };
     loadCount();
+    const handleRefresh = () => loadCount();
     const channel = supabase
       .channel('chat_leads_badge')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => loadCount())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    window.addEventListener('chat-leads:refresh', handleRefresh);
+    return () => {
+      window.removeEventListener('chat-leads:refresh', handleRefresh);
+      supabase.removeChannel(channel);
+    };
   }, [user, location.pathname]);
 
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email || 'Compte';
