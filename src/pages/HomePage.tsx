@@ -85,7 +85,7 @@ export default function HomePage() {
             <div className="mt-8 text-center">
               <Link to="/categories">
                 <Button size="lg" variant="outline" className="font-semibold px-8">
-                  Explorez plus
+                  Voir toutes les catégories
                 </Button>
               </Link>
             </div>
@@ -122,13 +122,22 @@ export default function HomePage() {
             <p className="text-muted-foreground mt-2">Trouvez les vêtements adaptés à l'âge de votre enfant</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {ageRanges.map((age) => (
+            {ageRanges.slice(0, 6).map((age) => (
               <Link key={age} to={`/boutique?age=${encodeURIComponent(age)}`} className="bg-card border border-border rounded-xl p-6 text-center hover:border-primary hover:shadow-lg transition-all group">
                 <div className="text-2xl font-heading font-bold text-primary group-hover:scale-110 transition-transform">{age.split(' ')[0]}</div>
-                <div className="text-sm text-muted-foreground mt-1">{age.includes('an ') || age === '0-1 an' ? age : age}</div>
+                <div className="text-sm text-muted-foreground mt-1">{age}</div>
               </Link>
             ))}
           </div>
+          {ageRanges.length > 6 && (
+            <div className="mt-8 text-center">
+              <Link to="/tranches-age">
+                <Button size="lg" variant="outline" className="font-semibold px-8">
+                  Voir toutes les tranches d'âge
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
