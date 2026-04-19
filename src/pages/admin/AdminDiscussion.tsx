@@ -183,11 +183,6 @@ export default function AdminDiscussion() {
                     <CheckCircle2 className="h-4 w-4 mr-2" />Marquer traité
                   </Button>
                 )}
-                {selected.traite && filter !== 'pending' && (
-                  <Button size="sm" variant="outline" onClick={() => toggle(selected)}>
-                    <RotateCcw className="h-4 w-4 mr-2" />Rouvrir
-                  </Button>
-                )}
               </div>
 
               <div>
