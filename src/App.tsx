@@ -13,6 +13,7 @@ import AdminLayout from "@/components/layout/AdminLayout";
 
 import HomePage from "@/pages/HomePage";
 import BoutiquePage from "@/pages/BoutiquePage";
+import CategoriesPage from "@/pages/CategoriesPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
 import CartPage from "@/pages/CartPage";
 import CheckoutPage from "@/pages/CheckoutPage";
@@ -54,6 +55,7 @@ const App = () => (
               <Route element={<StorefrontLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/boutique" element={<BoutiquePage />} />
+                <Route path="/categories" element={<CategoriesPage />} />
                 <Route path="/produit/:slug" element={<ProductDetailPage />} />
                 <Route path="/panier" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
