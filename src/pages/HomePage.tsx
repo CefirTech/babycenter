@@ -69,7 +69,7 @@ export default function HomePage() {
             <p className="text-muted-foreground mt-2">Trouvez le look parfait pour chaque occasion</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.slice(0, 8).map((cat, i) => (
+            {categories.map((cat, i) => (
               <motion.div key={cat.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
                 <Link to={`/boutique?cat=${cat.slug}`} className="group relative aspect-square rounded-xl overflow-hidden block">
                   <img src={cat.image_url} alt={cat.nom} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
