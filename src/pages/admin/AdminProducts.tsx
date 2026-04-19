@@ -7,13 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Search, Edit, Eye, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Search, Edit, Eye, Trash2, Loader2, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { fcfa, slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
+import { usePagination } from '@/hooks/usePagination';
+import { exportListPDF } from '@/lib/pdf';
 
 type Product = any;
 type Variant = { id?: string; taille: string; couleur: string; stock: number; seuil_alerte: number; sku?: string };
@@ -60,6 +62,19 @@ export default function AdminProducts() {
 
   const filtered = products.filter(p => p.nom.toLowerCase().includes(search.toLowerCase()) || p.code_produit.toLowerCase().includes(search.toLowerCase()));
   const getCatName = (id: string) => categories.find(c => c.id === id)?.nom || '—';
+  const { page, setPage, totalPages, paged } = usePagination(filtered, 10);
+
+  const exportPDF = () => {
+    exportListPDF({
+      title: 'Liste des produits',
+      filename: `produits-${new Date().toISOString().slice(0,10)}.pdf`,
+      head: ['Code', 'Nom', 'Catégorie', 'Âge', 'Prix vente', 'Prix promo', 'Stock', 'Statut'],
+      body: filtered.map(p => {
+        const stock = (p.variants ?? []).reduce((s: number, v: any) => s + v.stock, 0);
+        return [p.code_produit, p.nom, getCatName(p.categorie_id), p.tranche_age || '—', fcfa(p.prix_vente), p.prix_promo ? fcfa(p.prix_promo) : '—', stock, p.statut];
+      }),
+    });
+  };
 
   const openCreate = () => {
     setEditing(null);
@@ -133,7 +148,10 @@ export default function AdminProducts() {
           <h1 className="font-heading text-2xl font-bold text-foreground">Produits</h1>
           <p className="text-muted-foreground text-sm">{products.length} produits au total</p>
         </div>
-        <Button onClick={openCreate} className="font-semibold"><Plus className="h-4 w-4 mr-2" /> Ajouter un produit</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportPDF}><FileDown className="h-4 w-4 mr-2" /> Export PDF</Button>
+          <Button onClick={openCreate} className="font-semibold"><Plus className="h-4 w-4 mr-2" /> Ajouter un produit</Button>
+        </div>
       </div>
 
       <div className="relative max-w-md">
@@ -160,7 +178,7 @@ export default function AdminProducts() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(p => {
+                  {paged.map(p => {
                     const totalStock = (p.variants ?? []).reduce((s: number, v: any) => s + v.stock, 0);
                     return (
                       <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
@@ -206,6 +224,16 @@ export default function AdminProducts() {
           )}
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Page {page} / {totalPages} — {filtered.length} résultats</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
