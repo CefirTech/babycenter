@@ -29,13 +29,13 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
         <img src={heroImg} alt="Collection enfants BABYCENTER" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/60 via-foreground/30 to-transparent" />
-        <div className="relative container h-full flex items-center">
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/60" />
+        <div className="relative container h-full flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-lg text-background"
+            className="max-w-2xl text-background text-center mx-auto flex flex-col items-center"
           >
             <p className="text-sm md:text-base uppercase tracking-[0.2em] mb-3 text-background/80 font-medium">Collection Printemps-Été 2025</p>
             <h1 className="font-heading text-4xl md:text-6xl font-bold leading-tight mb-4">
@@ -44,7 +44,7 @@ export default function HomePage() {
             <p className="text-base md:text-lg text-background/80 mb-8 leading-relaxed">
               Des vêtements raffinés qui grandissent avec vos enfants. Parce que chaque moment mérite le meilleur.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-center">
               <Link to="/boutique">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8">
                   Découvrir la collection

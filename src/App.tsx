@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedAdminRoute from "@/components/auth/ProtectedAdminRoute";
+import ScrollToTop from "@/components/ScrollToTop";
 
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -47,8 +48,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
-              {/* Vitrine */}
+              {/* Site Web */}
               <Route element={<StorefrontLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/boutique" element={<BoutiquePage />} />
