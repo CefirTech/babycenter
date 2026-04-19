@@ -42,10 +42,8 @@ export default function AdminDiscussion() {
       .channel('chat_leads_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => load(false))
       .subscribe();
-    const poller = window.setInterval(() => load(false), 10000);
     window.addEventListener('chat-leads:refresh', handleRefresh);
     return () => {
-      window.clearInterval(poller);
       window.removeEventListener('chat-leads:refresh', handleRefresh);
       supabase.removeChannel(channel);
     };
