@@ -16,7 +16,7 @@ import ImageUploader from '@/components/admin/ImageUploader';
 import AgeRangesDialog from '@/components/admin/AgeRangesDialog';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 
-const empty = () => ({ nom: '', description: '', genre: '', tranche_age: '', parent_id: null as string | null, image_url: '', ordre: 0 });
+const empty = () => ({ nom: '', description: '', genre: '', tranche_age: '', parent_id: null as string | null, image_url: '', ordre: 0, statut: 'publie' });
 
 export default function AdminCategories() {
   const [list, setList] = useState<any[]>([]);
@@ -38,7 +38,7 @@ export default function AdminCategories() {
   useEffect(() => { load(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(empty()); setOpen(true); };
-  const openEdit = (c: any) => { setEditing(c); setForm({ nom: c.nom, description: c.description || '', genre: c.genre || '', tranche_age: c.tranche_age || '', parent_id: c.parent_id, image_url: c.image_url || '', ordre: c.ordre }); setOpen(true); };
+  const openEdit = (c: any) => { setEditing(c); setForm({ nom: c.nom, description: c.description || '', genre: c.genre || '', tranche_age: c.tranche_age || '', parent_id: c.parent_id, image_url: c.image_url || '', ordre: c.ordre, statut: c.statut || 'publie' }); setOpen(true); };
 
   const save = async () => {
     if (!form.nom) { toast.error('Nom requis'); return; }
@@ -85,6 +85,7 @@ export default function AdminCategories() {
               <th className="p-4 font-medium text-muted-foreground hidden md:table-cell">Genre</th>
               <th className="p-4 font-medium text-muted-foreground hidden md:table-cell">Âge</th>
               <th className="p-4 font-medium text-muted-foreground hidden lg:table-cell">Parent</th>
+              <th className="p-4 font-medium text-muted-foreground">Statut</th>
               <th className="p-4 font-medium text-muted-foreground">Ordre</th>
               <th className="p-4 font-medium text-muted-foreground">Actions</th>
             </tr></thead>
@@ -99,6 +100,11 @@ export default function AdminCategories() {
                 <td className="p-4 text-muted-foreground hidden md:table-cell">{c.genre || '—'}</td>
                 <td className="p-4 text-muted-foreground hidden md:table-cell">{c.tranche_age || '—'}</td>
                 <td className="p-4 text-muted-foreground hidden lg:table-cell">{list.find(x => x.id === c.parent_id)?.nom || '—'}</td>
+                <td className="p-4">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${c.statut === 'brouillon' ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
+                    {c.statut === 'brouillon' ? 'Brouillon' : 'Publiée'}
+                  </span>
+                </td>
                 <td className="p-4">{c.ordre}</td>
                 <td className="p-4"><div className="flex gap-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(c)}><Edit className="h-4 w-4" /></Button>
@@ -106,7 +112,7 @@ export default function AdminCategories() {
                 </div></td>
               </tr>
             ))}
-            {list.length === 0 && <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">Aucune catégorie</td></tr>}
+            {list.length === 0 && <tr><td colSpan={7} className="p-12 text-center text-muted-foreground">Aucune catégorie</td></tr>}
             </tbody>
           </table></div>
         )}
@@ -158,7 +164,18 @@ export default function AdminCategories() {
               <Label>Image de la catégorie</Label>
               <ImageUploader bucket="category-images" value={form.image_url ? [form.image_url] : []} onChange={urls => setForm({ ...form, image_url: urls[0] || '' })} multiple={false} />
             </div>
-            <div><Label>Ordre d'affichage</Label><Input type="number" value={form.ordre} onChange={e => setForm({ ...form, ordre: +e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Statut de publication</Label>
+                <Select value={form.statut} onValueChange={v => setForm({ ...form, statut: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="publie">Publiée (visible sur le site)</SelectItem>
+                    <SelectItem value="brouillon">Brouillon (masquée)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Ordre d'affichage</Label><Input type="number" value={form.ordre} onChange={e => setForm({ ...form, ordre: +e.target.value })} /></div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
