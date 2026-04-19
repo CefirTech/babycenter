@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye, Search, Loader2 } from 'lucide-react';
+import { Eye, Search, Loader2, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fcfa, shortDate } from '@/lib/format';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activity';
+import { usePagination } from '@/hooks/usePagination';
+import { exportListPDF } from '@/lib/pdf';
 
 const STATUSES = ['en_attente_paiement','payee','en_preparation','expediee','livree','annulee'] as const;
 const statusColors: Record<string, string> = {
@@ -62,6 +64,16 @@ export default function AdminOrders() {
     const matchFilter = filter === 'all' || o.statut === filter;
     return matchSearch && matchFilter;
   });
+  const { page, setPage, totalPages, paged } = usePagination(filtered, 10);
+
+  const exportPDF = () => {
+    exportListPDF({
+      title: 'Liste des commandes',
+      filename: `commandes-${new Date().toISOString().slice(0,10)}.pdf`,
+      head: ['N°', 'Cliente', 'Téléphone', 'Canal', 'Date', 'Statut', 'Mode paiement', 'Total'],
+      body: filtered.map(o => [o.numero_commande, o.customer_nom, o.customer_telephone || '—', o.canal, shortDate(o.created_at), o.statut.replace(/_/g,' '), o.mode_paiement || '—', fcfa(o.total)]),
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -70,7 +82,7 @@ export default function AdminOrders() {
         <p className="text-muted-foreground text-sm">{orders.length} commandes au total</p>
       </div>
 
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-3 flex-wrap items-center">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
@@ -82,6 +94,7 @@ export default function AdminOrders() {
             {STATUSES.map(s => <SelectItem key={s} value={s}>{s.replace(/_/g, ' ')}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Button variant="outline" onClick={exportPDF}><FileDown className="h-4 w-4 mr-2" /> Export PDF</Button>
       </div>
 
       <Card><CardContent className="p-0">
@@ -96,7 +109,7 @@ export default function AdminOrders() {
               <th className="p-4 font-medium text-muted-foreground text-right">Total</th>
               <th className="p-4 font-medium text-muted-foreground">Actions</th>
             </tr></thead>
-            <tbody>{filtered.map(o => (
+            <tbody>{paged.map(o => (
               <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/30">
                 <td className="p-4 font-medium">{o.numero_commande}</td>
                 <td className="p-4">{o.customer_nom}</td>
@@ -112,6 +125,16 @@ export default function AdminOrders() {
           </table></div>
         )}
       </CardContent></Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Page {page} / {totalPages} — {filtered.length} résultats</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+          </div>
+        </div>
+      )}
 
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
