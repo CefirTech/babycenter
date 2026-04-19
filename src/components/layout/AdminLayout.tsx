@@ -108,6 +108,7 @@ export default function AdminLayout() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/admin/profil')}><User className="h-4 w-4 mr-2" />Mon profil</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/admin/discussion')}><MessageSquare className="h-4 w-4 mr-2" />Discussion</DropdownMenuItem>
               {isAdmin && <DropdownMenuItem onClick={() => navigate('/admin/utilisateurs')}><UserCog className="h-4 w-4 mr-2" />Utilisateurs</DropdownMenuItem>}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
