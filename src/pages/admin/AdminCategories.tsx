@@ -114,7 +114,10 @@ export default function AdminCategories() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] flex flex-col">
-          <DialogHeader><DialogTitle>{editing ? 'Éditer' : 'Nouvelle'} catégorie</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Éditer' : 'Nouvelle'} catégorie</DialogTitle>
+            <DialogDescription>Renseignez les informations de la catégorie puis enregistrez les changements.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-3 overflow-y-auto flex-1 pr-2 -mr-2">
             <div><Label>Nom *</Label><Input value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} /></div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} /></div>
@@ -165,6 +168,7 @@ export default function AdminCategories() {
       </Dialog>
 
       <ConfirmDialog open={!!confirmDel} onOpenChange={(o) => !o && setConfirmDel(null)} title="Supprimer cette catégorie ?" destructive confirmLabel="Supprimer" onConfirm={() => confirmDel && remove(confirmDel)} />
+      <AgeRangesDialog open={ageDialogOpen} onOpenChange={setAgeDialogOpen} ageRanges={ageRanges} />
     </div>
   );
 }
