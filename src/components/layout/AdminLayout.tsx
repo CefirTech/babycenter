@@ -87,11 +87,17 @@ export default function AdminLayout() {
         <nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
           {navItems.map(item => {
             const active = location.pathname === item.href || (item.href !== '/admin' && location.pathname.startsWith(item.href));
+            const showBadge = item.href === '/admin/discussion' && unreadChats > 0;
             return (
               <Link key={item.href} to={item.href} onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${active ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'}`}>
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {showBadge && (
+                  <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
+                    {unreadChats > 99 ? '99+' : unreadChats}
+                  </span>
+                )}
               </Link>
             );
           })}
