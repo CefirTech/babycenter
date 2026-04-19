@@ -90,7 +90,7 @@ export function useStorefrontData() {
   const load = async () => {
     const [{ data: p }, { data: c }, { data: v }] = await Promise.all([
       supabase.from('products').select('*').eq('statut', 'actif').order('created_at', { ascending: false }),
-      supabase.from('categories').select('*').order('ordre'),
+      supabase.from('categories').select('*').eq('statut', 'publie').order('ordre'),
       supabase.from('product_variants').select('*'),
     ]);
     const variantsByProd = (v ?? []).reduce<Record<string, any[]>>((acc, x) => {
