@@ -118,11 +118,16 @@ export default function AdminLayout() {
           <div className="flex-1" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center hover:bg-muted rounded-full p-1 transition-colors" title="Mon compte">
+              <button className="relative flex items-center hover:bg-muted rounded-full p-1 transition-colors" title="Mon compte">
                 <Avatar className="h-9 w-9 border-2 border-primary/20">
                   <AvatarImage src={avatarUrl} alt={displayName} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">{initial}</AvatarFallback>
                 </Avatar>
+                {unreadChats > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold border-2 border-background">
+                    {unreadChats > 9 ? '9+' : unreadChats}
+                  </span>
+                )}
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -132,7 +137,15 @@ export default function AdminLayout() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/admin/profil')}><User className="h-4 w-4 mr-2" />Mon profil</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/admin/discussion')}><MessageSquare className="h-4 w-4 mr-2" />Discussion</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/admin/discussion')}>
+                <MessageSquare className="h-4 w-4 mr-2" />
+                <span className="flex-1">Discussion</span>
+                {unreadChats > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
+                    {unreadChats > 99 ? '99+' : unreadChats}
+                  </span>
+                )}
+              </DropdownMenuItem>
               {isAdmin && <DropdownMenuItem onClick={() => navigate('/admin/utilisateurs')}><UserCog className="h-4 w-4 mr-2" />Utilisateurs</DropdownMenuItem>}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
