@@ -144,6 +144,7 @@ export type Database = {
           ordre: number
           parent_id: string | null
           slug: string
+          statut: string
           tranche_age: string | null
           updated_at: string
         }
@@ -157,6 +158,7 @@ export type Database = {
           ordre?: number
           parent_id?: string | null
           slug: string
+          statut?: string
           tranche_age?: string | null
           updated_at?: string
         }
@@ -170,6 +172,7 @@ export type Database = {
           ordre?: number
           parent_id?: string | null
           slug?: string
+          statut?: string
           tranche_age?: string | null
           updated_at?: string
         }
