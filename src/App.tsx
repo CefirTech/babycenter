@@ -75,6 +75,7 @@ const App = () => (
                   <Route path="depenses" element={<AdminExpenses />} />
                   <Route path="caisse" element={<AdminCash />} />
                   <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="discussion" element={<AdminDiscussion />} />
                   <Route path="rapports" element={<AdminReports />} />
                   <Route path="parametres" element={<AdminSettings />} />
                   <Route path="utilisateurs" element={<AdminUsers />} />
