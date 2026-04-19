@@ -106,9 +106,9 @@ export default function AdminCategories() {
       </CardContent></Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] flex flex-col">
           <DialogHeader><DialogTitle>{editing ? 'Éditer' : 'Nouvelle'} catégorie</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-3 overflow-y-auto flex-1 pr-2 -mr-2">
             <div><Label>Nom *</Label><Input value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} /></div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} /></div>
             <div className="grid grid-cols-2 gap-3">
