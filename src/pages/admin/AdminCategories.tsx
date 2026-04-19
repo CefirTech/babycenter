@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Loader2, Layers } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, Edit, Trash2, Loader2, Layers, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ImageUploader from '@/components/admin/ImageUploader';
+import AgeRangesDialog from '@/components/admin/AgeRangesDialog';
+import { useAgeRanges } from '@/hooks/useAgeRanges';
 
 const empty = () => ({ nom: '', description: '', genre: '', tranche_age: '', parent_id: null as string | null, image_url: '', ordre: 0 });
 
@@ -24,6 +26,8 @@ export default function AdminCategories() {
   const [form, setForm] = useState(empty());
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [ageDialogOpen, setAgeDialogOpen] = useState(false);
+  const { ageRanges } = useAgeRanges();
 
   const load = async () => {
     setLoading(true);
