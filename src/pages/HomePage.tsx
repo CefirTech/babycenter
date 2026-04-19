@@ -4,14 +4,13 @@ import { Truck, ShieldCheck, Headphones, MessageCircle, Star } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
+import { useAgeRanges } from '@/hooks/useAgeRanges';
 import heroImg from '@/assets/hero-main.jpg';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
 };
-
-const ageGroups = ['0-1 an', '1-3 ans', '4-6 ans', '7-10 ans', '11-13 ans', '14-16 ans'];
 
 const reviews = [
   { nom: 'Aminata K.', note: 5, text: 'Qualité exceptionnelle ! Ma fille adore ses nouvelles robes. Livraison rapide.' },
@@ -21,6 +20,7 @@ const reviews = [
 
 export default function HomePage() {
   const { products, categories } = useStorefrontData();
+  const { ageRanges } = useAgeRanges();
   const featured = products.filter(p => p.featured || p.tags.includes('nouveau')).slice(0, 8);
   const promos = products.filter(p => p.prix_promo !== null).slice(0, 4);
   const bestsellers = products.filter(p => p.tags.includes('bestseller')).slice(0, 4);
@@ -113,7 +113,7 @@ export default function HomePage() {
             <p className="text-muted-foreground mt-2">Trouvez les vêtements adaptés à l'âge de votre enfant</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {ageGroups.map((age) => (
+            {ageRanges.map((age) => (
               <Link key={age} to={`/boutique?age=${encodeURIComponent(age)}`} className="bg-card border border-border rounded-xl p-6 text-center hover:border-primary hover:shadow-lg transition-all group">
                 <div className="text-2xl font-heading font-bold text-primary group-hover:scale-110 transition-transform">{age.split(' ')[0]}</div>
                 <div className="text-sm text-muted-foreground mt-1">{age.includes('an ') || age === '0-1 an' ? age : age}</div>

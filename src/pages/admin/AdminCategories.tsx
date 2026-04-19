@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Loader2, Layers } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus, Edit, Trash2, Loader2, Layers, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ImageUploader from '@/components/admin/ImageUploader';
+import AgeRangesDialog from '@/components/admin/AgeRangesDialog';
+import { useAgeRanges } from '@/hooks/useAgeRanges';
 
 const empty = () => ({ nom: '', description: '', genre: '', tranche_age: '', parent_id: null as string | null, image_url: '', ordre: 0 });
 
@@ -24,6 +26,8 @@ export default function AdminCategories() {
   const [form, setForm] = useState(empty());
   const [confirmDel, setConfirmDel] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [ageDialogOpen, setAgeDialogOpen] = useState(false);
+  const { ageRanges } = useAgeRanges();
 
   const load = async () => {
     setLoading(true);
@@ -67,7 +71,10 @@ export default function AdminCategories() {
           <h1 className="font-heading text-2xl font-bold text-foreground">Catégories</h1>
           <p className="text-muted-foreground text-sm">{list.length} catégories</p>
         </div>
-        <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Nouvelle catégorie</Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => setAgeDialogOpen(true)}><Settings2 className="h-4 w-4 mr-2" /> Tranches d'âge</Button>
+          <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" /> Nouvelle catégorie</Button>
+        </div>
       </div>
 
       <Card><CardContent className="p-0">
@@ -107,7 +114,10 @@ export default function AdminCategories() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] flex flex-col">
-          <DialogHeader><DialogTitle>{editing ? 'Éditer' : 'Nouvelle'} catégorie</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Éditer' : 'Nouvelle'} catégorie</DialogTitle>
+            <DialogDescription>Renseignez les informations de la catégorie puis enregistrez les changements.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-3 overflow-y-auto flex-1 pr-2 -mr-2">
             <div><Label>Nom *</Label><Input value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} /></div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} /></div>
@@ -119,6 +129,21 @@ export default function AdminCategories() {
                 </Select>
               </div>
               <div><Label>Tranche âge</Label><Input value={form.tranche_age} onChange={e => setForm({ ...form, tranche_age: e.target.value })} placeholder="ex: 0-3 ans" /></div>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-xs font-medium text-foreground mb-2">Tranches d'âge disponibles</p>
+              <div className="flex flex-wrap gap-2">
+                {ageRanges.map((range) => (
+                  <button
+                    key={range}
+                    type="button"
+                    onClick={() => setForm({ ...form, tranche_age: range })}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${form.tranche_age === range ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary hover:text-foreground'}`}
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
             </div>
             <div><Label>Catégorie parente</Label>
               <Select value={form.parent_id || 'none'} onValueChange={v => setForm({ ...form, parent_id: v === 'none' ? null : v })}>
@@ -143,6 +168,7 @@ export default function AdminCategories() {
       </Dialog>
 
       <ConfirmDialog open={!!confirmDel} onOpenChange={(o) => !o && setConfirmDel(null)} title="Supprimer cette catégorie ?" destructive confirmLabel="Supprimer" onConfirm={() => confirmDel && remove(confirmDel)} />
+      <AgeRangesDialog open={ageDialogOpen} onOpenChange={setAgeDialogOpen} ageRanges={ageRanges} />
     </div>
   );
 }

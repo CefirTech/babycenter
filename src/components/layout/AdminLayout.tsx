@@ -51,8 +51,10 @@ export default function AdminLayout() {
       .channel('chat_leads_badge')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => loadCount())
       .subscribe();
+    const poller = window.setInterval(() => loadCount(), 10000);
     window.addEventListener('chat-leads:refresh', handleRefresh);
     return () => {
+      window.clearInterval(poller);
       window.removeEventListener('chat-leads:refresh', handleRefresh);
       supabase.removeChannel(channel);
     };

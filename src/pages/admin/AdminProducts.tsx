@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Search, Edit, Eye, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { fcfa, slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { useAgeRanges } from '@/hooks/useAgeRanges';
 
 type Product = any;
 type Variant = { id?: string; taille: string; couleur: string; stock: number; seuil_alerte: number; sku?: string };
@@ -38,6 +39,7 @@ export default function AdminProducts() {
   const [form, setForm] = useState(emptyForm());
   const [variants, setVariants] = useState<Variant[]>([]);
   const [saving, setSaving] = useState(false);
+  const { ageRanges } = useAgeRanges();
 
   const load = async () => {
     setLoading(true);
@@ -210,6 +212,7 @@ export default function AdminProducts() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? 'Éditer le produit' : 'Nouveau produit'}</DialogTitle>
+            <DialogDescription>Créez ou modifiez un produit qui sera visible sur le site selon son statut.</DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2"><Label>Nom *</Label><Input value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} /></div>
@@ -227,7 +230,7 @@ export default function AdminProducts() {
               <Select value={form.tranche_age} onValueChange={v => setForm({ ...form, tranche_age: v })}>
                 <SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger>
                 <SelectContent>
-                  {['0-3 mois','3-6 mois','6-12 mois','1-2 ans','2-4 ans','4-6 ans','6-8 ans','8-10 ans','10-12 ans','12-14 ans','14-16 ans'].map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                  {ageRanges.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -285,7 +288,10 @@ export default function AdminProducts() {
       {/* View dialog */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing?.nom}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editing?.nom}</DialogTitle>
+            <DialogDescription>Détails du produit sélectionné.</DialogDescription>
+          </DialogHeader>
           {editing && (
             <div className="space-y-4">
               <div className="flex gap-2 flex-wrap">

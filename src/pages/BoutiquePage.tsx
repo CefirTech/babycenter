@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
+import { useAgeRanges } from '@/hooks/useAgeRanges';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-
-const ageGroups = ['0-1 an', '1-3 ans', '4-6 ans', '7-10 ans', '11-13 ans', '14-16 ans'];
 const sexes = [
   { value: 'fille', label: 'Fille' },
   { value: 'garcon', label: 'Garçon' },
@@ -14,6 +13,7 @@ const sexes = [
 
 export default function BoutiquePage() {
   const { products, categories } = useStorefrontData();
+  const { ageRanges } = useAgeRanges();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
   const [ageFilter, setAgeFilter] = useState('');
@@ -80,7 +80,7 @@ export default function BoutiquePage() {
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Âge</label>
                 <div className="flex flex-wrap gap-2">
-                  {ageGroups.map(a => (
+                  {ageRanges.map(a => (
                     <button key={a} onClick={() => setAgeFilter(ageFilter === a ? '' : a)}
                       className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ageFilter === a ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:border-primary text-foreground/70'}`}>
                       {a}
