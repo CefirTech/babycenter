@@ -34,7 +34,20 @@ export default function ProductDetailPage() {
     toast({ title: 'Ajouté au panier', description: `${product.nom} - ${variant.taille} / ${variant.couleur}` });
   };
 
-  const whatsappMsg = encodeURIComponent(`Bonjour, je suis intéressé(e) par ${product.nom} (${variant.taille}, ${variant.couleur}) à ${prix.toLocaleString('fr-FR')} FCFA. Merci !`);
+  const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/produit/${product.slug}` : '';
+  const imageUrl = product.images[0] || '';
+  const whatsappMsg = encodeURIComponent(
+    `Bonjour, je suis intéressé(e) par cet article :\n\n` +
+    `🛍️ *${product.nom}*\n` +
+    `Référence : ${product.code_produit}\n` +
+    `Taille : ${variant.taille}\n` +
+    `Couleur : ${variant.couleur}\n` +
+    `Quantité : ${qty}\n` +
+    `Prix unitaire : ${prix.toLocaleString('fr-FR')} FCFA\n` +
+    `Total : ${(prix * qty).toLocaleString('fr-FR')} FCFA\n\n` +
+    (imageUrl ? `📷 Photo : ${imageUrl}\n` : '') +
+    `🔗 Fiche produit : ${productUrl}\n\nMerci !`
+  );
 
   return (
     <div className="py-6 md:py-10">

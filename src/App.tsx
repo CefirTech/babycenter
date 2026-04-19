@@ -34,6 +34,7 @@ import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminActivityLog from "@/pages/admin/AdminActivityLog";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminProfile from "@/pages/admin/AdminProfile";
+import AdminDiscussion from "@/pages/admin/AdminDiscussion";
 import AdminLogin from "@/pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
                   <Route path="depenses" element={<AdminExpenses />} />
                   <Route path="caisse" element={<AdminCash />} />
                   <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="discussion" element={<AdminDiscussion />} />
                   <Route path="rapports" element={<AdminReports />} />
                   <Route path="parametres" element={<AdminSettings />} />
                   <Route path="utilisateurs" element={<AdminUsers />} />

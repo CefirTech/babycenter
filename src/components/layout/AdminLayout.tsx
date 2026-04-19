@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User } from 'lucide-react';
+import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,7 @@ const baseNavItems = [
   { label: 'Dépenses', href: '/admin/depenses', icon: Wallet },
   { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank },
   { label: 'Promotions', href: '/admin/promotions', icon: Tag },
+  { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare },
   { label: 'Rapports', href: '/admin/rapports', icon: BarChart3 },
   { label: 'Paramètres', href: '/admin/parametres', icon: Settings },
   { label: 'Journal', href: '/admin/journal', icon: Activity },
@@ -39,7 +40,7 @@ export default function AdminLayout() {
   const initial = displayName.charAt(0).toUpperCase();
 
   const navItems = isAdmin
-    ? [...baseNavItems.slice(0, 11), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, baseNavItems[11]]
+    ? [...baseNavItems.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, baseNavItems[12]]
     : baseNavItems;
 
   const handleLogout = async () => {
@@ -93,15 +94,11 @@ export default function AdminLayout() {
           <div className="flex-1" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 hover:bg-muted rounded-lg pl-1 pr-3 py-1 transition-colors" title="Mon compte">
+              <button className="flex items-center hover:bg-muted rounded-full p-1 transition-colors" title="Mon compte">
                 <Avatar className="h-9 w-9 border-2 border-primary/20">
                   <AvatarImage src={avatarUrl} alt={displayName} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">{initial}</AvatarFallback>
                 </Avatar>
-                <div className="hidden md:flex flex-col items-start leading-tight">
-                  <span className="text-sm font-medium text-foreground">{displayName}</span>
-                  <span className="text-xs text-muted-foreground truncate max-w-[180px]">{user?.email}</span>
-                </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
