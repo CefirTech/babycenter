@@ -13,6 +13,7 @@ import { fcfa, slugify } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { useAgeRanges } from '@/hooks/useAgeRanges';
 
 type Product = any;
 type Variant = { id?: string; taille: string; couleur: string; stock: number; seuil_alerte: number; sku?: string };
@@ -38,6 +39,7 @@ export default function AdminProducts() {
   const [form, setForm] = useState(emptyForm());
   const [variants, setVariants] = useState<Variant[]>([]);
   const [saving, setSaving] = useState(false);
+  const { ageRanges } = useAgeRanges();
 
   const load = async () => {
     setLoading(true);
@@ -227,7 +229,7 @@ export default function AdminProducts() {
               <Select value={form.tranche_age} onValueChange={v => setForm({ ...form, tranche_age: v })}>
                 <SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger>
                 <SelectContent>
-                  {['0-3 mois','3-6 mois','6-12 mois','1-2 ans','2-4 ans','4-6 ans','6-8 ans','8-10 ans','10-12 ans','12-14 ans','14-16 ans'].map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                  {ageRanges.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

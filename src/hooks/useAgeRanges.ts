@@ -60,6 +60,10 @@ export function useAgeRanges() {
   useEffect(() => {
     load();
 
+    const handleRefresh = () => {
+      load(false);
+    };
+
     const channel = supabase
       .channel('settings-age-ranges')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, (payload) => {
@@ -72,11 +76,14 @@ export function useAgeRanges() {
       })
       .subscribe();
 
+    window.addEventListener('age-ranges:refresh', handleRefresh);
+
     const poller = window.setInterval(() => {
       load(false);
     }, 20000);
 
     return () => {
+      window.removeEventListener('age-ranges:refresh', handleRefresh);
       window.clearInterval(poller);
       supabase.removeChannel(channel);
     };
