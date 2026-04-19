@@ -51,7 +51,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <a href="https://wa.me/2250151310606" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8">
+                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8">
                   <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                 </Button>
               </a>
@@ -201,7 +201,7 @@ export default function HomePage() {
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary-foreground mb-3">Besoin d'aide ?</h2>
           <p className="text-primary-foreground/80 mb-6">Contactez-nous directement sur WhatsApp pour une assistance personnalisée</p>
           <a href="https://wa.me/2250151310606" target="_blank" rel="noopener noreferrer">
-            <Button size="lg" className="bg-background text-foreground hover:bg-background/90 font-semibold px-8">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8">
               <MessageCircle className="h-5 w-5 mr-2" /> Écrire sur WhatsApp
             </Button>
           </a>

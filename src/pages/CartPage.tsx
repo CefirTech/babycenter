@@ -112,7 +112,7 @@ export default function CartPage() {
               <Button size="lg" className="w-full font-semibold">Passer la commande</Button>
             </Link>
             <a href={`https://wa.me/2250151310606?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="block mt-2">
-              <Button size="lg" variant="outline" className="w-full font-semibold border-green-600 text-green-600 hover:bg-green-50">
+              <Button size="lg" className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white">
                 <MessageCircle className="h-4 w-4 mr-2" /> Commander via WhatsApp
               </Button>
             </a>
