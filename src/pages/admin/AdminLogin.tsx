@@ -120,7 +120,7 @@ export default function AdminLogin() {
 
           <div className="mt-6 pt-4 border-t border-border">
             <Link to="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-              <Store className="h-4 w-4" /> Retour à la vitrine
+              <Store className="h-4 w-4" /> Retour au Site Web
             </Link>
           </div>
         </div>
