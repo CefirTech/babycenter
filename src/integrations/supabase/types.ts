@@ -631,6 +631,7 @@ export type Database = {
           product_id: string | null
           product_nom: string
           quantite: number
+          remise_ligne: number
           sale_id: string
           taille: string | null
           total: number
@@ -644,6 +645,7 @@ export type Database = {
           product_id?: string | null
           product_nom: string
           quantite?: number
+          remise_ligne?: number
           sale_id: string
           taille?: string | null
           total: number
@@ -657,6 +659,7 @@ export type Database = {
           product_id?: string | null
           product_nom?: string
           quantite?: number
+          remise_ligne?: number
           sale_id?: string
           taille?: string | null
           total?: number
@@ -688,40 +691,61 @@ export type Database = {
       }
       sales: {
         Row: {
+          annulee_le: string | null
+          annulee_par: string | null
           created_at: string
           customer_id: string | null
           id: string
           mode_paiement: Database["public"]["Enums"]["payment_method"]
+          montant_recu: number | null
+          motif_annulation: string | null
           notes: string | null
           numero_vente: string
+          paiements: Json | null
           remise: number
+          session_id: string | null
           sous_total: number
+          statut: string
           total: number
           vendeur_id: string | null
           vendeur_nom: string | null
         }
         Insert: {
+          annulee_le?: string | null
+          annulee_par?: string | null
           created_at?: string
           customer_id?: string | null
           id?: string
           mode_paiement?: Database["public"]["Enums"]["payment_method"]
+          montant_recu?: number | null
+          motif_annulation?: string | null
           notes?: string | null
           numero_vente: string
+          paiements?: Json | null
           remise?: number
+          session_id?: string | null
           sous_total?: number
+          statut?: string
           total?: number
           vendeur_id?: string | null
           vendeur_nom?: string | null
         }
         Update: {
+          annulee_le?: string | null
+          annulee_par?: string | null
           created_at?: string
           customer_id?: string | null
           id?: string
           mode_paiement?: Database["public"]["Enums"]["payment_method"]
+          montant_recu?: number | null
+          motif_annulation?: string | null
           notes?: string | null
           numero_vente?: string
+          paiements?: Json | null
           remise?: number
+          session_id?: string | null
           sous_total?: number
+          statut?: string
           total?: number
           vendeur_id?: string | null
           vendeur_nom?: string | null
@@ -732,6 +756,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_sessions"
             referencedColumns: ["id"]
           },
         ]
