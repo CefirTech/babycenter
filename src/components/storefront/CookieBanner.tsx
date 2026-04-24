@@ -24,7 +24,7 @@ export default function CookieBanner() {
         Nous utilisons des cookies pour améliorer votre expérience. En cliquant sur « Accepter », vous consentez à leur utilisation. <a href="/confidentialite" className="text-primary underline">En savoir plus</a>
       </p>
       <div className="flex gap-2 shrink-0">
-        <Button variant="outline" size="sm" onClick={() => accept('essential')}>Essentiels</Button>
+        <Button variant="outline" size="sm" onClick={() => accept('essential')}>Rejeter</Button>
         <Button size="sm" onClick={() => accept('all')}>Accepter</Button>
       </div>
     </div>
