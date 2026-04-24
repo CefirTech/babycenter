@@ -51,8 +51,9 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-12 pt-6 border-t border-background/10 text-center text-xs text-background/40">
-          © {new Date().getFullYear()} BABYCENTER. Tous droits réservés.
+        <div className="mt-12 pt-6 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-background/40">
+          <span>© {new Date().getFullYear()} BABYCENTER. Tous droits réservés.</span>
+          <Link to="/admin/login" className="hover:text-accent">Espace professionnel</Link>
         </div>
       </div>
     </footer>
