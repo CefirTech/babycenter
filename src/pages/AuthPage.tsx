@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Phone } from 'lucide-react';
+import { Loader2, Mail, Phone, Eye, EyeOff } from 'lucide-react';
 import SEO from '@/components/SEO';
 
 type Method = 'email' | 'phone';
@@ -32,6 +32,7 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [password, setPassword] = useState('');
   const [nom, setNom] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // OTP state for phone signup
   const [otpSent, setOtpSent] = useState(false);
@@ -149,7 +150,25 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             </div>
             <div>
               <Label htmlFor="pwd">Mot de passe</Label>
-              <Input id="pwd" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+              <div className="relative">
+                <Input
+                  id="pwd"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(s => !s)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isSignup ? 'Créer mon compte' : 'Se connecter')}
