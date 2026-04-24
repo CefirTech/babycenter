@@ -4,19 +4,19 @@ import Footer from './Footer';
 import ChatWidget from '@/components/storefront/ChatWidget';
 import CookieBanner from '@/components/storefront/CookieBanner';
 
-const HIDE_FOOTER_ROUTES = ['/connexion', '/inscription'];
+const HIDE_CHROME_ROUTES = ['/connexion', '/inscription', '/compte'];
 
 export default function StorefrontLayout() {
   const { pathname } = useLocation();
-  const hideFooter = HIDE_FOOTER_ROUTES.includes(pathname);
+  const hideChrome = HIDE_CHROME_ROUTES.includes(pathname);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      {!hideChrome && <Header />}
       <main id="main" className="flex-1">
         <Outlet />
       </main>
-      {!hideFooter && <Footer />}
+      {!hideChrome && <Footer />}
       <ChatWidget />
       <CookieBanner />
     </div>
