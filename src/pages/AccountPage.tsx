@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Package, LogOut, User as UserIcon, ShoppingBag, Sparkles, MapPin, Save } from 'lucide-react';
+import { Heart, Package, LogOut, User as UserIcon, ShoppingBag, Sparkles, MapPin, Save, Store } from 'lucide-react';
 import SEO from '@/components/SEO';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
@@ -118,9 +118,16 @@ export default function AccountPage() {
                 <p className="text-sm text-muted-foreground mt-1">Cliente depuis {memberSince}</p>
               </div>
             </div>
-            <Button variant="outline" onClick={signOut} className="self-start md:self-auto">
-              <LogOut className="h-4 w-4 mr-2" />Se déconnecter
-            </Button>
+            <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+              <Link to="/boutique">
+                <Button className="shadow-md">
+                  <Store className="h-4 w-4 mr-2" />Boutique
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />Se déconnecter
+              </Button>
+            </div>
           </div>
 
           {/* Stats */}
