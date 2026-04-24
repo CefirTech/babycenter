@@ -94,10 +94,10 @@ export function useStorefrontData() {
       (supabase as any).from('product_variants_public').select('*'),
     ]);
     if (ep || ec || ev) console.error('storefront load error', ep || ec || ev);
-    const variantsByProd = (v ?? []).reduce<Record<string, any[]>>((acc, x) => {
+    const variantsByProd: Record<string, any[]> = (v ?? []).reduce((acc: Record<string, any[]>, x: any) => {
       (acc[x.product_id] ||= []).push(x);
       return acc;
-    }, {});
+    }, {} as Record<string, any[]>);
     setProducts((p ?? []).map(prod => mapProduct(prod, variantsByProd[prod.id] ?? [])));
     setCategories(
       (c ?? []).map((cat: any) => ({
