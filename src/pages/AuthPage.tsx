@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Phone, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Phone, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import SEO from '@/components/SEO';
 
 type Method = 'email' | 'phone';
@@ -109,8 +109,11 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   };
 
   return (
-    <div className="container py-12 max-w-md">
+    <div className="container py-8 md:py-12 max-w-md">
       <SEO title={isSignup ? 'Créer un compte' : 'Se connecter'} description="Accédez à votre espace BABYCENTER" />
+      <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors">
+        <ArrowLeft className="h-4 w-4" /> Retour à l'accueil
+      </Link>
       <h1 className="font-heading text-3xl font-bold text-foreground mb-2">
         {isSignup ? 'Créer un compte' : 'Se connecter'}
       </h1>
