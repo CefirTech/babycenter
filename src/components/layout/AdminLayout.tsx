@@ -6,27 +6,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
-const baseNavItems = [
-  { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
-  { label: 'Produits', href: '/admin/produits', icon: Package },
-  { label: 'Catégories', href: '/admin/categories', icon: Layers },
-  { label: 'Commandes', href: '/admin/commandes', icon: ShoppingCart },
-  { label: 'Ventes', href: '/admin/ventes', icon: Receipt },
-  { label: 'Clientes', href: '/admin/clientes', icon: Users },
-  { label: 'Dépenses', href: '/admin/depenses', icon: Wallet },
-  { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank },
-  { label: 'Promotions', href: '/admin/promotions', icon: Tag },
-  { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare },
-  { label: 'Rapports', href: '/admin/rapports', icon: BarChart3 },
-  { label: 'Paramètres', href: '/admin/parametres', icon: Settings },
-  { label: 'Journal', href: '/admin/journal', icon: Activity },
+type Role = 'admin' | 'manager' | 'vendeur';
+const baseNavItems: { label: string; href: string; icon: any; roles: Role[] }[] = [
+  { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard, roles: ['admin','manager','vendeur'] },
+  { label: 'Produits', href: '/admin/produits', icon: Package, roles: ['admin','manager'] },
+  { label: 'Catégories', href: '/admin/categories', icon: Layers, roles: ['admin','manager'] },
+  { label: 'Commandes', href: '/admin/commandes', icon: ShoppingCart, roles: ['admin','manager'] },
+  { label: 'Ventes', href: '/admin/ventes', icon: Receipt, roles: ['admin','manager','vendeur'] },
+  { label: 'Clientes', href: '/admin/clientes', icon: Users, roles: ['admin','manager','vendeur'] },
+  { label: 'Dépenses', href: '/admin/depenses', icon: Wallet, roles: ['admin','manager'] },
+  { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank, roles: ['admin','manager','vendeur'] },
+  { label: 'Promotions', href: '/admin/promotions', icon: Tag, roles: ['admin','manager'] },
+  { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare, roles: ['admin','manager','vendeur'] },
+  { label: 'Rapports', href: '/admin/rapports', icon: BarChart3, roles: ['admin','manager'] },
+  { label: 'Paramètres', href: '/admin/parametres', icon: Settings, roles: ['admin'] },
+  { label: 'Journal', href: '/admin/journal', icon: Activity, roles: ['admin'] },
 ];
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { signOut, user, isAdmin } = useAuth();
+  const { signOut, user, isAdmin, roles } = useAuth();
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [unreadChats, setUnreadChats] = useState(0);
 
@@ -62,12 +63,14 @@ export default function AdminLayout() {
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || '';
   const initial = displayName.charAt(0).toUpperCase();
 
-  // Masquer "Paramètres" pour vendeur/manager (admin uniquement)
-  const visibleBase = isAdmin
-    ? baseNavItems
-    : baseNavItems.filter((it) => it.href !== '/admin/parametres');
+  // Filtrer les items de navigation selon les rôles de l'utilisateur
+  const visibleBase = baseNavItems.filter((it) => it.roles.some((r) => roles.includes(r)));
   const navItems = isAdmin
-    ? [...visibleBase.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, visibleBase[12]]
+    ? [
+        ...visibleBase.filter((it) => it.href !== '/admin/journal'),
+        { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog, roles: ['admin' as Role] },
+        ...visibleBase.filter((it) => it.href === '/admin/journal'),
+      ]
     : visibleBase;
 
   const handleLogout = async () => {
