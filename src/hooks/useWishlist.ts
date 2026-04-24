@@ -1,13 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { safeStorageGetJson, safeStorageSet } from '@/lib/safe-storage';
 
 const LS_KEY = 'babycenter_wishlist';
 
 function readLocal(): string[] {
-  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; }
+  return safeStorageGetJson<string[]>(LS_KEY, []);
 }
-function writeLocal(ids: string[]) { localStorage.setItem(LS_KEY, JSON.stringify(ids)); }
+
+function writeLocal(ids: string[]) {
+  safeStorageSet(LS_KEY, JSON.stringify(ids));
+}
 
 export function useWishlist() {
   const { user } = useAuth();
@@ -20,27 +24,35 @@ export function useWishlist() {
       if (error) console.error('wishlist load', error);
       const local = new Set(readLocal());
       const remote = new Set((data ?? []).map(r => r.product_id));
-      // merge local into remote on first login
       const toInsert = [...local].filter(id => !remote.has(id));
+
       if (toInsert.length > 0) {
         await supabase.from('wishlists').insert(toInsert.map(product_id => ({ user_id: user.id, product_id })));
         toInsert.forEach(id => remote.add(id));
         writeLocal([]);
       }
+
       setIds(remote);
     } else {
       setIds(new Set(readLocal()));
     }
+
     setLoading(false);
   }, [user]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const toggle = async (productId: string) => {
     const next = new Set(ids);
     const has = next.has(productId);
-    if (has) next.delete(productId); else next.add(productId);
+
+    if (has) next.delete(productId);
+    else next.add(productId);
+
     setIds(next);
+
     if (user) {
       if (has) await supabase.from('wishlists').delete().eq('user_id', user.id).eq('product_id', productId);
       else await supabase.from('wishlists').insert({ user_id: user.id, product_id: productId });

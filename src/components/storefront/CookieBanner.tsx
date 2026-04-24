@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { safeStorageGet, safeStorageSet } from '@/lib/safe-storage';
 
 const KEY = 'babycenter_cookies';
 
 export default function CookieBanner() {
   const [show, setShow] = useState(false);
-  useEffect(() => { setShow(!localStorage.getItem(KEY)); }, []);
+
+  useEffect(() => {
+    setShow(!safeStorageGet(KEY));
+  }, []);
+
   if (!show) return null;
-  const accept = (val: 'all' | 'essential') => { localStorage.setItem(KEY, val); setShow(false); };
+
+  const accept = (val: 'all' | 'essential') => {
+    safeStorageSet(KEY, val);
+    setShow(false);
+  };
+
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 max-w-2xl mx-auto bg-card border border-border rounded-xl shadow-2xl p-4 md:p-5 flex flex-col md:flex-row gap-3 md:items-center">
       <p className="text-sm text-foreground/80 flex-1">
