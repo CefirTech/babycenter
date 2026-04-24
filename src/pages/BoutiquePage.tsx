@@ -36,6 +36,9 @@ export default function BoutiquePage() {
   // Reset to first page when URL filter changes
   useEffect(() => { setPage(1); }, [filtreParam]);
 
+  // Scroll to top on page change
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [page]);
+
   const allColors = useMemo(() => Array.from(new Set(products.flatMap(p => p.variants.map(v => v.couleur).filter(Boolean)))).sort(), [products]);
   const allSizes = useMemo(() => Array.from(new Set(products.flatMap(p => p.variants.map(v => v.taille).filter(Boolean)))).sort(), [products]);
 
