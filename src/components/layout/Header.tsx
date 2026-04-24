@@ -60,7 +60,6 @@ export default function Header() {
                 <Link key={l.href} to={l.href} onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary">{l.label}</Link>
               ))}
               <Link to={user ? '/compte' : '/connexion'} onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2"><User className="h-4 w-4" /> {user ? 'Mon compte' : 'Connexion'}</Link>
-              <Link to="/admin/login" onClick={() => setMobileOpen(false)} className="py-2 text-sm text-muted-foreground">Espace admin</Link>
             </div>
           </nav>
         )}
