@@ -7,6 +7,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedAdminRoute from "@/components/auth/ProtectedAdminRoute";
 import RoleProtectedRoute from "@/components/auth/RoleProtectedRoute";
+import RequireUser from "@/components/auth/RequireUser";
 import ScrollToTop from "@/components/ScrollToTop";
 
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
@@ -22,6 +23,15 @@ import CheckoutPage from "@/pages/CheckoutPage";
 import PromotionsPage from "@/pages/PromotionsPage";
 import ContactPage from "@/pages/ContactPage";
 import AboutPage from "@/pages/AboutPage";
+import AuthPage from "@/pages/AuthPage";
+import AccountPage from "@/pages/AccountPage";
+import CGVPage from "@/pages/legal/CGVPage";
+import MentionsLegalesPage from "@/pages/legal/MentionsLegalesPage";
+import ConfidentialitePage from "@/pages/legal/ConfidentialitePage";
+import RetoursPage from "@/pages/legal/RetoursPage";
+import LivraisonPage from "@/pages/legal/LivraisonPage";
+import FAQPage from "@/pages/legal/FAQPage";
+import GuideTaillesPage from "@/pages/legal/GuideTaillesPage";
 import NotFound from "@/pages/NotFound";
 
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -53,7 +63,6 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <Routes>
-              {/* Site Web */}
               <Route element={<StorefrontLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/boutique" element={<BoutiquePage />} />
@@ -65,17 +74,24 @@ const App = () => (
                 <Route path="/promotions" element={<PromotionsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/a-propos" element={<AboutPage />} />
-                <Route path="/faq" element={<AboutPage />} />
-                <Route path="/livraison" element={<AboutPage />} />
-                <Route path="/retours" element={<AboutPage />} />
+                <Route path="/connexion" element={<AuthPage mode="login" />} />
+                <Route path="/inscription" element={<AuthPage mode="signup" />} />
+                <Route element={<RequireUser />}>
+                  <Route path="/compte" element={<AccountPage />} />
+                </Route>
+                <Route path="/cgv" element={<CGVPage />} />
+                <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+                <Route path="/confidentialite" element={<ConfidentialitePage />} />
+                <Route path="/retours" element={<RetoursPage />} />
+                <Route path="/livraison" element={<LivraisonPage />} />
+                <Route path="/faq" element={<FAQPage />} />
+                <Route path="/guide-tailles" element={<GuideTaillesPage />} />
               </Route>
 
-              {/* Back-office */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route element={<ProtectedAdminRoute />}>
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
-                  {/* Vendeur + Manager + Admin */}
                   <Route element={<RoleProtectedRoute allow={['admin','manager','vendeur']} />}>
                     <Route path="ventes" element={<AdminSales />} />
                     <Route path="caisse" element={<AdminCash />} />
@@ -83,7 +99,6 @@ const App = () => (
                     <Route path="discussion" element={<AdminDiscussion />} />
                     <Route path="profil" element={<AdminProfile />} />
                   </Route>
-                  {/* Manager + Admin */}
                   <Route element={<RoleProtectedRoute allow={['admin','manager']} />}>
                     <Route path="produits" element={<AdminProducts />} />
                     <Route path="categories" element={<AdminCategories />} />
@@ -92,7 +107,6 @@ const App = () => (
                     <Route path="promotions" element={<AdminPromotions />} />
                     <Route path="rapports" element={<AdminReports />} />
                   </Route>
-                  {/* Admin uniquement */}
                   <Route element={<RoleProtectedRoute allow={['admin']} />}>
                     <Route path="parametres" element={<AdminSettings />} />
                     <Route path="utilisateurs" element={<AdminUsers />} />
