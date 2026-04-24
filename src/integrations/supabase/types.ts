@@ -291,6 +291,27 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          unsubscribed: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          unsubscribed?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          unsubscribed?: boolean
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           couleur: string | null
@@ -387,6 +408,7 @@ export type Database = {
           statut: Database["public"]["Enums"]["order_status"]
           total: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           canal?: Database["public"]["Enums"]["order_channel"]
@@ -405,6 +427,7 @@ export type Database = {
           statut?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           canal?: Database["public"]["Enums"]["order_channel"]
@@ -423,6 +446,7 @@ export type Database = {
           statut?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -643,6 +667,60 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          approuve: boolean
+          auteur_nom: string
+          commentaire: string
+          created_at: string
+          id: string
+          note: number
+          product_id: string
+          titre: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          approuve?: boolean
+          auteur_nom: string
+          commentaire: string
+          created_at?: string
+          id?: string
+          note: number
+          product_id: string
+          titre?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          approuve?: boolean
+          auteur_nom?: string
+          commentaire?: string
+          created_at?: string
+          id?: string
+          note?: number
+          product_id?: string
+          titre?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sale_items: {
         Row: {
           couleur: string | null
@@ -843,6 +921,42 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
