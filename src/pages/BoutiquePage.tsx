@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 import ProductCard from '@/components/storefront/ProductCard';
@@ -20,6 +21,8 @@ const PER_PAGE = 24;
 export default function BoutiquePage() {
   const { products, categories, loading } = useStorefrontData();
   const { ageRanges } = useAgeRanges();
+  const [searchParams] = useSearchParams();
+  const filtreParam = searchParams.get('filtre') || '';
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
   const [ageFilter, setAgeFilter] = useState('');
@@ -30,12 +33,18 @@ export default function BoutiquePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
 
+  // Reset to first page when URL filter changes
+  useEffect(() => { setPage(1); }, [filtreParam]);
+
   const allColors = useMemo(() => Array.from(new Set(products.flatMap(p => p.variants.map(v => v.couleur).filter(Boolean)))).sort(), [products]);
   const allSizes = useMemo(() => Array.from(new Set(products.flatMap(p => p.variants.map(v => v.taille).filter(Boolean)))).sort(), [products]);
 
   const filtered = useMemo(() => {
     let list = products.filter(p => {
       if (p.statut !== 'actif') return false;
+      if (filtreParam === 'nouveau' && !p.tags.includes('nouveau')) return false;
+      if (filtreParam === 'promo' && !p.tags.includes('promo')) return false;
+      if (filtreParam === 'bestseller' && !p.tags.includes('bestseller')) return false;
       if (search && !p.nom.toLowerCase().includes(search.toLowerCase())) return false;
       if (catFilter && p.categorie_id !== catFilter) return false;
       if (ageFilter && p.tranche_age !== ageFilter) return false;
@@ -47,7 +56,7 @@ export default function BoutiquePage() {
     if (sort === 'price_asc') list = [...list].sort((a, b) => (a.prix_promo ?? a.prix_vente) - (b.prix_promo ?? b.prix_vente));
     else if (sort === 'price_desc') list = [...list].sort((a, b) => (b.prix_promo ?? b.prix_vente) - (a.prix_promo ?? a.prix_vente));
     return list;
-  }, [products, search, catFilter, ageFilter, sexeFilter, colorFilter, sizeFilter, sort]);
+  }, [products, filtreParam, search, catFilter, ageFilter, sexeFilter, colorFilter, sizeFilter, sort]);
 
   const hasFilters = catFilter || ageFilter || sexeFilter || colorFilter || sizeFilter;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
