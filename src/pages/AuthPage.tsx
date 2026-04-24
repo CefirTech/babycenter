@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Phone, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, Phone, Eye, EyeOff, ArrowLeft, Shield } from 'lucide-react';
 import SEO from '@/components/SEO';
 
 type Method = 'email' | 'phone';
@@ -109,8 +109,16 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   };
 
   return (
-    <div className="container py-8 md:py-12 max-w-md">
+    <div className="container py-8 md:py-12 max-w-md relative">
       <SEO title={isSignup ? 'Créer un compte' : 'Se connecter'} description="Accédez à votre espace BABYCENTER" />
+      <Link
+        to="/admin/login"
+        title="Espace professionnel"
+        aria-label="Connexion administrateur"
+        className="absolute top-8 right-4 md:top-12 md:right-6 p-2 rounded-full bg-card border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors shadow-sm"
+      >
+        <Shield className="h-4 w-4" />
+      </Link>
       <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" /> Retour à l'accueil
       </Link>
