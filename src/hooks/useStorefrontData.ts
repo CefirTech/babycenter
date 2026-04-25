@@ -88,11 +88,14 @@ export function useStorefrontData() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const [{ data: p }, { data: c }, { data: v }] = await Promise.all([
-      supabase.from('products').select('*').eq('statut', 'actif').order('created_at', { ascending: false }),
+    const [{ data: p, error: pe }, { data: c, error: ce }, { data: v, error: ve }] = await Promise.all([
+      supabase.from('products_public').select('*').order('created_at', { ascending: false }),
       supabase.from('categories').select('*').eq('statut', 'publie').order('ordre'),
-      supabase.from('product_variants').select('*'),
+      supabase.from('product_variants_public').select('*'),
     ]);
+    if (pe) console.error('[storefront] products error', pe);
+    if (ce) console.error('[storefront] categories error', ce);
+    if (ve) console.error('[storefront] variants error', ve);
     const variantsByProd = (v ?? []).reduce<Record<string, any[]>>((acc, x) => {
       (acc[x.product_id] ||= []).push(x);
       return acc;
