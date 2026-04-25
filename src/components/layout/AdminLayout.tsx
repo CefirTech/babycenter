@@ -26,7 +26,8 @@ export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { signOut, user, isAdmin } = useAuth();
+  const { signOut, user, isAdmin, roles } = useAuth();
+  const isManager = roles.includes('manager');
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [unreadChats, setUnreadChats] = useState(0);
 
