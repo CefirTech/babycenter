@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedAdminRoute from "@/components/auth/ProtectedAdminRoute";
+import RoleGuard from "@/components/auth/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
@@ -74,20 +75,29 @@ const App = () => (
               <Route element={<ProtectedAdminRoute />}>
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
-                  <Route path="produits" element={<AdminProducts />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="commandes" element={<AdminOrders />} />
+                  {/* Tous staff (admin/manager/vendeur) */}
                   <Route path="ventes" element={<AdminSales />} />
-                  <Route path="clientes" element={<AdminCustomers />} />
-                  <Route path="depenses" element={<AdminExpenses />} />
                   <Route path="caisse" element={<AdminCash />} />
-                  <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="clientes" element={<AdminCustomers />} />
                   <Route path="discussion" element={<AdminDiscussion />} />
-                  <Route path="rapports" element={<AdminReports />} />
-                  <Route path="parametres" element={<AdminSettings />} />
-                  <Route path="utilisateurs" element={<AdminUsers />} />
                   <Route path="profil" element={<AdminProfile />} />
-                  <Route path="journal" element={<AdminActivityLog />} />
+
+                  {/* Admin + manager */}
+                  <Route element={<RoleGuard allow={['admin', 'manager']} />}>
+                    <Route path="produits" element={<AdminProducts />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="commandes" element={<AdminOrders />} />
+                    <Route path="depenses" element={<AdminExpenses />} />
+                    <Route path="promotions" element={<AdminPromotions />} />
+                    <Route path="rapports" element={<AdminReports />} />
+                  </Route>
+
+                  {/* Admin uniquement */}
+                  <Route element={<RoleGuard allow={['admin']} />}>
+                    <Route path="parametres" element={<AdminSettings />} />
+                    <Route path="utilisateurs" element={<AdminUsers />} />
+                    <Route path="journal" element={<AdminActivityLog />} />
+                  </Route>
                 </Route>
               </Route>
 

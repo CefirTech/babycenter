@@ -63,7 +63,7 @@ function mapProduct(p: any, variants: any[]): SFProduct {
       ...(p.est_meilleure_vente ? ['bestseller'] : []),
       ...(p.prix_promo ? ['promo'] : []),
     ],
-    prix_achat: Number(p.prix_achat) || 0,
+    prix_achat: 0,
     prix_vente: Number(p.prix_vente) || 0,
     prix_promo: p.prix_promo != null ? Number(p.prix_promo) : null,
     statut: p.statut,
@@ -74,9 +74,9 @@ function mapProduct(p: any, variants: any[]): SFProduct {
       sku: v.sku || '',
       taille: v.taille || '',
       couleur: v.couleur || '',
-      stock: Number(v.stock) || 0,
-      seuil_alerte: Number(v.seuil_alerte) || 0,
-      statut: v.stock > 0 ? 'actif' : 'rupture',
+      stock: v.en_stock ? 999 : 0,
+      seuil_alerte: 0,
+      statut: v.en_stock ? 'actif' : 'rupture',
     })),
     created_at: p.created_at,
   };
@@ -88,11 +88,14 @@ export function useStorefrontData() {
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const [{ data: p }, { data: c }, { data: v }] = await Promise.all([
-      supabase.from('products').select('*').eq('statut', 'actif').order('created_at', { ascending: false }),
+    const [{ data: p, error: pe }, { data: c, error: ce }, { data: v, error: ve }] = await Promise.all([
+      supabase.from('products_public').select('*').order('created_at', { ascending: false }),
       supabase.from('categories').select('*').eq('statut', 'publie').order('ordre'),
-      supabase.from('product_variants').select('*'),
+      supabase.from('product_variants_public').select('*'),
     ]);
+    if (pe) console.error('[storefront] products error', pe);
+    if (ce) console.error('[storefront] categories error', ce);
+    if (ve) console.error('[storefront] variants error', ve);
     const variantsByProd = (v ?? []).reduce<Record<string, any[]>>((acc, x) => {
       (acc[x.product_id] ||= []).push(x);
       return acc;
