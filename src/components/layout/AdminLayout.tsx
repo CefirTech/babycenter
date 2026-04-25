@@ -6,31 +6,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
-type Role = 'admin' | 'manager' | 'vendeur';
-const baseNavItems: { label: string; href: string; icon: any; roles: Role[] }[] = [
-  { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard, roles: ['admin','manager','vendeur'] },
-  { label: 'Produits', href: '/admin/produits', icon: Package, roles: ['admin','manager'] },
-  { label: 'Catégories', href: '/admin/categories', icon: Layers, roles: ['admin','manager'] },
-  { label: 'Commandes', href: '/admin/commandes', icon: ShoppingCart, roles: ['admin','manager'] },
-  { label: 'Ventes', href: '/admin/ventes', icon: Receipt, roles: ['admin','manager','vendeur'] },
-  { label: 'Clientes', href: '/admin/clientes', icon: Users, roles: ['admin','manager','vendeur'] },
-  { label: 'Dépenses', href: '/admin/depenses', icon: Wallet, roles: ['admin','manager'] },
-  { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank, roles: ['admin','manager','vendeur'] },
-  { label: 'Promotions', href: '/admin/promotions', icon: Tag, roles: ['admin','manager'] },
-  { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare, roles: ['admin','manager','vendeur'] },
-  { label: 'Rapports', href: '/admin/rapports', icon: BarChart3, roles: ['admin','manager'] },
-  { label: 'Paramètres', href: '/admin/parametres', icon: Settings, roles: ['admin'] },
-  { label: 'Journal', href: '/admin/journal', icon: Activity, roles: ['admin'] },
+const baseNavItems = [
+  { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
+  { label: 'Produits', href: '/admin/produits', icon: Package },
+  { label: 'Catégories', href: '/admin/categories', icon: Layers },
+  { label: 'Commandes', href: '/admin/commandes', icon: ShoppingCart },
+  { label: 'Ventes', href: '/admin/ventes', icon: Receipt },
+  { label: 'Clientes', href: '/admin/clientes', icon: Users },
+  { label: 'Dépenses', href: '/admin/depenses', icon: Wallet },
+  { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank },
+  { label: 'Promotions', href: '/admin/promotions', icon: Tag },
+  { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare },
+  { label: 'Rapports', href: '/admin/rapports', icon: BarChart3 },
+  { label: 'Paramètres', href: '/admin/parametres', icon: Settings },
+  { label: 'Journal', href: '/admin/journal', icon: Activity },
 ];
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { signOut, user, isAdmin, roles } = useAuth();
+  const { signOut, user, isAdmin } = useAuth();
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [unreadChats, setUnreadChats] = useState(0);
-  const [pendingOrders, setPendingOrders] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -47,19 +45,11 @@ export default function AdminLayout() {
         .eq('traite', false);
       setUnreadChats(count ?? 0);
     };
-    const loadOrders = async () => {
-      const { count } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .eq('statut', 'en_attente_paiement');
-      setPendingOrders(count ?? 0);
-    };
-    loadCount(); loadOrders();
+    loadCount();
     const handleRefresh = () => loadCount();
     const channel = supabase
-      .channel('admin_layout_realtime')
+      .channel('chat_leads_badge')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_leads' }, () => loadCount())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadOrders())
       .subscribe();
     window.addEventListener('chat-leads:refresh', handleRefresh);
     return () => {
@@ -72,14 +62,12 @@ export default function AdminLayout() {
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || '';
   const initial = displayName.charAt(0).toUpperCase();
 
-  // Filtrer les items de navigation selon les rôles de l'utilisateur
-  const visibleBase = baseNavItems.filter((it) => it.roles.some((r) => roles.includes(r)));
+  // Masquer "Paramètres" pour vendeur/manager (admin uniquement)
+  const visibleBase = isAdmin
+    ? baseNavItems
+    : baseNavItems.filter((it) => it.href !== '/admin/parametres');
   const navItems = isAdmin
-    ? [
-        ...visibleBase.filter((it) => it.href !== '/admin/journal'),
-        { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog, roles: ['admin' as Role] },
-        ...visibleBase.filter((it) => it.href === '/admin/journal'),
-      ]
+    ? [...visibleBase.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, visibleBase[12]]
     : visibleBase;
 
   const handleLogout = async () => {
@@ -108,17 +96,15 @@ export default function AdminLayout() {
         <nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
           {navItems.map(item => {
             const active = location.pathname === item.href || (item.href !== '/admin' && location.pathname.startsWith(item.href));
-            const badgeCount = item.href === '/admin/discussion' ? unreadChats
-              : item.href === '/admin/commandes' ? pendingOrders
-              : 0;
+            const showBadge = item.href === '/admin/discussion' && unreadChats > 0;
             return (
               <Link key={item.href} to={item.href} onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${active ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'}`}>
                 <item.icon className="h-4 w-4" />
                 <span className="flex-1">{item.label}</span>
-                {badgeCount > 0 && (
+                {showBadge && (
                   <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
-                    {badgeCount > 99 ? '99+' : badgeCount}
+                    {unreadChats > 99 ? '99+' : unreadChats}
                   </span>
                 )}
               </Link>

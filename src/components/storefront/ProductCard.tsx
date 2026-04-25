@@ -1,31 +1,18 @@
 import { Link } from 'react-router-dom';
 import type { SFProduct as Product } from '@/hooks/useStorefrontData';
 import { Heart } from 'lucide-react';
-import { useWishlist } from '@/hooks/useWishlist';
-import { useToast } from '@/hooks/use-toast';
 
 export default function ProductCard({ product }: { product: Product }) {
   const hasPromo = product.prix_promo !== null;
   const prix = hasPromo ? product.prix_promo! : product.prix_vente;
-  const { has, toggle } = useWishlist();
-  const { toast } = useToast();
-  const liked = has(product.id);
-
-  const onLike = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    await toggle(product.id);
-    toast({ title: liked ? 'Retiré des favoris' : 'Ajouté aux favoris', description: product.nom });
-  };
 
   return (
-    <Link to={`/produit/${product.slug}`} className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+    <Link to={`/produit/${product.slug}`} className="group block">
       <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-secondary mb-3">
         <img
           src={product.images[0]}
-          alt={`${product.nom} — ${product.tranche_age || 'enfant'} ${product.sexe || ''}`.trim()}
+          alt={product.nom}
           loading="lazy"
-          width={400}
-          height={533}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {hasPromo && (
@@ -39,12 +26,11 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         )}
         <button
-          onClick={onLike}
-          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm transition-all ${liked ? 'bg-primary text-primary-foreground opacity-100' : 'bg-background/80 text-foreground opacity-0 group-hover:opacity-100 hover:bg-background'}`}
-          aria-label={liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-          aria-pressed={liked}
+          onClick={(e) => { e.preventDefault(); }}
+          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-background"
+          aria-label="Ajouter aux favoris"
         >
-          <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
+          <Heart className="h-4 w-4 text-foreground" />
         </button>
       </div>
       <div className="space-y-1">

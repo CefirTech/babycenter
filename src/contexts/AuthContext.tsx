@@ -24,8 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchRoles = async (uid: string) => {
-    const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', uid);
-    if (error) console.error('fetchRoles error', error);
+    const { data } = await supabase.from('user_roles').select('role').eq('user_id', uid);
     setRoles((data?.map((r) => r.role as Role)) ?? []);
   };
 

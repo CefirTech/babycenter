@@ -291,27 +291,6 @@ export type Database = {
         }
         Relationships: []
       }
-      newsletter_subscribers: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          unsubscribed: boolean
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          unsubscribed?: boolean
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          unsubscribed?: boolean
-        }
-        Relationships: []
-      }
       order_items: {
         Row: {
           couleur: string | null
@@ -368,24 +347,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "order_items_variant_id_fkey"
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_variant_id_fkey"
-            columns: ["variant_id"]
-            isOneToOne: false
-            referencedRelation: "product_variants_public"
             referencedColumns: ["id"]
           },
         ]
@@ -408,7 +373,6 @@ export type Database = {
           statut: Database["public"]["Enums"]["order_status"]
           total: number
           updated_at: string
-          user_id: string | null
         }
         Insert: {
           canal?: Database["public"]["Enums"]["order_channel"]
@@ -427,7 +391,6 @@ export type Database = {
           statut?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string
-          user_id?: string | null
         }
         Update: {
           canal?: Database["public"]["Enums"]["order_channel"]
@@ -446,7 +409,6 @@ export type Database = {
           statut?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -498,13 +460,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_public"
             referencedColumns: ["id"]
           },
         ]
@@ -667,60 +622,6 @@ export type Database = {
         }
         Relationships: []
       }
-      reviews: {
-        Row: {
-          approuve: boolean
-          auteur_nom: string
-          commentaire: string
-          created_at: string
-          id: string
-          note: number
-          product_id: string
-          titre: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          approuve?: boolean
-          auteur_nom: string
-          commentaire: string
-          created_at?: string
-          id?: string
-          note: number
-          product_id: string
-          titre?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          approuve?: boolean
-          auteur_nom?: string
-          commentaire?: string
-          created_at?: string
-          id?: string
-          note?: number
-          product_id?: string
-          titre?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       sale_items: {
         Row: {
           couleur: string | null
@@ -773,13 +674,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "sale_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "sale_items_sale_id_fkey"
             columns: ["sale_id"]
             isOneToOne: false
@@ -791,13 +685,6 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sale_items_variant_id_fkey"
-            columns: ["variant_id"]
-            isOneToOne: false
-            referencedRelation: "product_variants_public"
             referencedColumns: ["id"]
           },
         ]
@@ -922,183 +809,11 @@ export type Database = {
         }
         Relationships: []
       }
-      wishlists: {
-        Row: {
-          created_at: string
-          id: string
-          product_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          product_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          product_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wishlists_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wishlists_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
-      product_variants_public: {
-        Row: {
-          couleur: string | null
-          created_at: string | null
-          en_stock: boolean | null
-          id: string | null
-          product_id: string | null
-          sku: string | null
-          taille: string | null
-        }
-        Insert: {
-          couleur?: string | null
-          created_at?: string | null
-          en_stock?: never
-          id?: string | null
-          product_id?: string | null
-          sku?: string | null
-          taille?: string | null
-        }
-        Update: {
-          couleur?: string | null
-          created_at?: string | null
-          en_stock?: never
-          id?: string | null
-          product_id?: string | null
-          sku?: string | null
-          taille?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      products_public: {
-        Row: {
-          categorie_id: string | null
-          code_produit: string | null
-          created_at: string | null
-          description: string | null
-          entretien: string | null
-          est_meilleure_vente: boolean | null
-          est_nouveaute: boolean | null
-          genre: string | null
-          id: string | null
-          images: string[] | null
-          marque: string | null
-          matiere: string | null
-          nom: string | null
-          prix_promo: number | null
-          prix_vente: number | null
-          slug: string | null
-          statut: Database["public"]["Enums"]["product_status"] | null
-          tranche_age: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          categorie_id?: string | null
-          code_produit?: string | null
-          created_at?: string | null
-          description?: string | null
-          entretien?: string | null
-          est_meilleure_vente?: boolean | null
-          est_nouveaute?: boolean | null
-          genre?: string | null
-          id?: string | null
-          images?: string[] | null
-          marque?: string | null
-          matiere?: string | null
-          nom?: string | null
-          prix_promo?: number | null
-          prix_vente?: number | null
-          slug?: string | null
-          statut?: Database["public"]["Enums"]["product_status"] | null
-          tranche_age?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          categorie_id?: string | null
-          code_produit?: string | null
-          created_at?: string | null
-          description?: string | null
-          entretien?: string | null
-          est_meilleure_vente?: boolean | null
-          est_nouveaute?: boolean | null
-          genre?: string | null
-          id?: string | null
-          images?: string[] | null
-          marque?: string | null
-          matiere?: string | null
-          nom?: string | null
-          prix_promo?: number | null
-          prix_vente?: number | null
-          slug?: string | null
-          statut?: Database["public"]["Enums"]["product_status"] | null
-          tranche_age?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "products_categorie_id_fkey"
-            columns: ["categorie_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      create_sale_atomic: {
-        Args: {
-          _customer_id: string
-          _items: Json
-          _mode_paiement: Database["public"]["Enums"]["payment_method"]
-          _montant_recu: number
-          _notes: string
-          _numero_vente: string
-          _paiements: Json
-          _remise: number
-          _session_id: string
-          _sous_total: number
-          _total: number
-          _vendeur_id: string
-          _vendeur_nom: string
-        }
-        Returns: string
-      }
       generate_order_number: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -1108,19 +823,6 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
-      validate_promo_code: {
-        Args: { _code: string; _montant?: number }
-        Returns: {
-          code: string
-          id: string
-          montant_min_commande: number
-          nom: string
-          reason: string
-          type: Database["public"]["Enums"]["promotion_type"]
-          valeur: number
-          valid: boolean
-        }[]
-      }
     }
     Enums: {
       app_role: "admin" | "manager" | "vendeur"

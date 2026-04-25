@@ -7,25 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye, Search, Loader2, FileDown, FileSpreadsheet, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, Search, Loader2, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fcfa, shortDate } from '@/lib/format';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activity';
 import { usePagination } from '@/hooks/usePagination';
 import { exportListPDF } from '@/lib/pdf';
-
-function exportCSV(filename: string, rows: (string | number)[][]) {
-  const escape = (v: any) => {
-    const s = String(v ?? '');
-    return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  const csv = '\uFEFF' + rows.map(r => r.map(escape).join(';')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-}
 
 const STATUSES = ['en_attente_paiement','payee','en_preparation','expediee','livree','annulee'] as const;
 const statusColors: Record<string, string> = {
@@ -53,19 +40,7 @@ export default function AdminOrders() {
     setOrders(data ?? []);
     setLoading(false);
   };
-  useEffect(() => {
-    load();
-    const channel = supabase
-      .channel('admin_orders_realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, (payload) => {
-        const o: any = payload.new;
-        toast.success(`Nouvelle commande : ${o.numero_commande}`, { description: `${o.customer_nom} — ${fcfa(o.total)}` });
-        load();
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, () => load())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const open = async (o: any) => {
     setViewing(o);
@@ -100,16 +75,6 @@ export default function AdminOrders() {
     });
   };
 
-  const exportCSVFile = () => {
-    const head = ['N°', 'Cliente', 'Téléphone', 'Adresse', 'Canal', 'Date', 'Statut', 'Mode paiement', 'Sous-total', 'Livraison', 'Remise', 'Total'];
-    const body = filtered.map(o => [
-      o.numero_commande, o.customer_nom, o.customer_telephone || '', o.customer_adresse || '',
-      o.canal, shortDate(o.created_at), o.statut, o.mode_paiement || '',
-      o.sous_total, o.frais_livraison, o.remise, o.total,
-    ]);
-    exportCSV(`commandes-${new Date().toISOString().slice(0,10)}.csv`, [head, ...body]);
-  };
-
   return (
     <div className="space-y-6">
       <div>
@@ -130,7 +95,6 @@ export default function AdminOrders() {
           </SelectContent>
         </Select>
         <Button variant="outline" onClick={exportPDF}><FileDown className="h-4 w-4 mr-2" /> Export PDF</Button>
-        <Button variant="outline" onClick={exportCSVFile}><FileSpreadsheet className="h-4 w-4 mr-2" /> Export CSV</Button>
       </div>
 
       <Card><CardContent className="p-0">

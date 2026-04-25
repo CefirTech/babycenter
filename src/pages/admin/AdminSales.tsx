@@ -141,14 +141,16 @@ export default function AdminSales() {
   const totalRemise = remise + promoRemise;
   const total = Math.max(0, sousTotal - totalRemise);
 
-  // Code promo (RPC sécurisée — ne révèle pas la liste)
+  // Code promo
   const applyPromo = async () => {
     if (!promoCode.trim()) return;
-    const { data, error } = await (supabase as any).rpc('validate_promo_code', { _code: promoCode.trim().toUpperCase(), _montant: sousTotal });
-    if (error) { toast.error(error.message); return; }
-    const row = Array.isArray(data) ? data[0] : data;
-    if (!row || !row.valid) { toast.error(row?.reason || 'Code invalide'); return; }
-    setPromo(row); toast.success(`Promo "${row.nom}" appliquée`);
+    const { data, error } = await supabase.from('promotions').select('*').eq('code', promoCode.trim().toUpperCase()).eq('active', true).maybeSingle();
+    if (error || !data) { toast.error('Code invalide'); return; }
+    if (data.date_fin && new Date(data.date_fin) < new Date()) { toast.error('Code expiré'); return; }
+    if (data.montant_min_commande && sousTotal < Number(data.montant_min_commande)) {
+      toast.error(`Minimum requis : ${fcfa(data.montant_min_commande)}`); return;
+    }
+    setPromo(data); toast.success(`Promo "${data.nom}" appliquée`);
   };
   const removePromo = () => { setPromo(null); setPromoCode(''); };
 
@@ -176,39 +178,36 @@ export default function AdminSales() {
     toast.success('Panier repris');
   };
 
-  // Encaissement (RPC atomique : panier + items + stock dans une transaction)
+  // Encaissement (via dialog confirmation)
   const performCheckout = async (res: CheckoutResult) => {
     if (cart.length === 0) return;
     setSaving(true);
     const numero_vente = `V-${Date.now().toString().slice(-8)}`;
+    const { data: sale, error } = await supabase.from('sales').insert({
+      numero_vente, mode_paiement: res.mode_principal, sous_total: sousTotal, remise: totalRemise, total,
+      customer_id: customerId === 'walkin' ? null : customerId,
+      vendeur_id: user?.id, vendeur_nom: user?.user_metadata?.display_name || user?.email,
+      session_id: activeSession?.id ?? null,
+      paiements: res.paiements, montant_recu: res.montant_recu,
+    }).select().single();
+    if (error) { toast.error(error.message); setSaving(false); return; }
     const items = cart.map((l) => ({
-      product_id: l.product_id, variant_id: l.variant_id,
+      sale_id: sale.id, product_id: l.product_id, variant_id: l.variant_id,
       product_nom: l.product_nom, taille: l.taille, couleur: l.couleur,
       prix_unitaire: l.prix_unitaire, quantite: l.quantite, remise_ligne: l.remise_ligne, total: totalLine(l),
     }));
-    const { data: saleId, error } = await (supabase as any).rpc('create_sale_atomic', {
-      _numero_vente: numero_vente,
-      _customer_id: customerId === 'walkin' ? null : customerId,
-      _session_id: activeSession?.id ?? null,
-      _vendeur_id: user?.id ?? null,
-      _vendeur_nom: user?.user_metadata?.display_name || user?.email || null,
-      _mode_paiement: res.mode_principal,
-      _paiements: res.paiements,
-      _montant_recu: res.montant_recu,
-      _sous_total: sousTotal,
-      _remise: totalRemise,
-      _total: total,
-      _notes: null,
-      _items: items,
-    });
-    if (error) { toast.error(error.message); setSaving(false); return; }
+    await supabase.from('sale_items').insert(items);
+    for (const l of cart) {
+      const v = variants.find((x) => x.id === l.variant_id);
+      if (v) await supabase.from('product_variants').update({ stock: Math.max(0, v.stock - l.quantite) }).eq('id', l.variant_id);
+    }
     if (promo) await supabase.from('promotions').update({ utilisations: Number(promo.utilisations ?? 0) + 1 }).eq('id', promo.id);
-    await logActivity('create', 'sales', saleId, { numero: numero_vente, total });
+    await logActivity('create', 'sales', sale.id, { numero: numero_vente, total });
     toast.success(`Vente ${numero_vente} encaissée — ${fcfa(total)}`);
 
     // Imprimer le ticket auto
     const receipt = {
-      numero_vente, created_at: new Date().toISOString(), vendeur_nom: user?.user_metadata?.display_name || user?.email,
+      numero_vente, created_at: sale.created_at, vendeur_nom: sale.vendeur_nom,
       mode_paiement: res.mode_principal, paiements: res.paiements,
       sous_total: sousTotal, remise: totalRemise, total, montant_recu: res.montant_recu,
       items: items.map((it) => ({ ...it })),
