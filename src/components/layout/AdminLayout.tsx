@@ -63,12 +63,23 @@ export default function AdminLayout() {
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || '';
   const initial = displayName.charAt(0).toUpperCase();
 
-  // Masquer "Paramètres" pour vendeur/manager (admin uniquement)
-  const visibleBase = isAdmin
-    ? baseNavItems
-    : baseNavItems.filter((it) => it.href !== '/admin/parametres');
+  // Filtrage des items selon le rôle
+  // - admin : tout (+ Utilisateurs)
+  // - manager : tout sauf Paramètres / Journal / Utilisateurs
+  // - vendeur : Tableau de bord, Ventes, Caisse, Clientes, Discussion uniquement
+  const adminOnlyHrefs = ['/admin/parametres', '/admin/journal'];
+  const managerHrefs = ['/admin/produits', '/admin/categories', '/admin/commandes', '/admin/depenses', '/admin/promotions', '/admin/rapports'];
+
+  let visibleBase = baseNavItems;
+  if (!isAdmin) {
+    visibleBase = visibleBase.filter((it) => !adminOnlyHrefs.includes(it.href));
+  }
+  if (!isAdmin && !isManager) {
+    // vendeur : retirer aussi les items manager
+    visibleBase = visibleBase.filter((it) => !managerHrefs.includes(it.href));
+  }
   const navItems = isAdmin
-    ? [...visibleBase.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, visibleBase[12]]
+    ? [...visibleBase.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, ...visibleBase.slice(12)]
     : visibleBase;
 
   const handleLogout = async () => {
