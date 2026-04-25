@@ -970,24 +970,6 @@ export type Database = {
           sku: string | null
           taille: string | null
         }
-        Insert: {
-          couleur?: string | null
-          created_at?: string | null
-          en_stock?: never
-          id?: string | null
-          product_id?: string | null
-          sku?: string | null
-          taille?: string | null
-        }
-        Update: {
-          couleur?: string | null
-          created_at?: string | null
-          en_stock?: never
-          id?: string | null
-          product_id?: string | null
-          sku?: string | null
-          taille?: string | null
-        }
         Relationships: [
           {
             foreignKeyName: "product_variants_product_id_fkey"
