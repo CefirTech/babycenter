@@ -149,6 +149,73 @@ export default function CheckoutDialog({
         <DialogHeader><DialogTitle>Encaisser — {fcfa(total)}</DialogTitle></DialogHeader>
 
         <div className="space-y-4">
+          {onCustomerChange && (
+            <div ref={custBoxRef} className="relative">
+              <Label className="mb-1.5 block">Client</Label>
+              {customerId !== 'walkin' && selectedCustomer && !custOpen ? (
+                <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2">
+                  <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{selectedCustomer.nom}</p>
+                    {selectedCustomer.telephone && (
+                      <p className="text-xs text-muted-foreground truncate">{selectedCustomer.telephone}</p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => { onCustomerChange('walkin'); setCustQuery(''); setCustOpen(true); }}
+                    title="Changer"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      className="pl-8"
+                      placeholder="Rechercher un client (nom, téléphone)…"
+                      value={custQuery}
+                      onChange={(e) => { setCustQuery(e.target.value); setCustOpen(true); }}
+                      onFocus={() => setCustOpen(true)}
+                    />
+                  </div>
+                  {custOpen && (
+                    <div className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-md border border-border bg-popover shadow-md">
+                      <button
+                        type="button"
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2 ${customerId === 'walkin' ? 'bg-muted/50' : ''}`}
+                        onClick={() => { onCustomerChange('walkin'); setCustOpen(false); setCustQuery(''); }}
+                      >
+                        {customerId === 'walkin' && <Check className="h-3.5 w-3.5 text-primary" />}
+                        <span className={customerId === 'walkin' ? '' : 'ml-[1.125rem]'}>Client de passage</span>
+                      </button>
+                      {filteredCustomers.length === 0 ? (
+                        <p className="px-3 py-3 text-sm text-muted-foreground">Aucun client trouvé</p>
+                      ) : (
+                        filteredCustomers.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-muted border-t border-border"
+                            onClick={() => { onCustomerChange(c.id); setCustOpen(false); setCustQuery(''); }}
+                          >
+                            <div className="font-medium truncate">{c.nom}</div>
+                            {c.telephone && <div className="text-xs text-muted-foreground truncate">{c.telephone}</div>}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
           {!split ? (
             <div className="space-y-2">
               <div>
