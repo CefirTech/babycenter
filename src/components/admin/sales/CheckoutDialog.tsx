@@ -60,11 +60,11 @@ export default function CheckoutDialog({
     if (on) {
       const half = Math.round(total / 2);
       setPaiements([
-        { mode: 'especes', montant: half },
-        { mode: 'wave', montant: total - half },
+        { mode: 'especes', montant: half, reference: '' },
+        { mode: 'wave', montant: total - half, reference: '' },
       ]);
     } else {
-      setPaiements([{ mode: 'especes', montant: total }]);
+      setPaiements([{ mode: 'especes', montant: total, reference: '' }]);
       setMontantRecu(total);
     }
   };
@@ -74,9 +74,13 @@ export default function CheckoutDialog({
   const especesLine = paiements.find((p) => p.mode === 'especes');
   const showMonnaie = !split && !!especesLine && especesLine.montant > 0;
   const ecart = totalPayé - total;
-  const valid = Math.abs(ecart) < 1 && (!showMonnaie || montantRecu >= (especesLine?.montant ?? 0));
+  const missingRef = paiements.some((p) => needsReference(p.mode) && !(p.reference ?? '').trim());
+  const valid =
+    Math.abs(ecart) < 1 &&
+    (!showMonnaie || montantRecu >= (especesLine?.montant ?? 0)) &&
+    !missingRef;
 
-  const updateLine = (i: number, patch: Partial<{ mode: Mode; montant: number }>) => {
+  const updateLine = (i: number, patch: Partial<PaiementLigne>) => {
     setPaiements((arr) => arr.map((p, j) => (j === i ? { ...p, ...patch } : p)));
   };
 
@@ -86,7 +90,6 @@ export default function CheckoutDialog({
       updateLine(i, { montant });
       return;
     }
-    const other = i === 0 ? 1 : 0;
     const otherMontant = Math.max(0, total - montant);
     setPaiements((arr) =>
       arr.map((p, j) => (j === i ? { ...p, montant } : { ...p, montant: otherMontant }))
@@ -95,8 +98,14 @@ export default function CheckoutDialog({
 
   const submit = () => {
     if (!valid) return;
+    // Nettoyer les références vides
+    const cleanPaiements = paiements.map((p) => ({
+      mode: p.mode,
+      montant: p.montant,
+      ...(p.reference?.trim() ? { reference: p.reference.trim() } : {}),
+    }));
     onConfirm({
-      paiements,
+      paiements: cleanPaiements,
       mode_principal: paiements[0]?.mode ?? 'especes',
       montant_recu: showMonnaie ? montantRecu : total,
       monnaie: showMonnaie ? monnaie : 0,
