@@ -2,8 +2,14 @@ import { MessageCircle, MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function ContactPage() {
+  useSEO({
+    title: 'Contact — BABYCENTER Abidjan',
+    description: 'Contactez BABYCENTER : WhatsApp, téléphone, email. Boutique vêtements enfants à Abidjan, Côte d\'Ivoire.',
+    canonical: 'https://babycenter.lovable.app/contact',
+  });
   return (
     <div className="py-12 md:py-16">
       <div className="container max-w-4xl">

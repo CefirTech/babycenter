@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
+import { useSEO } from '@/hooks/useSEO';
 import heroImg from '@/assets/hero-main.jpg';
 
 const fadeUp = {
@@ -19,6 +20,11 @@ const reviews = [
 ];
 
 export default function HomePage() {
+  useSEO({
+    title: 'BABYCENTER — Vêtements premium enfants 0-16 ans à Abidjan',
+    description: 'Collection élégante de vêtements pour enfants de 0 à 16 ans. Qualité premium, livraison rapide en Côte d\'Ivoire. Commandez via WhatsApp.',
+    canonical: 'https://babycenter.lovable.app/',
+  });
   const { products, categories } = useStorefrontData();
   const { ageRanges } = useAgeRanges();
   const featured = products.filter(p => p.featured || p.tags.includes('nouveau')).slice(0, 8);

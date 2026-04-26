@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
+import { useSEO } from '@/hooks/useSEO';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
@@ -11,6 +12,11 @@ export default function ProductDetailPage() {
   const { slug } = useParams();
   const { products, loading } = useStorefrontData();
   const product = products.find(p => p.slug === slug);
+  useSEO({
+    title: product ? `${product.nom} | BABYCENTER` : 'Produit | BABYCENTER',
+    description: product?.description || `Achetez ${product?.nom ?? 'ce produit'} sur BABYCENTER. Livraison rapide à Abidjan.`,
+    canonical: product ? `https://babycenter.lovable.app/produit/${product.slug}` : undefined,
+  });
   const { addItem } = useCart();
   const { toast } = useToast();
   const [selectedVariant, setSelectedVariant] = useState(0);

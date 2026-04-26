@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
+import { useSEO } from '@/hooks/useSEO';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,11 @@ const sexes = [
 ];
 
 export default function BoutiquePage() {
+  useSEO({
+    title: 'Boutique — Tous nos vêtements enfants | BABYCENTER',
+    description: 'Découvrez notre collection complète : robes, t-shirts, ensembles pour filles et garçons de 0 à 16 ans. Filtrez par âge, catégorie et genre.',
+    canonical: 'https://babycenter.lovable.app/boutique',
+  });
   const { products, categories, loading } = useStorefrontData();
   const { ageRanges } = useAgeRanges();
   const [search, setSearch] = useState('');
