@@ -84,7 +84,7 @@ export default function AdminCash() {
     let grandTotal = 0;
     let totalCount = 0;
     for (const s of sessionSales) {
-      if (s.statut === 'annulee') continue;
+      if (s.statut !== 'validee') continue;
       totalCount++;
       grandTotal += Number(s.total) || 0;
       const lignes = Array.isArray(s.paiements) && s.paiements.length > 0
