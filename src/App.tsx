@@ -40,6 +40,7 @@ const AdminSales = lazy(() => import("@/pages/admin/AdminSales"));
 const AdminExpenses = lazy(() => import("@/pages/admin/AdminExpenses"));
 const AdminCash = lazy(() => import("@/pages/admin/AdminCash"));
 const AdminPromotions = lazy(() => import("@/pages/admin/AdminPromotions"));
+const AdminFlashSales = lazy(() => import("@/pages/admin/AdminFlashSales"));
 const AdminReports = lazy(() => import("@/pages/admin/AdminReports"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const AdminActivityLog = lazy(() => import("@/pages/admin/AdminActivityLog"));
@@ -108,6 +109,7 @@ const App = () => (
                       <Route path="commandes" element={<AdminOrders />} />
                       <Route path="depenses" element={<AdminExpenses />} />
                       <Route path="promotions" element={<AdminPromotions />} />
+                      <Route path="ventes-flash" element={<AdminFlashSales />} />
                       <Route path="rapports" element={<AdminReports />} />
                     </Route>
 

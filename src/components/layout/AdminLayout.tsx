@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,7 @@ const baseNavItems = [
   { label: 'Dépenses', href: '/admin/depenses', icon: Wallet },
   { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank },
   { label: 'Promotions', href: '/admin/promotions', icon: Tag },
+  { label: 'Ventes Flash', href: '/admin/ventes-flash', icon: Zap },
   { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare },
   { label: 'Rapports', href: '/admin/rapports', icon: BarChart3 },
   { label: 'Paramètres', href: '/admin/parametres', icon: Settings },
@@ -68,7 +69,7 @@ export default function AdminLayout() {
   // - manager : tout sauf Paramètres / Journal / Utilisateurs
   // - vendeur : Tableau de bord, Ventes, Caisse, Clientes, Discussion uniquement
   const adminOnlyHrefs = ['/admin/parametres', '/admin/journal'];
-  const managerHrefs = ['/admin/produits', '/admin/categories', '/admin/commandes', '/admin/depenses', '/admin/promotions', '/admin/rapports'];
+  const managerHrefs = ['/admin/produits', '/admin/categories', '/admin/commandes', '/admin/depenses', '/admin/promotions', '/admin/ventes-flash', '/admin/rapports'];
 
   let visibleBase = baseNavItems;
   if (!isAdmin) {
@@ -79,7 +80,7 @@ export default function AdminLayout() {
     visibleBase = visibleBase.filter((it) => !managerHrefs.includes(it.href));
   }
   const navItems = isAdmin
-    ? [...visibleBase.slice(0, 12), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, ...visibleBase.slice(12)]
+    ? [...visibleBase.slice(0, 13), { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: UserCog }, ...visibleBase.slice(13)]
     : visibleBase;
 
   const handleLogout = async () => {
