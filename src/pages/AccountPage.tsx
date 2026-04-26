@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, LogOut, Plus, Trash2, MapPin, Package, Heart, User as UserIcon, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { formatPrice } from '@/lib/format';
+import { fcfa as formatPrice } from '@/lib/format';
 import { useSEO } from '@/hooks/useSEO';
 import { useWishlist } from '@/hooks/useWishlist';
 
