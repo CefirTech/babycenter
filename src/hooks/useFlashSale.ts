@@ -41,9 +41,9 @@ export function useFlashSale(productId: string | undefined) {
 
     load();
 
-    const channel = supabase
-      .channel(`flash-sale-${productId}`)
-      .on('postgres_changes',
+    const channel = supabase.channel(`flash-sale-${productId}-${Math.random().toString(36).slice(2)}`);
+    channel
+      .on('postgres_changes' as any,
         { event: '*', schema: 'public', table: 'flash_sales', filter: `product_id=eq.${productId}` },
         () => load())
       .subscribe();
