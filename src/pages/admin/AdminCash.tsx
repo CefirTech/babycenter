@@ -265,7 +265,7 @@ export default function AdminCash() {
             <div><Label>Type</Label>
               <Select value={moveType} onValueChange={(v: any) => setMoveType(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="entree">Entrée</SelectItem><SelectItem value="sortie">Sortie</SelectItem></SelectContent>
+                <SelectContent><SelectItem value="sortie">Sortie</SelectItem><SelectItem value="autre">Autre</SelectItem></SelectContent>
               </Select>
             </div>
             <div><Label>Montant (FCFA)</Label><Input type="number" value={moveMontant} onChange={e => setMoveMontant(+e.target.value)} /></div>
