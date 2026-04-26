@@ -61,7 +61,7 @@ export default function AdminSettings() {
       if (error) { toast.error(`${k.label} : ${error.message}`); setSaving(false); return; }
     }
     const { error: heroErr } = await supabase.from('settings').upsert(
-      { cle: 'hero_banner', valeur: { v: hero }, description: 'Bannière hero de la page d\'accueil' },
+      { cle: 'hero_banner', valeur: { v: hero } as any, description: 'Bannière hero de la page d\'accueil' },
       { onConflict: 'cle' }
     );
     if (heroErr) { toast.error(`Hero : ${heroErr.message}`); setSaving(false); return; }
