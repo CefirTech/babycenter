@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
 import HeroCarousel from '@/components/storefront/HeroCarousel';
 import SectionReveal from '@/components/storefront/SectionReveal';
+import StatsStrip from '@/components/storefront/StatsStrip';
+import FeatureMarquee from '@/components/storefront/FeatureMarquee';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 import { useSEO } from '@/hooks/useSEO';
@@ -36,6 +38,12 @@ export default function HomePage() {
     <div>
       {/* Hero Carousel */}
       <HeroCarousel />
+
+      {/* Marquee — kinetic ticker right under the hero */}
+      <FeatureMarquee />
+
+      {/* Animated stats — instant trust signal */}
+      <StatsStrip />
 
       {/* Catégories */}
       <section className="py-16 md:py-20">
