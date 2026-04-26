@@ -74,11 +74,9 @@ export default function CheckoutDialog({
   const especesLine = paiements.find((p) => p.mode === 'especes');
   const showMonnaie = !split && !!especesLine && especesLine.montant > 0;
   const ecart = totalPayé - total;
-  const missingRef = paiements.some((p) => needsReference(p.mode) && !(p.reference ?? '').trim());
   const valid =
     Math.abs(ecart) < 1 &&
-    (!showMonnaie || montantRecu >= (especesLine?.montant ?? 0)) &&
-    !missingRef;
+    (!showMonnaie || montantRecu >= (especesLine?.montant ?? 0));
 
   const updateLine = (i: number, patch: Partial<PaiementLigne>) => {
     setPaiements((arr) => arr.map((p, j) => (j === i ? { ...p, ...patch } : p)));
@@ -131,14 +129,13 @@ export default function CheckoutDialog({
               </div>
               {needsReference(paiements[0]?.mode) && (
                 <div>
-                  <Label className="mb-1.5 block text-xs">
-                    Référence / N° transaction <span className="text-destructive">*</span>
+                  <Label className="mb-1.5 block text-xs text-muted-foreground">
+                    Référence / N° transaction <span className="text-muted-foreground/70">(optionnel)</span>
                   </Label>
                   <Input
                     placeholder="Ex: TXN123456"
                     value={paiements[0]?.reference ?? ''}
                     onChange={(e) => updateLine(0, { reference: e.target.value })}
-                    className={!(paiements[0]?.reference ?? '').trim() ? 'border-destructive/60' : ''}
                   />
                 </div>
               )}
@@ -164,10 +161,9 @@ export default function CheckoutDialog({
                   </div>
                   {needsReference(p.mode) && (
                     <Input
-                      placeholder="Référence / N° transaction *"
+                      placeholder="Référence / N° transaction (optionnel)"
                       value={p.reference ?? ''}
                       onChange={(e) => updateLine(i, { reference: e.target.value })}
-                      className={!(p.reference ?? '').trim() ? 'border-destructive/60' : ''}
                     />
                   )}
                 </div>
