@@ -119,20 +119,35 @@ export default function CheckoutDialog({
 
         <div className="space-y-4">
           {!split ? (
-            <div>
-              <Label className="mb-1.5 block">Mode de paiement</Label>
-              <Select value={paiements[0]?.mode} onValueChange={(v: Mode) => updateLine(0, { mode: v, montant: total })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{MODE_LABEL[m]}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <div className="space-y-2">
+              <div>
+                <Label className="mb-1.5 block">Mode de paiement</Label>
+                <Select value={paiements[0]?.mode} onValueChange={(v: Mode) => updateLine(0, { mode: v, montant: total })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{MODE_LABEL[m]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {needsReference(paiements[0]?.mode) && (
+                <div>
+                  <Label className="mb-1.5 block text-xs">
+                    Référence / N° transaction <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    placeholder="Ex: TXN123456"
+                    value={paiements[0]?.reference ?? ''}
+                    onChange={(e) => updateLine(0, { reference: e.target.value })}
+                    className={!(paiements[0]?.reference ?? '').trim() ? 'border-destructive/60' : ''}
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
               {paiements.map((p, i) => (
-                <div key={i} className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Paiement {i + 1}</Label>
+                <div key={i} className="space-y-1.5 rounded-lg border border-border p-3">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Paiement {i + 1}</Label>
                   <div className="flex gap-2">
                     <Select value={p.mode} onValueChange={(v: Mode) => updateLine(i, { mode: v })}>
                       <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
@@ -147,6 +162,14 @@ export default function CheckoutDialog({
                       onChange={(e) => updateSplitAmount(i, +e.target.value || 0)}
                     />
                   </div>
+                  {needsReference(p.mode) && (
+                    <Input
+                      placeholder="Référence / N° transaction *"
+                      value={p.reference ?? ''}
+                      onChange={(e) => updateLine(i, { reference: e.target.value })}
+                      className={!(p.reference ?? '').trim() ? 'border-destructive/60' : ''}
+                    />
+                  )}
                 </div>
               ))}
             </div>
