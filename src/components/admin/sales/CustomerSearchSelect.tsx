@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, User, X, Check, ChevronDown } from 'lucide-react';
+import { formatPhone } from '@/lib/format';
 
 export type CustomerOption = { id: string; nom: string; telephone?: string | null };
 
