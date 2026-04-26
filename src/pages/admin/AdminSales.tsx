@@ -77,7 +77,15 @@ export default function AdminSales() {
     setCustomers(c ?? []); setSales(s ?? []); setActiveSession(sess);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-sales-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => { load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const filtered = useMemo(() => {
     return products

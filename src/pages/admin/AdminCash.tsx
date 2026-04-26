@@ -46,7 +46,15 @@ export default function AdminCash() {
     setHistory(h ?? []);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-cash-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_movements' }, () => { load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_sessions' }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const totalEntrees = movements.filter(m => m.type === 'entree').reduce((s, m) => s + Number(m.montant), 0);
   const totalSorties = movements.filter(m => m.type === 'sortie').reduce((s, m) => s + Number(m.montant), 0);
