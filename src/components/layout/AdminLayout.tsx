@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare, Zap } from 'lucide-react';
+import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, Calculator, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,7 @@ const baseNavItems = [
   { label: 'Ventes', href: '/admin/ventes', icon: Receipt },
   { label: 'Clientes', href: '/admin/clientes', icon: Users },
   { label: 'Dépenses', href: '/admin/depenses', icon: Wallet },
-  { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank },
+  { label: 'Caisse', href: '/admin/caisse', icon: Calculator },
   { label: 'Promotions', href: '/admin/promotions', icon: Tag },
   { label: 'Ventes Flash', href: '/admin/ventes-flash', icon: Zap },
   { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare },
