@@ -79,7 +79,28 @@ export function printThermalReceipt(r: ReceiptData) {
   doc.text(BOUTIQUE.merci, widthMM / 2, y, { align: 'center' });
 
   doc.autoPrint();
-  window.open(doc.output('bloburl'), '_blank');
+  // Impression via iframe caché (évite les blocages de pop-up / adblockers)
+  const blobUrl = doc.output('bloburl') as unknown as string;
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.src = String(blobUrl);
+  iframe.onload = () => {
+    try {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    } catch {
+      // fallback : téléchargement
+      doc.save(`ticket-${Date.now()}.pdf`);
+    }
+    // Nettoyage différé pour laisser le temps à la boîte d'impression
+    setTimeout(() => { try { document.body.removeChild(iframe); } catch {} }, 60_000);
+  };
+  document.body.appendChild(iframe);
 }
 
 /** Ticket A4 (réimpression PDF) */
