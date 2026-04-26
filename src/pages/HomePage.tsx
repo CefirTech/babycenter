@@ -27,53 +27,14 @@ export default function HomePage() {
   });
   const { products, categories } = useStorefrontData();
   const { ageRanges } = useAgeRanges();
-  const { hero } = useHeroBanner();
   const featured = products.filter(p => p.featured || p.tags.includes('nouveau')).slice(0, 8);
   const promos = products.filter(p => p.prix_promo !== null).slice(0, 4);
   const bestsellers = products.filter(p => p.tags.includes('bestseller')).slice(0, 4);
-  const heroSrc = hero.image_url || heroImg;
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
-        <img src={heroSrc} alt={hero.title_main} fetchPriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/60" />
-        <div className="relative container h-full flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-2xl text-background text-center mx-auto flex flex-col items-center"
-          >
-            {hero.eyebrow && <p className="text-sm md:text-base uppercase tracking-[0.2em] mb-3 text-background/80 font-medium">{hero.eyebrow}</p>}
-            <h1 className="font-heading text-4xl md:text-6xl font-bold leading-tight mb-4">
-              {hero.title_main} {hero.title_accent && <span className="text-accent">{hero.title_accent}</span>}
-            </h1>
-            {hero.subtitle && <p className="text-base md:text-lg text-background/80 mb-8 leading-relaxed">{hero.subtitle}</p>}
-            <div className="flex flex-wrap gap-3 justify-center">
-              {hero.cta_label && (
-                hero.cta_href.startsWith('http') ? (
-                  <a href={hero.cta_href} target="_blank" rel="noopener noreferrer">
-                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8">{hero.cta_label}</Button>
-                  </a>
-                ) : (
-                  <Link to={hero.cta_href}>
-                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8">{hero.cta_label}</Button>
-                  </Link>
-                )
-              )}
-              {hero.show_whatsapp && (
-                <a href="https://wa.me/2250151310606" target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8">
-                    <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                  </Button>
-                </a>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Hero Carousel */}
+      <HeroCarousel />
 
       {/* Catégories */}
       <section className="py-16 md:py-20">
