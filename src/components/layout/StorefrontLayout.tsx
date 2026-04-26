@@ -3,8 +3,10 @@ import Header from './Header';
 import Footer from './Footer';
 import ChatWidget from '@/components/storefront/ChatWidget';
 import PageTransition from '@/components/storefront/PageTransition';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function StorefrontLayout() {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -13,9 +15,10 @@ export default function StorefrontLayout() {
           <Outlet />
         </PageTransition>
       </main>
-      <Footer />
+      {!user && <Footer />}
       <ChatWidget />
     </div>
   );
 }
+
 
