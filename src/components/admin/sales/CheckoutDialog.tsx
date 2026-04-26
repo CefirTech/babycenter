@@ -21,12 +21,17 @@ const MODE_LABEL: Record<Mode, string> = {
   virement: 'Virement',
 };
 
+export type PaiementLigne = { mode: Mode; montant: number; reference?: string };
+
 export type CheckoutResult = {
-  paiements: { mode: Mode; montant: number }[];
+  paiements: PaiementLigne[];
   mode_principal: Mode;
   montant_recu: number;
   monnaie: number;
 };
+
+const needsReference = (m: Mode) =>
+  m === 'orange_money' || m === 'moov_money' || m === 'mtn_money' || m === 'wave' || m === 'carte' || m === 'virement';
 
 export default function CheckoutDialog({
   open, onClose, total, onConfirm, saving,
@@ -38,13 +43,13 @@ export default function CheckoutDialog({
   saving: boolean;
 }) {
   const [split, setSplit] = useState(false);
-  const [paiements, setPaiements] = useState<{ mode: Mode; montant: number }[]>([{ mode: 'especes', montant: 0 }]);
+  const [paiements, setPaiements] = useState<PaiementLigne[]>([{ mode: 'especes', montant: 0 }]);
   const [montantRecu, setMontantRecu] = useState<number>(0);
 
   useEffect(() => {
     if (open) {
       setSplit(false);
-      setPaiements([{ mode: 'especes', montant: total }]);
+      setPaiements([{ mode: 'especes', montant: total, reference: '' }]);
       setMontantRecu(total);
     }
   }, [open, total]);
