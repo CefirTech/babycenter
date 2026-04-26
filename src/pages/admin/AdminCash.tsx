@@ -36,7 +36,7 @@ export default function AdminCash() {
   const [solde, setSolde] = useState(0);
   const [soldeReel, setSoldeReel] = useState(0);
   const [closeNotes, setCloseNotes] = useState('');
-  const [moveType, setMoveType] = useState<'entree' | 'sortie'>('entree');
+  const [moveType, setMoveType] = useState<'sortie' | 'autre'>('sortie');
   const [moveMontant, setMoveMontant] = useState(0);
   const [moveMotif, setMoveMotif] = useState('');
 
