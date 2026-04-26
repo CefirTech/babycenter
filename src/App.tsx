@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedAdminRoute from "@/components/auth/ProtectedAdminRoute";
+import ProtectedClientRoute from "@/components/auth/ProtectedClientRoute";
 import RoleGuard from "@/components/auth/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -24,6 +25,8 @@ const CheckoutPage = lazy(() => import("@/pages/CheckoutPage"));
 const PromotionsPage = lazy(() => import("@/pages/PromotionsPage"));
 const ContactPage = lazy(() => import("@/pages/ContactPage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const AuthPage = lazy(() => import("@/pages/AuthPage"));
+const AccountPage = lazy(() => import("@/pages/AccountPage"));
 
 // Lazy admin
 const AdminLayout = lazy(() => import("@/components/layout/AdminLayout"));
@@ -78,6 +81,10 @@ const App = () => (
                   <Route path="/faq" element={<AboutPage />} />
                   <Route path="/livraison" element={<AboutPage />} />
                   <Route path="/retours" element={<AboutPage />} />
+                  <Route path="/connexion" element={<AuthPage />} />
+                  <Route element={<ProtectedClientRoute />}>
+                    <Route path="/compte" element={<AccountPage />} />
+                  </Route>
                 </Route>
 
                 {/* Back-office */}

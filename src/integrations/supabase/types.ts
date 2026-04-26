@@ -216,6 +216,48 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_addresses: {
+        Row: {
+          adresse: string
+          created_at: string
+          destinataire: string
+          id: string
+          indications: string | null
+          libelle: string
+          par_defaut: boolean
+          telephone: string | null
+          updated_at: string
+          user_id: string
+          ville: string | null
+        }
+        Insert: {
+          adresse: string
+          created_at?: string
+          destinataire: string
+          id?: string
+          indications?: string | null
+          libelle?: string
+          par_defaut?: boolean
+          telephone?: string | null
+          updated_at?: string
+          user_id: string
+          ville?: string | null
+        }
+        Update: {
+          adresse?: string
+          created_at?: string
+          destinataire?: string
+          id?: string
+          indications?: string | null
+          libelle?: string
+          par_defaut?: boolean
+          telephone?: string | null
+          updated_at?: string
+          user_id?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           adresse: string | null
@@ -592,7 +634,9 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
+          genre_pref: string | null
           id: string
+          telephone: string | null
           updated_at: string
           user_id: string
         }
@@ -601,7 +645,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          genre_pref?: string | null
           id?: string
+          telephone?: string | null
           updated_at?: string
           user_id: string
         }
@@ -610,7 +656,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          genre_pref?: string | null
           id?: string
+          telephone?: string | null
           updated_at?: string
           user_id?: string
         }
