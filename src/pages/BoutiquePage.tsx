@@ -41,12 +41,6 @@ export default function BoutiquePage() {
     canonical: 'https://babycenter.lovable.app/boutique',
     jsonLd: itemListJsonLd,
   });
-  const { ageRanges } = useAgeRanges();
-  const [search, setSearch] = useState('');
-  const [catFilter, setCatFilter] = useState('');
-  const [ageFilter, setAgeFilter] = useState('');
-  const [sexeFilter, setSexeFilter] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
     return products.filter(p => {
