@@ -1,10 +1,14 @@
 import { Link } from 'react-router-dom';
 import type { SFProduct as Product } from '@/hooks/useStorefrontData';
 import { Heart } from 'lucide-react';
+import { useWishlist } from '@/hooks/useWishlist';
+import { cn } from '@/lib/utils';
 
 export default function ProductCard({ product }: { product: Product }) {
   const hasPromo = product.prix_promo !== null;
   const prix = hasPromo ? product.prix_promo! : product.prix_vente;
+  const { isFavorite, toggle } = useWishlist();
+  const fav = isFavorite(product.id);
 
   return (
     <Link to={`/produit/${product.slug}`} className="group block">
@@ -27,11 +31,14 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         )}
         <button
-          onClick={(e) => { e.preventDefault(); }}
-          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-background"
-          aria-label="Ajouter aux favoris"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(product.id); }}
+          className={cn(
+            "absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background",
+            fav ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          )}
+          aria-label={fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
         >
-          <Heart className="h-4 w-4 text-foreground" />
+          <Heart className={cn("h-4 w-4 transition-colors", fav ? "fill-primary text-primary" : "text-foreground")} />
         </button>
       </div>
       <div className="space-y-1">
