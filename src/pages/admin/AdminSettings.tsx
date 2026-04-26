@@ -215,6 +215,25 @@ export default function AdminSettings() {
                   <Switch checked={slide.show_whatsapp} onCheckedChange={(c) => updateSlide(idx, { show_whatsapp: c })} />
                   <Label className="cursor-pointer">Afficher le bouton WhatsApp</Label>
                 </div>
+                <div className="md:col-span-2 rounded-md border border-border p-3 bg-muted/30 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Switch checked={!!slide.show_take_button} onCheckedChange={(c) => updateSlide(idx, { show_take_button: c })} />
+                    <Label className="cursor-pointer font-medium">Afficher un bouton "Je prends" (vers un produit)</Label>
+                  </div>
+                  {slide.show_take_button && (
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div>
+                        <Label>Texte du bouton</Label>
+                        <Input value={slide.take_button_label ?? ''} onChange={e => updateSlide(idx, { take_button_label: e.target.value })} placeholder="Je prends" />
+                      </div>
+                      <div>
+                        <Label>Lien vers l'article</Label>
+                        <Input value={slide.take_button_href ?? ''} onChange={e => updateSlide(idx, { take_button_href: e.target.value })} placeholder="/produit/mon-slug" />
+                        <p className="text-xs text-muted-foreground mt-1">Ex: /produit/robe-fleurie ou /boutique?promo=1</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Aperçu de la slide */}

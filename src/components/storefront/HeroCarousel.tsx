@@ -100,6 +100,21 @@ export default function HeroCarousel() {
                     </Link>
                   )
                 )}
+                {slide.show_take_button && slide.take_button_href && (
+                  slide.take_button_href.startsWith('http') ? (
+                    <a href={slide.take_button_href} target="_blank" rel="noopener noreferrer">
+                      <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8">
+                        {slide.take_button_label || 'Je prends'}
+                      </Button>
+                    </a>
+                  ) : (
+                    <Link to={slide.take_button_href}>
+                      <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8">
+                        {slide.take_button_label || 'Je prends'}
+                      </Button>
+                    </Link>
+                  )
+                )}
                 {slide.show_whatsapp && (
                   <a href="https://wa.me/2250151310606" target="_blank" rel="noopener noreferrer">
                     <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8">
