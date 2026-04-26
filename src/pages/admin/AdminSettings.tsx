@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, Image as ImageIcon } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Loader2, Save, Image as ImageIcon, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activity';
 import ImageUploader from '@/components/admin/ImageUploader';
-import { DEFAULT_HERO, type HeroBanner } from '@/hooks/useHeroBanner';
+import { DEFAULT_SLIDE, DEFAULT_CONFIG, type HeroConfig, type HeroSlide } from '@/hooks/useHeroBanner';
 
 const KEYS = [
   { cle: 'shop_name', label: 'Nom de la boutique', type: 'text', desc: 'Nom affiché dans le header et factures' },
