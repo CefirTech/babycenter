@@ -3,11 +3,10 @@ import { motion } from 'framer-motion';
 import { Truck, ShieldCheck, Headphones, MessageCircle, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
+import HeroCarousel from '@/components/storefront/HeroCarousel';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 import { useSEO } from '@/hooks/useSEO';
-import { useHeroBanner } from '@/hooks/useHeroBanner';
-import heroImg from '@/assets/hero-main.jpg';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
