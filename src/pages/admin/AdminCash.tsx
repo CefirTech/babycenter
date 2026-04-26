@@ -67,6 +67,7 @@ export default function AdminCash() {
       .channel('admin-cash-rt')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_movements' }, () => { load(); })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_sessions' }, () => { load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => { load(); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
@@ -74,6 +75,30 @@ export default function AdminCash() {
   const totalEntrees = movements.filter(m => m.type === 'entree').reduce((s, m) => s + Number(m.montant), 0);
   const totalSorties = movements.filter(m => m.type === 'sortie').reduce((s, m) => s + Number(m.montant), 0);
   const theorique = session ? Number(session.solde_ouverture) + totalEntrees - totalSorties : 0;
+
+  // Récap encaissements par mode de paiement (ventes validées de la session)
+  const recapByMode = useMemo(() => {
+    const totals: Record<string, { montant: number; count: number }> = {};
+    let grandTotal = 0;
+    let totalCount = 0;
+    for (const s of sessionSales) {
+      if (s.statut === 'annulee') continue;
+      totalCount++;
+      grandTotal += Number(s.total) || 0;
+      const lignes = Array.isArray(s.paiements) && s.paiements.length > 0
+        ? s.paiements
+        : [{ mode: s.mode_paiement, montant: s.total }];
+      for (const p of lignes) {
+        const mode = p?.mode || s.mode_paiement || 'autre';
+        const montant = Number(p?.montant) || 0;
+        if (!totals[mode]) totals[mode] = { montant: 0, count: 0 };
+        totals[mode].montant += montant;
+        totals[mode].count += 1;
+      }
+    }
+    const entries = Object.entries(totals).sort((a, b) => b[1].montant - a[1].montant);
+    return { entries, grandTotal, totalCount };
+  }, [sessionSales]);
 
   const openSession = async () => {
     const { data, error } = await supabase.from('cash_sessions').insert({ solde_ouverture: solde, ouverte_par: user?.id, ouverte_par_nom: user?.user_metadata?.display_name || user?.email }).select().single();
