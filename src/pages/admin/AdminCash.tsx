@@ -49,8 +49,12 @@ export default function AdminCash() {
       const { data: m, error: e2 } = await supabase.from('cash_movements').select('*').eq('session_id', openSess.id).order('created_at', { ascending: false });
       if (e2) toast.error(`Mouvements : ${e2.message}`);
       setMovements(m ?? []);
+      const { data: vs, error: e4 } = await supabase.from('sales').select('id,total,mode_paiement,paiements,statut').eq('session_id', openSess.id);
+      if (e4) toast.error(`Ventes : ${e4.message}`);
+      setSessionSales(vs ?? []);
     } else {
       setMovements([]);
+      setSessionSales([]);
     }
     const { data: h, error: e3 } = await supabase.from('cash_sessions').select('*').eq('statut', 'fermee').order('fermee_le', { ascending: false }).limit(10);
     if (e3) toast.error(`Historique : ${e3.message}`);
