@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export interface HeroBanner {
+export interface HeroSlide {
   image_url: string;
   eyebrow: string;
   title_main: string;
@@ -12,7 +12,15 @@ export interface HeroBanner {
   show_whatsapp: boolean;
 }
 
-export const DEFAULT_HERO: HeroBanner = {
+export interface HeroConfig {
+  slides: HeroSlide[];
+  interval_seconds: number; // 3-15
+}
+
+// Backward-compat alias
+export type HeroBanner = HeroSlide;
+
+export const DEFAULT_SLIDE: HeroSlide = {
   image_url: '',
   eyebrow: 'Collection Printemps-Été 2025',
   title_main: "L'élégance pour vos",
@@ -23,8 +31,37 @@ export const DEFAULT_HERO: HeroBanner = {
   show_whatsapp: true,
 };
 
+export const DEFAULT_HERO: HeroSlide = DEFAULT_SLIDE;
+
+export const DEFAULT_CONFIG: HeroConfig = {
+  slides: [DEFAULT_SLIDE],
+  interval_seconds: 6,
+};
+
+const clampInterval = (n: any) => {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return 6;
+  return Math.min(15, Math.max(3, Math.round(v)));
+};
+
+function normalize(raw: any): HeroConfig {
+  if (!raw || typeof raw !== 'object') return DEFAULT_CONFIG;
+  // New shape: { slides, interval_seconds }
+  if (Array.isArray(raw.slides)) {
+    const slides = raw.slides
+      .filter((s: any) => s && typeof s === 'object')
+      .map((s: any) => ({ ...DEFAULT_SLIDE, ...s }));
+    return {
+      slides: slides.length ? slides : [DEFAULT_SLIDE],
+      interval_seconds: clampInterval(raw.interval_seconds ?? 6),
+    };
+  }
+  // Legacy shape: single slide object
+  return { slides: [{ ...DEFAULT_SLIDE, ...raw }], interval_seconds: 6 };
+}
+
 export function useHeroBanner() {
-  const [hero, setHero] = useState<HeroBanner>(DEFAULT_HERO);
+  const [config, setConfig] = useState<HeroConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,7 +71,7 @@ export function useHeroBanner() {
       if (!active) return;
       const raw: any = data?.valeur;
       const v = raw && typeof raw === 'object' && 'v' in raw ? raw.v : raw;
-      if (v && typeof v === 'object') setHero({ ...DEFAULT_HERO, ...v });
+      setConfig(normalize(v));
       setLoading(false);
     };
     load();
@@ -45,5 +82,6 @@ export function useHeroBanner() {
     return () => { active = false; supabase.removeChannel(channel); };
   }, []);
 
-  return { hero, loading };
+  // Backward-compat: expose first slide as `hero`
+  return { config, hero: config.slides[0] ?? DEFAULT_SLIDE, loading };
 }
