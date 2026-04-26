@@ -153,7 +153,7 @@ export default function AccountPage() {
                   {orders.map(o => {
                     const s = statusLabel[o.statut] ?? { label: o.statut, color: 'bg-muted' };
                     return (
-                      <div key={o.id} className="flex justify-between items-center p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors">
+                      <Link key={o.id} to={`/compte/commandes/${o.id}`} className="flex justify-between items-center p-4 rounded-lg border border-border hover:bg-muted/30 hover:border-primary/40 transition-colors">
                         <div>
                           <p className="font-medium">{o.numero_commande}</p>
                           <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -162,8 +162,8 @@ export default function AccountPage() {
                           <Badge className={s.color + ' border-0'}>{s.label}</Badge>
                           <p className="font-semibold">{formatPrice(o.total)}</p>
                         </div>
-                      </div>
-                    );
+                      </Link>
+                      );
                   })}
                 </div>
               )}

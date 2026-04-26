@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,7 @@ const PAIEMENTS = [
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { toast } = useToast();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -32,6 +34,24 @@ export default function CheckoutPage() {
     nom: '', telephone: '', adresse: '', ville: 'Abidjan', notes: '',
     mode_paiement: 'orange_money' as typeof PAIEMENTS[number]['id'],
   });
+
+  // Pré-remplissage depuis profil + adresse par défaut
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ data: prof }, { data: addr }] = await Promise.all([
+        supabase.from('profiles').select('display_name, telephone').eq('user_id', user.id).maybeSingle(),
+        supabase.from('customer_addresses').select('*').eq('user_id', user.id).order('par_defaut', { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      setForm(f => ({
+        ...f,
+        nom: f.nom || addr?.destinataire || prof?.display_name || '',
+        telephone: f.telephone || addr?.telephone || prof?.telephone || '',
+        adresse: f.adresse || addr?.adresse || '',
+        ville: addr?.ville || f.ville,
+      }));
+    })();
+  }, [user]);
 
   if (items.length === 0 && !done) {
     return (
@@ -61,6 +81,7 @@ export default function CheckoutPage() {
           sous_total: total,
           total,
           notes: form.notes || null,
+          user_id: user?.id ?? null,
         })
         .select('id, numero_commande')
         .single();

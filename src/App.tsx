@@ -27,6 +27,7 @@ const ContactPage = lazy(() => import("@/pages/ContactPage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AccountPage = lazy(() => import("@/pages/AccountPage"));
+const OrderDetailPage = lazy(() => import("@/pages/OrderDetailPage"));
 
 // Lazy admin
 const AdminLayout = lazy(() => import("@/components/layout/AdminLayout"));
@@ -84,6 +85,7 @@ const App = () => (
                   <Route path="/connexion" element={<AuthPage />} />
                   <Route element={<ProtectedClientRoute />}>
                     <Route path="/compte" element={<AccountPage />} />
+                    <Route path="/compte/commandes/:id" element={<OrderDetailPage />} />
                   </Route>
                 </Route>
 
