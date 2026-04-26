@@ -29,7 +29,7 @@ export default function HomePage() {
     <div>
       {/* Hero */}
       <section className="relative h-[70vh] md:h-[85vh] overflow-hidden">
-        <img src={heroImg} alt="Collection enfants BABYCENTER" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <img src={heroImg} alt="Collection enfants BABYCENTER" fetchPriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/60" />
         <div className="relative container h-full flex items-center justify-center">
           <motion.div
@@ -72,7 +72,7 @@ export default function HomePage() {
             {categories.slice(0, 8).map((cat, i) => (
               <motion.div key={cat.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
                 <Link to={`/boutique?cat=${cat.slug}`} className="group relative aspect-square rounded-xl overflow-hidden block">
-                  <img src={cat.image_url} alt={cat.nom} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <img src={cat.image_url} alt={cat.nom} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
                   <div className="absolute bottom-4 left-4">
                     <h3 className="font-heading text-lg font-semibold text-background">{cat.nom}</h3>
