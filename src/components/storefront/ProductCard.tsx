@@ -6,6 +6,8 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { cn } from '@/lib/utils';
 import { getStockUrgency } from '@/lib/stock-urgency';
 import StockProgress from '@/components/storefront/StockProgress';
+import FlashSaleBanner from '@/components/storefront/FlashSaleBanner';
+import { useFlashSale } from '@/hooks/useFlashSale';
 
 export default function ProductCard({ product }: { product: Product }) {
   const hasPromo = product.prix_promo !== null;
