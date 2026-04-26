@@ -136,11 +136,14 @@ export default function CheckoutDialog({
       montant: p.montant,
       ...(p.reference?.trim() ? { reference: p.reference.trim() } : {}),
     }));
+    // Texte libre : si rien sélectionné mais nom tapé, on le passe en customer_nom_libre
+    const libre = (customerId === 'walkin' && custQuery.trim()) ? custQuery.trim().slice(0, 120) : undefined;
     onConfirm({
       paiements: cleanPaiements,
       mode_principal: paiements[0]?.mode ?? 'especes',
       montant_recu: showMonnaie ? montantRecu : total,
       monnaie: showMonnaie ? monnaie : 0,
+      customer_nom_libre: libre,
     });
   };
 
