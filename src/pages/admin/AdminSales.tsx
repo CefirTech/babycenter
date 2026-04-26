@@ -77,7 +77,15 @@ export default function AdminSales() {
     setCustomers(c ?? []); setSales(s ?? []); setActiveSession(sess);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-sales-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => { load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variants' }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const filtered = useMemo(() => {
     return products
@@ -196,12 +204,19 @@ export default function AdminSales() {
       product_nom: l.product_nom, taille: l.taille, couleur: l.couleur,
       prix_unitaire: l.prix_unitaire, quantite: l.quantite, remise_ligne: l.remise_ligne, total: totalLine(l),
     }));
-    await supabase.from('sale_items').insert(items);
+    const { error: itemsErr } = await supabase.from('sale_items').insert(items);
+    if (itemsErr) { toast.error(`Lignes : ${itemsErr.message}`); setSaving(false); return; }
     for (const l of cart) {
       const v = variants.find((x) => x.id === l.variant_id);
-      if (v) await supabase.from('product_variants').update({ stock: Math.max(0, v.stock - l.quantite) }).eq('id', l.variant_id);
+      if (v) {
+        const { error: stockErr } = await supabase.from('product_variants').update({ stock: Math.max(0, v.stock - l.quantite) }).eq('id', l.variant_id);
+        if (stockErr) toast.error(`Stock ${l.product_nom} : ${stockErr.message}`);
+      }
     }
-    if (promo) await supabase.from('promotions').update({ utilisations: Number(promo.utilisations ?? 0) + 1 }).eq('id', promo.id);
+    if (promo) {
+      const { error: promoErr } = await supabase.from('promotions').update({ utilisations: Number(promo.utilisations ?? 0) + 1 }).eq('id', promo.id);
+      if (promoErr) console.warn('Compteur promo non mis à jour', promoErr);
+    }
     await logActivity('create', 'sales', sale.id, { numero: numero_vente, total });
     toast.success(`Vente ${numero_vente} encaissée — ${fcfa(total)}`);
 

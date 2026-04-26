@@ -36,17 +36,26 @@ export default function AdminOrders() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) toast.error(`Chargement commandes : ${error.message}`);
     setOrders(data ?? []);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-orders-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const open = async (o: any) => {
     setViewing(o);
     setEditStatus(o.statut);
     setNotes(o.notes || '');
-    const { data } = await supabase.from('order_items').select('*').eq('order_id', o.id);
+    const { data, error } = await supabase.from('order_items').select('*').eq('order_id', o.id);
+    if (error) toast.error(`Chargement lignes : ${error.message}`);
     setItems(data ?? []);
   };
 

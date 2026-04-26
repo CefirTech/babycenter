@@ -31,10 +31,12 @@ export default function AdminCustomers() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: c }, { data: o }] = await Promise.all([
+    const [{ data: c, error: ec }, { data: o, error: eo }] = await Promise.all([
       supabase.from('customers').select('*').order('nom'),
       supabase.from('orders').select('customer_id,total'),
     ]);
+    if (ec) toast.error(`Clientes : ${ec.message}`);
+    if (eo) toast.error(`Commandes : ${eo.message}`);
     const s: Record<string, { commandes: number; total: number }> = {};
     (o ?? []).forEach(x => {
       if (!x.customer_id) return;
@@ -53,7 +55,8 @@ export default function AdminCustomers() {
 
   const openView = async (c: any) => {
     setView(c);
-    const { data } = await supabase.from('orders').select('*').eq('customer_id', c.id).order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('orders').select('*').eq('customer_id', c.id).order('created_at', { ascending: false });
+    if (error) toast.error(`Historique : ${error.message}`);
     setViewOrders(data ?? []);
   };
 

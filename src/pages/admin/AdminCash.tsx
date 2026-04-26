@@ -31,19 +31,30 @@ export default function AdminCash() {
 
   const load = async () => {
     setLoading(true);
-    const { data: openSess } = await supabase.from('cash_sessions').select('*').eq('statut', 'ouverte').order('ouverte_le', { ascending: false }).limit(1).maybeSingle();
+    const { data: openSess, error: e1 } = await supabase.from('cash_sessions').select('*').eq('statut', 'ouverte').order('ouverte_le', { ascending: false }).limit(1).maybeSingle();
+    if (e1) toast.error(`Session : ${e1.message}`);
     setSession(openSess);
     if (openSess) {
-      const { data: m } = await supabase.from('cash_movements').select('*').eq('session_id', openSess.id).order('created_at', { ascending: false });
+      const { data: m, error: e2 } = await supabase.from('cash_movements').select('*').eq('session_id', openSess.id).order('created_at', { ascending: false });
+      if (e2) toast.error(`Mouvements : ${e2.message}`);
       setMovements(m ?? []);
     } else {
       setMovements([]);
     }
-    const { data: h } = await supabase.from('cash_sessions').select('*').eq('statut', 'fermee').order('fermee_le', { ascending: false }).limit(10);
+    const { data: h, error: e3 } = await supabase.from('cash_sessions').select('*').eq('statut', 'fermee').order('fermee_le', { ascending: false }).limit(10);
+    if (e3) toast.error(`Historique : ${e3.message}`);
     setHistory(h ?? []);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-cash-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_movements' }, () => { load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_sessions' }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const totalEntrees = movements.filter(m => m.type === 'entree').reduce((s, m) => s + Number(m.montant), 0);
   const totalSorties = movements.filter(m => m.type === 'sortie').reduce((s, m) => s + Number(m.montant), 0);

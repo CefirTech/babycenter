@@ -32,7 +32,8 @@ export default function AdminExpenses() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('expenses').select('*').order('date_depense', { ascending: false });
+    const { data, error } = await supabase.from('expenses').select('*').order('date_depense', { ascending: false });
+    if (error) toast.error(`Dépenses : ${error.message}`);
     setList(data ?? []);
     setLoading(false);
   };

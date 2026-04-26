@@ -31,7 +31,8 @@ export default function AdminCategories() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('categories').select('*').order('ordre').order('nom');
+    const { data, error } = await supabase.from('categories').select('*').order('ordre').order('nom');
+    if (error) toast.error(`Catégories : ${error.message}`);
     setList(data ?? []);
     setLoading(false);
   };
