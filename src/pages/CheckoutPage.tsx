@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ArrowLeft, CheckCircle2, Loader2, Banknote } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, Banknote, Tag, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import orangeMoneyLogo from '@/assets/payments/orange-money.png';
@@ -23,17 +23,32 @@ const PAIEMENTS = [
   { id: 'especes', label: 'Espèces à la livraison', logo: null },
 ] as const;
 
+interface AppliedPromo {
+  code: string;
+  nom: string;
+  type: 'pourcentage' | 'montant_fixe';
+  valeur: number;
+  remise: number;
+}
+
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
+  const { items, total: sousTotal, clearCart } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [form, setForm] = useState({
     nom: '', telephone: '', adresse: '', ville: 'Abidjan', notes: '',
     mode_paiement: 'orange_money' as typeof PAIEMENTS[number]['id'],
   });
+
+  const remise = promo?.remise ?? 0;
+  const total = useMemo(() => Math.max(0, sousTotal - remise), [sousTotal, remise]);
+
 
   // Pré-remplissage depuis profil + adresse par défaut
   useEffect(() => {
