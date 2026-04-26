@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, User, X, Check, ChevronDown } from 'lucide-react';
+import { formatPhone } from '@/lib/format';
 
 export type CustomerOption = { id: string; nom: string; telephone?: string | null };
 
@@ -51,7 +52,7 @@ export default function CustomerSearchSelect({
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate leading-tight">{selected.nom}</p>
           {selected.telephone && (
-            <p className="text-[11px] text-muted-foreground truncate leading-tight">{selected.telephone}</p>
+            <p className="text-[11px] text-muted-foreground truncate leading-tight">{formatPhone(selected.telephone)}</p>
           )}
         </div>
         <Button
@@ -129,7 +130,7 @@ export default function CustomerSearchSelect({
               >
                 <div className="font-medium truncate">{c.nom}</div>
                 {c.telephone && (
-                  <div className="text-xs text-muted-foreground truncate">{c.telephone}</div>
+                  <div className="text-xs text-muted-foreground truncate">{formatPhone(c.telephone)}</div>
                 )}
               </button>
             ))
