@@ -195,14 +195,19 @@ export default function AdminCash() {
           <Card><CardContent className="p-0">
             <div className="overflow-x-auto"><table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/50 text-left"><th className="p-4 font-medium text-muted-foreground">Heure</th><th className="p-4 font-medium text-muted-foreground">Type</th><th className="p-4 font-medium text-muted-foreground">Motif</th><th className="p-4 font-medium text-muted-foreground text-right">Montant</th></tr></thead>
-              <tbody>{movements.map(m => (
-                <tr key={m.id} className="border-b border-border last:border-0">
-                  <td className="p-4">{new Date(m.created_at).toLocaleTimeString('fr-FR')}</td>
-                  <td className="p-4">{m.type === 'entree' ? <span className="flex items-center gap-1 text-green-600"><ArrowDownCircle className="h-4 w-4" /> Entrée</span> : <span className="flex items-center gap-1 text-destructive"><ArrowUpCircle className="h-4 w-4" /> Sortie</span>}</td>
-                  <td className="p-4">{m.motif}</td>
-                  <td className={`p-4 text-right font-medium ${m.type === 'entree' ? 'text-green-600' : 'text-destructive'}`}>{m.type === 'entree' ? '+' : '-'}{fcfa(m.montant)}</td>
-                </tr>
-              ))}
+              <tbody>{movements.map(m => {
+                const isSortie = m.type === 'sortie';
+                const label = isSortie ? 'Sortie' : 'Autre';
+                const cls = isSortie ? 'text-destructive' : 'text-muted-foreground';
+                return (
+                  <tr key={m.id} className="border-b border-border last:border-0">
+                    <td className="p-4">{new Date(m.created_at).toLocaleTimeString('fr-FR')}</td>
+                    <td className="p-4"><span className={`flex items-center gap-1 ${cls}`}><ArrowUpCircle className="h-4 w-4" /> {label}</span></td>
+                    <td className="p-4">{m.motif}</td>
+                    <td className={`p-4 text-right font-medium ${cls}`}>{isSortie ? '-' : ''}{fcfa(m.montant)}</td>
+                  </tr>
+                );
+              })}
               {movements.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">Aucun mouvement</td></tr>}
               </tbody>
             </table></div>
