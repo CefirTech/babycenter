@@ -8,14 +8,50 @@ import ProductCard from '@/components/storefront/ProductCard';
 import { ShoppingBag, MessageCircle, Heart, Truck, RotateCcw, ShieldCheck, ChevronLeft, Minus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+const SITE = 'https://babycenter.lovable.app';
+
 export default function ProductDetailPage() {
   const { slug } = useParams();
-  const { products, loading } = useStorefrontData();
+  const { products, categories, loading } = useStorefrontData();
   const product = products.find(p => p.slug === slug);
+  const category = categories.find(c => c.id === product?.categorie_id);
+  const prixSEO = product ? (product.prix_promo ?? product.prix_vente) : 0;
+  const stockTotal = product?.variants.reduce((s, v) => s + (v.stock || 0), 0) ?? 0;
+  const productJsonLd = product ? {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    name: product.nom,
+    description: product.description_longue || product.description_courte || product.nom,
+    image: product.images && product.images.length ? product.images : undefined,
+    sku: product.code_produit,
+    brand: product.marque ? { '@type': 'Brand', name: product.marque } : { '@type': 'Brand', name: 'BABYCENTER' },
+    category: category?.nom,
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE}/produit/${product.slug}`,
+      priceCurrency: 'XOF',
+      price: prixSEO,
+      availability: stockTotal > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+  } : null;
+  const breadcrumbJsonLd = product ? {
+    '@context': 'https://schema.org/',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Boutique', item: `${SITE}/boutique` },
+      ...(category ? [{ '@type': 'ListItem', position: 3, name: category.nom, item: `${SITE}/boutique?cat=${category.slug}` }] : []),
+      { '@type': 'ListItem', position: category ? 4 : 3, name: product.nom, item: `${SITE}/produit/${product.slug}` },
+    ],
+  } : null;
   useSEO({
-    title: product ? `${product.nom} | BABYCENTER` : 'Produit | BABYCENTER',
+    title: product ? `${product.nom} — ${prixSEO.toLocaleString('fr-FR')} FCFA | BABYCENTER` : 'Produit | BABYCENTER',
     description: product?.description_courte || `Achetez ${product?.nom ?? 'ce produit'} sur BABYCENTER. Livraison rapide à Abidjan.`,
-    canonical: product ? `https://babycenter.lovable.app/produit/${product.slug}` : undefined,
+    canonical: product ? `${SITE}/produit/${product.slug}` : undefined,
+    image: product?.images?.[0],
+    ogType: 'product',
+    jsonLd: productJsonLd && breadcrumbJsonLd ? [productJsonLd, breadcrumbJsonLd] : undefined,
   });
   const { addItem } = useCart();
   const { toast } = useToast();
