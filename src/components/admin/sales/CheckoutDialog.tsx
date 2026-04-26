@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { fcfa } from '@/lib/format';
 
 const PAYMENT_METHODS = ['especes', 'orange_money', 'moov_money', 'mtn_money', 'wave', 'carte', 'virement'] as const;
