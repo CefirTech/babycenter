@@ -1,14 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { fcfa } from '@/lib/format';
 
-const PAYMENT_METHODS = ['especes','orange_money','moov_money','mtn_money','wave','carte','virement'] as const;
+const PAYMENT_METHODS = ['especes', 'orange_money', 'moov_money', 'mtn_money', 'wave', 'carte', 'virement'] as const;
 type Mode = typeof PAYMENT_METHODS[number];
+
+const MODE_LABEL: Record<Mode, string> = {
+  especes: 'Espèces',
+  orange_money: 'Orange Money',
+  moov_money: 'Moov Money',
+  mtn_money: 'MTN Money',
+  wave: 'Wave',
+  carte: 'Carte bancaire',
+  virement: 'Virement',
+};
 
 export type CheckoutResult = {
   paiements: { mode: Mode; montant: number }[];
@@ -26,27 +37,56 @@ export default function CheckoutDialog({
   onConfirm: (res: CheckoutResult) => void;
   saving: boolean;
 }) {
+  const [split, setSplit] = useState(false);
   const [paiements, setPaiements] = useState<{ mode: Mode; montant: number }[]>([{ mode: 'especes', montant: 0 }]);
   const [montantRecu, setMontantRecu] = useState<number>(0);
 
   useEffect(() => {
     if (open) {
+      setSplit(false);
       setPaiements([{ mode: 'especes', montant: total }]);
       setMontantRecu(total);
     }
   }, [open, total]);
 
+  // Toggle split en 2 modes
+  const toggleSplit = (on: boolean) => {
+    setSplit(on);
+    if (on) {
+      const half = Math.round(total / 2);
+      setPaiements([
+        { mode: 'especes', montant: half },
+        { mode: 'wave', montant: total - half },
+      ]);
+    } else {
+      setPaiements([{ mode: 'especes', montant: total }]);
+      setMontantRecu(total);
+    }
+  };
+
   const totalPayé = useMemo(() => paiements.reduce((s, p) => s + (Number(p.montant) || 0), 0), [paiements]);
   const monnaie = montantRecu - total;
   const especesLine = paiements.find((p) => p.mode === 'especes');
-  const showMonnaie = !!especesLine && especesLine.montant > 0;
-  const valid = Math.abs(totalPayé - total) < 1 && (!showMonnaie || montantRecu >= (especesLine?.montant ?? 0));
+  const showMonnaie = !split && !!especesLine && especesLine.montant > 0;
+  const ecart = totalPayé - total;
+  const valid = Math.abs(ecart) < 1 && (!showMonnaie || montantRecu >= (especesLine?.montant ?? 0));
 
   const updateLine = (i: number, patch: Partial<{ mode: Mode; montant: number }>) => {
     setPaiements((arr) => arr.map((p, j) => (j === i ? { ...p, ...patch } : p)));
   };
-  const addLine = () => setPaiements((a) => [...a, { mode: 'wave', montant: Math.max(0, total - totalPayé) }]);
-  const removeLine = (i: number) => setPaiements((a) => a.filter((_, j) => j !== i));
+
+  // Quand on modifie le 1er montant en mode split, on ajuste le 2e auto
+  const updateSplitAmount = (i: number, montant: number) => {
+    if (!split || paiements.length !== 2) {
+      updateLine(i, { montant });
+      return;
+    }
+    const other = i === 0 ? 1 : 0;
+    const otherMontant = Math.max(0, total - montant);
+    setPaiements((arr) =>
+      arr.map((p, j) => (j === i ? { ...p, montant } : { ...p, montant: otherMontant }))
+    );
+  };
 
   const submit = () => {
     if (!valid) return;
@@ -63,26 +103,47 @@ export default function CheckoutDialog({
       <DialogContent className="max-w-md">
         <DialogHeader><DialogTitle>Encaisser — {fcfa(total)}</DialogTitle></DialogHeader>
 
-        <div className="space-y-3">
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <Label>Paiements</Label>
-              <Button type="button" variant="ghost" size="sm" onClick={addLine}><Plus className="h-3 w-3 mr-1" /> Ajouter</Button>
+        <div className="space-y-4">
+          {!split ? (
+            <div>
+              <Label className="mb-1.5 block">Mode de paiement</Label>
+              <Select value={paiements[0]?.mode} onValueChange={(v: Mode) => updateLine(0, { mode: v, montant: total })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{MODE_LABEL[m]}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-2">
+          ) : (
+            <div className="space-y-3">
               {paiements.map((p, i) => (
-                <div key={i} className="flex gap-2 items-center">
-                  <Select value={p.mode} onValueChange={(v: Mode) => updateLine(i, { mode: v })}>
-                    <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>{PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{m.replace(/_/g, ' ')}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Input type="number" className="w-32" value={p.montant} onChange={(e) => updateLine(i, { montant: +e.target.value || 0 })} />
-                  {paiements.length > 1 && (
-                    <Button type="button" variant="ghost" size="sm" onClick={() => removeLine(i)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
-                  )}
+                <div key={i} className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Paiement {i + 1}</Label>
+                  <div className="flex gap-2">
+                    <Select value={p.mode} onValueChange={(v: Mode) => updateLine(i, { mode: v })}>
+                      <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{MODE_LABEL[m]}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      className="w-36"
+                      value={p.montant}
+                      onChange={(e) => updateSplitAmount(i, +e.target.value || 0)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
+          )}
+
+          {/* Toggle split */}
+          <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
+            <Label htmlFor="split-toggle" className="cursor-pointer text-sm font-medium">
+              Scinder en 2 modes de paiement
+            </Label>
+            <Switch id="split-toggle" checked={split} onCheckedChange={toggleSplit} />
           </div>
 
           {showMonnaie && (
@@ -98,22 +159,39 @@ export default function CheckoutDialog({
             </div>
           )}
 
-          <div className="border-t border-border pt-3 space-y-1 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Total à payer</span><span className="font-bold">{fcfa(total)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Total saisi</span><span className={Math.abs(totalPayé - total) < 1 ? '' : 'text-destructive font-medium'}>{fcfa(totalPayé)}</span></div>
-            {Math.abs(totalPayé - total) >= 1 && (
-              <p className="text-xs text-destructive">Le total des paiements doit être égal au total de la vente.</p>
-            )}
-          </div>
-        </div>
+          {split && (
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total saisi</span>
+                <span className={Math.abs(ecart) < 1 ? 'font-medium' : 'text-destructive font-medium'}>{fcfa(totalPayé)}</span>
+              </div>
+              {Math.abs(ecart) >= 1 && (
+                <p className="text-xs text-destructive">
+                  {ecart > 0 ? `Surplus de ${fcfa(ecart)}` : `Manque ${fcfa(-ecart)}`}
+                </p>
+              )}
+            </div>
+          )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>Annuler</Button>
-          <Button onClick={submit} disabled={!valid || saving}>
+          <Button
+            onClick={submit}
+            disabled={!valid || saving}
+            className="w-full h-12 text-base"
+            size="lg"
+          >
             {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Confirmer
+            Encaisser {fcfa(total)}
           </Button>
-        </DialogFooter>
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Annuler
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
