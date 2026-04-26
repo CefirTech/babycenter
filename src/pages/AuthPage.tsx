@@ -126,6 +126,15 @@ export default function AuthPage() {
             Continuer avec Google
           </Button>
 
+          <div className="mt-5 pt-4 border-t border-border">
+            <Button asChild type="button" variant="ghost" className="w-full text-muted-foreground hover:text-primary">
+              <Link to="/admin/login">
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                Se connecter en admin
+              </Link>
+            </Button>
+          </div>
+
           <p className="text-xs text-center text-muted-foreground mt-4">
             En continuant, vous acceptez nos <Link to="/a-propos" className="underline">conditions</Link>.
           </p>
