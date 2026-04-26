@@ -135,7 +135,7 @@ export default function AdminCash() {
 
       {loading ? <div className="p-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : !session ? (
         <Card><CardContent className="p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"><PiggyBank className="h-8 w-8 text-primary" /></div>
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"><Calculator className="h-8 w-8 text-primary" /></div>
           <h2 className="font-heading text-lg font-semibold mb-2">Aucune session ouverte</h2>
           <p className="text-sm text-muted-foreground mb-4">Ouvrez une session de caisse pour commencer la journée.</p>
           <Button onClick={() => setOpenInit(true)}><Unlock className="h-4 w-4 mr-2" /> Ouvrir la caisse</Button>
