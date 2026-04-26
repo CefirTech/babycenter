@@ -14,7 +14,7 @@ const baseNavItems = [
   { label: 'Ventes', href: '/admin/ventes', icon: Receipt },
   { label: 'Clientes', href: '/admin/clientes', icon: Users },
   { label: 'Dépenses', href: '/admin/depenses', icon: Wallet },
-  { label: 'Caisse', href: '/admin/caisse', icon: PiggyBank },
+  { label: 'Caisse', href: '/admin/caisse', icon: Calculator },
   { label: 'Promotions', href: '/admin/promotions', icon: Tag },
   { label: 'Ventes Flash', href: '/admin/ventes-flash', icon: Zap },
   { label: 'Discussion', href: '/admin/discussion', icon: MessageSquare },
