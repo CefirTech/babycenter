@@ -127,6 +127,42 @@ export default function SaleDetailDialog({
               </>}
             </div>
 
+            {/* Journal des paiements */}
+            {Array.isArray(sale.paiements) && sale.paiements.length > 0 && (
+              <div className="border border-border rounded-lg overflow-hidden">
+                <div className="bg-muted/50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center justify-between">
+                  <span>Journal des paiements</span>
+                  <span>{sale.paiements.length} ligne{sale.paiements.length > 1 ? 's' : ''}</span>
+                </div>
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/30 text-left">
+                    <tr>
+                      <th className="p-2 w-10">#</th>
+                      <th className="p-2">Mode</th>
+                      <th className="p-2">Référence</th>
+                      <th className="p-2 text-right">Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sale.paiements.map((p: any, idx: number) => (
+                      <tr key={idx} className="border-t border-border">
+                        <td className="p-2 text-muted-foreground">{idx + 1}</td>
+                        <td className="p-2 capitalize">{String(p.mode ?? '').replace(/_/g, ' ')}</td>
+                        <td className="p-2 font-mono text-xs">{p.reference || <span className="text-muted-foreground">—</span>}</td>
+                        <td className="p-2 text-right font-medium tabular-nums">{fcfa(Number(p.montant) || 0)}</td>
+                      </tr>
+                    ))}
+                    <tr className="border-t border-border bg-muted/30 font-semibold">
+                      <td className="p-2" colSpan={3}>Total encaissé</td>
+                      <td className="p-2 text-right tabular-nums">
+                        {fcfa(sale.paiements.reduce((s: number, p: any) => s + (Number(p.montant) || 0), 0))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {confirmCancel && (
               <div className="bg-destructive/10 border border-destructive/30 rounded p-3 space-y-2">
                 <Label>Motif d'annulation</Label>
