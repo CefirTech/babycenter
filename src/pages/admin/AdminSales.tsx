@@ -493,6 +493,36 @@ export default function AdminSales() {
           </div>
         </div>
 
+        {/* Récap par mode de paiement */}
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <p className="text-sm font-semibold">Récap encaissements par mode</p>
+            <div className="text-xs text-muted-foreground">
+              {recapByMode.totalCount} vente{recapByMode.totalCount > 1 ? 's' : ''} —{' '}
+              <span className="font-semibold text-foreground">{fcfa(recapByMode.grandTotal)}</span>
+            </div>
+          </div>
+          {recapByMode.entries.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Aucun encaissement sur cette période.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+              {recapByMode.entries.map(([mode, info]) => {
+                const pct = recapByMode.grandTotal > 0 ? (info.montant / recapByMode.grandTotal) * 100 : 0;
+                return (
+                  <div key={mode} className="rounded-md border border-border bg-background px-3 py-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="font-medium capitalize">{MODE_LABELS[mode] ?? mode.replace(/_/g, ' ')}</span>
+                      <span>{pct.toFixed(0)}%</span>
+                    </div>
+                    <div className="font-bold tabular-nums">{fcfa(info.montant)}</div>
+                    <div className="text-[11px] text-muted-foreground">{info.count} ligne{info.count > 1 ? 's' : ''}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <SalesTable sales={filteredSales} onView={(id) => setDetailId(id)} />
       </CardContent></Card>
 
