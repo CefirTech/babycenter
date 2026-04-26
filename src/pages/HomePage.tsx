@@ -4,6 +4,7 @@ import { Truck, ShieldCheck, Headphones, MessageCircle, Star } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
 import HeroCarousel from '@/components/storefront/HeroCarousel';
+import SectionReveal from '@/components/storefront/SectionReveal';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 import { useSEO } from '@/hooks/useSEO';
