@@ -125,11 +125,10 @@ export default function AccountPage() {
       </div>
 
       <Tabs defaultValue="commandes">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="commandes"><Package className="h-4 w-4 mr-1.5" />Commandes</TabsTrigger>
           <TabsTrigger value="favoris"><Heart className="h-4 w-4 mr-1.5" />Favoris</TabsTrigger>
           <TabsTrigger value="adresses"><MapPin className="h-4 w-4 mr-1.5" />Adresses</TabsTrigger>
-          <TabsTrigger value="profil"><UserIcon className="h-4 w-4 mr-1.5" />Profil</TabsTrigger>
         </TabsList>
 
         {/* Commandes */}
