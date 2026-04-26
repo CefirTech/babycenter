@@ -17,6 +17,7 @@ import VariantPickerDialog from '@/components/admin/sales/VariantPickerDialog';
 import CheckoutDialog, { CheckoutResult } from '@/components/admin/sales/CheckoutDialog';
 import SaleDetailDialog from '@/components/admin/sales/SaleDetailDialog';
 import QuickCustomerDialog from '@/components/admin/sales/QuickCustomerDialog';
+import CustomerSearchSelect from '@/components/admin/sales/CustomerSearchSelect';
 
 type Line = {
   product_id: string; variant_id: string;
