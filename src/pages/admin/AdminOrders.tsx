@@ -41,7 +41,14 @@ export default function AdminOrders() {
     setOrders(data ?? []);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel('admin-orders-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const open = async (o: any) => {
     setViewing(o);
