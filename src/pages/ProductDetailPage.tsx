@@ -9,6 +9,8 @@ import { ShoppingBag, MessageCircle, Heart, Truck, RotateCcw, ShieldCheck, Chevr
 import { useToast } from '@/hooks/use-toast';
 import { getStockUrgency } from '@/lib/stock-urgency';
 import StockProgress from '@/components/storefront/StockProgress';
+import FlashSaleBanner from '@/components/storefront/FlashSaleBanner';
+import { useFlashSale } from '@/hooks/useFlashSale';
 
 const SITE = 'https://babycenter.lovable.app';
 
@@ -16,6 +18,7 @@ export default function ProductDetailPage() {
   const { slug } = useParams();
   const { products, categories, loading } = useStorefrontData();
   const product = products.find(p => p.slug === slug);
+  const { flashSale } = useFlashSale(product?.id);
   const category = categories.find(c => c.id === product?.categorie_id);
   const prixSEO = product ? (product.prix_promo ?? product.prix_vente) : 0;
   const stockTotal = product?.variants.reduce((s, v) => s + (v.stock || 0), 0) ?? 0;
@@ -129,17 +132,23 @@ export default function ProductDetailPage() {
             {product.marque && <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1">{product.marque}</p>}
             <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">{product.nom}</h1>
 
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl font-bold text-foreground">{prix.toLocaleString('fr-FR')} FCFA</span>
-              {product.prix_promo && (
-                <span className="text-lg text-muted-foreground line-through">{product.prix_vente.toLocaleString('fr-FR')} FCFA</span>
-              )}
-              {product.prix_promo && (
-                <span className="bg-primary/10 text-primary text-sm font-semibold px-2 py-0.5 rounded">
-                  -{Math.round((1 - product.prix_promo / product.prix_vente) * 100)}%
-                </span>
-              )}
-            </div>
+            {flashSale ? (
+              <div className="mb-4">
+                <FlashSaleBanner flashSale={flashSale} prixOriginal={product.prix_vente} />
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl font-bold text-foreground">{prix.toLocaleString('fr-FR')} FCFA</span>
+                {product.prix_promo && (
+                  <span className="text-lg text-muted-foreground line-through">{product.prix_vente.toLocaleString('fr-FR')} FCFA</span>
+                )}
+                {product.prix_promo && (
+                  <span className="bg-primary/10 text-primary text-sm font-semibold px-2 py-0.5 rounded">
+                    -{Math.round((1 - product.prix_promo / product.prix_vente) * 100)}%
+                  </span>
+                )}
+              </div>
+            )}
 
             <p className="text-foreground/70 leading-relaxed mb-6">{product.description_longue}</p>
 
