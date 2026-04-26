@@ -274,6 +274,40 @@ export default function AdminSales() {
 
   const vendeurs = useMemo(() => Array.from(new Set(sales.map((s) => s.vendeur_nom).filter(Boolean))), [sales]);
 
+  // Récap par mode de paiement (ventes validées uniquement)
+  const recapByMode = useMemo(() => {
+    const totals: Record<string, { montant: number; count: number }> = {};
+    let grandTotal = 0;
+    let totalCount = 0;
+    for (const s of filteredSales) {
+      if (s.statut === 'annulee') continue;
+      totalCount++;
+      grandTotal += Number(s.total) || 0;
+      const lignes = Array.isArray(s.paiements) && s.paiements.length > 0
+        ? s.paiements
+        : [{ mode: s.mode_paiement, montant: s.total }];
+      for (const p of lignes) {
+        const mode = p?.mode || s.mode_paiement || 'autre';
+        const montant = Number(p?.montant) || 0;
+        if (!totals[mode]) totals[mode] = { montant: 0, count: 0 };
+        totals[mode].montant += montant;
+        totals[mode].count += 1;
+      }
+    }
+    const entries = Object.entries(totals).sort((a, b) => b[1].montant - a[1].montant);
+    return { entries, grandTotal, totalCount };
+  }, [filteredSales]);
+
+  const MODE_LABELS: Record<string, string> = {
+    especes: 'Espèces',
+    orange_money: 'Orange Money',
+    moov_money: 'Moov Money',
+    mtn_money: 'MTN Money',
+    wave: 'Wave',
+    carte: 'Carte',
+    virement: 'Virement',
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -457,6 +491,36 @@ export default function AdminSales() {
               <SelectContent><SelectItem value="all">Toutes</SelectItem>{vendeurs.map((v) => <SelectItem key={v as string} value={v as string}>{v as string}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Récap par mode de paiement */}
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <p className="text-sm font-semibold">Récap encaissements par mode</p>
+            <div className="text-xs text-muted-foreground">
+              {recapByMode.totalCount} vente{recapByMode.totalCount > 1 ? 's' : ''} —{' '}
+              <span className="font-semibold text-foreground">{fcfa(recapByMode.grandTotal)}</span>
+            </div>
+          </div>
+          {recapByMode.entries.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Aucun encaissement sur cette période.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+              {recapByMode.entries.map(([mode, info]) => {
+                const pct = recapByMode.grandTotal > 0 ? (info.montant / recapByMode.grandTotal) * 100 : 0;
+                return (
+                  <div key={mode} className="rounded-md border border-border bg-background px-3 py-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="font-medium capitalize">{MODE_LABELS[mode] ?? mode.replace(/_/g, ' ')}</span>
+                      <span>{pct.toFixed(0)}%</span>
+                    </div>
+                    <div className="font-bold tabular-nums">{fcfa(info.montant)}</div>
+                    <div className="text-[11px] text-muted-foreground">{info.count} ligne{info.count > 1 ? 's' : ''}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <SalesTable sales={filteredSales} onView={(id) => setDetailId(id)} />
