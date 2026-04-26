@@ -159,19 +159,47 @@ export default function CheckoutDialog({
             </div>
           )}
 
-          {split && (
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total saisi</span>
-                <span className={Math.abs(ecart) < 1 ? 'font-medium' : 'text-destructive font-medium'}>{fcfa(totalPayé)}</span>
+          {split && (() => {
+            const ok = Math.abs(ecart) < 1;
+            const restant = total - totalPayé;
+            return (
+              <div
+                className={`rounded-lg border px-4 py-3 space-y-2 transition-colors ${
+                  ok
+                    ? 'border-green-500/40 bg-green-500/10'
+                    : 'border-destructive/40 bg-destructive/10'
+                }`}
+                role="status"
+                aria-live="polite"
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Total vente</span>
+                  <span className="font-semibold">{fcfa(total)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Total saisi</span>
+                  <span className="font-semibold tabular-nums">{fcfa(totalPayé)}</span>
+                </div>
+                <div className={`flex items-center gap-2 text-sm font-medium pt-1 border-t ${ok ? 'border-green-500/30 text-green-700 dark:text-green-400' : 'border-destructive/30 text-destructive'}`}>
+                  {ok ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Montants équilibrés ✓</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      <span>
+                        {restant > 0
+                          ? `Il manque ${fcfa(restant)} pour atteindre le total`
+                          : `Surplus de ${fcfa(-restant)} — réduisez un montant`}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
-              {Math.abs(ecart) >= 1 && (
-                <p className="text-xs text-destructive">
-                  {ecart > 0 ? `Surplus de ${fcfa(ecart)}` : `Manque ${fcfa(-ecart)}`}
-                </p>
-              )}
-            </div>
-          )}
+            );
+          })()}
 
           <Button
             onClick={submit}
