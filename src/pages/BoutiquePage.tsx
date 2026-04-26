@@ -4,6 +4,7 @@ import { useAgeRanges } from '@/hooks/useAgeRanges';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 const sexes = [
   { value: 'fille', label: 'Fille' },
@@ -12,7 +13,7 @@ const sexes = [
 ];
 
 export default function BoutiquePage() {
-  const { products, categories } = useStorefrontData();
+  const { products, categories, loading } = useStorefrontData();
   const { ageRanges } = useAgeRanges();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
@@ -104,7 +105,18 @@ export default function BoutiquePage() {
         )}
 
         {/* Products grid */}
-        {filtered.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-[3/4] w-full rounded-lg" />
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/4" />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {filtered.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
