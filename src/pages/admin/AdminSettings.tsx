@@ -98,6 +98,77 @@ export default function AdminSettings() {
           ))}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-heading flex items-center gap-2">
+            <ImageIcon className="h-4 w-4 text-primary" /> Bannière d'accueil (Hero)
+          </CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">
+            Personnalisez l'image et le message de la page d'accueil pour mettre en avant des nouveautés ou des promotions.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Image de fond</Label>
+            <ImageUploader
+              bucket="category-images"
+              folder="hero"
+              value={hero.image_url ? [hero.image_url] : []}
+              onChange={(urls) => setHero({ ...hero, image_url: urls[0] || '' })}
+              multiple={false}
+            />
+            <p className="text-xs text-muted-foreground mt-1">Format paysage recommandé (1920×1080). Laissez vide pour utiliser l'image par défaut.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Sur-titre (eyebrow)</Label>
+              <Input value={hero.eyebrow} onChange={e => setHero({ ...hero, eyebrow: e.target.value })} placeholder="Ex: Soldes -50%" />
+            </div>
+            <div>
+              <Label>Texte du bouton</Label>
+              <Input value={hero.cta_label} onChange={e => setHero({ ...hero, cta_label: e.target.value })} placeholder="Découvrir" />
+            </div>
+            <div>
+              <Label>Titre principal</Label>
+              <Input value={hero.title_main} onChange={e => setHero({ ...hero, title_main: e.target.value })} />
+            </div>
+            <div>
+              <Label>Mot accentué (en couleur)</Label>
+              <Input value={hero.title_accent} onChange={e => setHero({ ...hero, title_accent: e.target.value })} placeholder="petits trésors" />
+            </div>
+            <div className="md:col-span-2">
+              <Label>Sous-titre</Label>
+              <Textarea rows={2} value={hero.subtitle} onChange={e => setHero({ ...hero, subtitle: e.target.value })} />
+            </div>
+            <div>
+              <Label>Lien du bouton</Label>
+              <Input value={hero.cta_href} onChange={e => setHero({ ...hero, cta_href: e.target.value })} placeholder="/boutique ou https://..." />
+              <p className="text-xs text-muted-foreground mt-1">Chemin interne (/promotions) ou URL complète</p>
+            </div>
+            <div className="flex items-center gap-3 pt-6">
+              <Switch checked={hero.show_whatsapp} onCheckedChange={(c) => setHero({ ...hero, show_whatsapp: c })} />
+              <Label className="cursor-pointer">Afficher le bouton WhatsApp</Label>
+            </div>
+          </div>
+
+          <div className="mt-2">
+            <Label className="text-xs text-muted-foreground">Aperçu</Label>
+            <div className="relative h-48 rounded-lg overflow-hidden border border-border mt-1 bg-muted">
+              {hero.image_url && <img src={hero.image_url} alt="Aperçu" className="absolute inset-0 w-full h-full object-cover" />}
+              <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/60" />
+              <div className="relative h-full flex flex-col items-center justify-center text-center px-4 text-background">
+                {hero.eyebrow && <p className="text-[10px] uppercase tracking-widest mb-1 opacity-90">{hero.eyebrow}</p>}
+                <p className="font-heading text-xl font-bold leading-tight">
+                  {hero.title_main} {hero.title_accent && <span className="text-accent">{hero.title_accent}</span>}
+                </p>
+                {hero.subtitle && <p className="text-xs opacity-80 mt-1 line-clamp-2 max-w-md">{hero.subtitle}</p>}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
