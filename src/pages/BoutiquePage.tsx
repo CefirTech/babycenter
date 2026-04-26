@@ -195,14 +195,40 @@ export default function BoutiquePage() {
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {filtered.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
+          <motion.div
+            layout
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                  transition={{
+                    duration: 0.5,
+                    delay: Math.min(i * 0.05, 0.6),
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                >
+                  <ProductCard product={p} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         ) : (
-          <div className="text-center py-20">
+          <motion.div
+            className="text-center py-20"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <p className="text-muted-foreground text-lg">Aucun produit trouvé</p>
             <p className="text-muted-foreground text-sm mt-1">Essayez de modifier vos filtres</p>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
