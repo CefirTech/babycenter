@@ -3,6 +3,8 @@ import type { SFProduct as Product } from '@/hooks/useStorefrontData';
 import { Heart } from 'lucide-react';
 import { useWishlist } from '@/hooks/useWishlist';
 import { cn } from '@/lib/utils';
+import { getStockUrgency } from '@/lib/stock-urgency';
+import StockProgress from '@/components/storefront/StockProgress';
 
 export default function ProductCard({ product }: { product: Product }) {
   const hasPromo = product.prix_promo !== null;
@@ -51,6 +53,9 @@ export default function ProductCard({ product }: { product: Product }) {
           {hasPromo && (
             <span className="text-sm text-muted-foreground line-through">{product.prix_vente.toLocaleString('fr-FR')} FCFA</span>
           )}
+        </div>
+        <div className="pt-1">
+          <StockProgress urgency={getStockUrgency(product)} size="sm" />
         </div>
       </div>
     </Link>

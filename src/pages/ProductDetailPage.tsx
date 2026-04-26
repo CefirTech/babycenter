@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/storefront/ProductCard';
 import { ShoppingBag, MessageCircle, Heart, Truck, RotateCcw, ShieldCheck, ChevronLeft, Minus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getStockUrgency } from '@/lib/stock-urgency';
+import StockProgress from '@/components/storefront/StockProgress';
 
 const SITE = 'https://babycenter.lovable.app';
 
@@ -154,16 +156,10 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Stock */}
-            <p className="text-sm mb-4">
-              {variant.stock > 5 ? (
-                <span className="text-green-600 font-medium">En stock</span>
-              ) : variant.stock > 0 ? (
-                <span className="text-accent font-medium">Plus que {variant.stock} en stock</span>
-              ) : (
-                <span className="text-destructive font-medium">Rupture de stock</span>
-              )}
-            </p>
+            {/* Stock + urgence */}
+            <div className="mb-5 max-w-sm">
+              <StockProgress urgency={getStockUrgency(product)} size="md" />
+            </div>
 
             {/* Quantité */}
             <div className="flex items-center gap-3 mb-6">
