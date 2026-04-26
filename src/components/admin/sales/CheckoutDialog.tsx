@@ -30,6 +30,7 @@ export type CheckoutResult = {
   mode_principal: Mode;
   montant_recu: number;
   monnaie: number;
+  customer_nom_libre?: string;
 };
 
 const needsReference = (m: Mode) =>
