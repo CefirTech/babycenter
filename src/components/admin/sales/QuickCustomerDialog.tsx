@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 export default function QuickCustomerDialog({
   open, onClose, onCreated,
-}: { open: boolean; onClose: () => void; onCreated: (c: { id: string; nom: string }) => void; }) {
+}: { open: boolean; onClose: () => void; onCreated: (c: { id: string; nom: string; telephone?: string | null }) => void; }) {
   const [nom, setNom] = useState('');
   const [tel, setTel] = useState('');
   const [saving, setSaving] = useState(false);
@@ -17,17 +17,17 @@ export default function QuickCustomerDialog({
   const submit = async () => {
     if (!nom.trim()) { toast.error('Nom requis'); return; }
     setSaving(true);
-    const { data, error } = await supabase.from('customers').insert({ nom, telephone: tel || null }).select('id,nom').single();
+    const { data, error } = await supabase.from('customers').insert({ nom, telephone: tel || null }).select('id,nom,telephone').single();
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success('Cliente créée');
+    toast.success('Client créé');
     onCreated(data); setNom(''); setTel(''); onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && !saving && onClose()}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>Nouvelle cliente</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Nouveau client</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div><Label>Nom *</Label><Input value={nom} onChange={(e) => setNom(e.target.value)} autoFocus /></div>
           <div><Label>Téléphone</Label><Input value={tel} onChange={(e) => setTel(e.target.value)} /></div>
