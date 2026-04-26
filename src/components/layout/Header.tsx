@@ -90,7 +90,7 @@ export default function Header() {
                   <p className="text-sm font-medium truncate">{user.email}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/compte')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/compte?tab=profil')} className="cursor-pointer">
                   <UserCircle className="h-4 w-4 mr-2" /> Mon profil
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
