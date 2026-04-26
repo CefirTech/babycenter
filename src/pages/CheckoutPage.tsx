@@ -239,13 +239,58 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-border pt-4 flex justify-between font-semibold text-lg mb-6">
-              <span>Total</span><span>{total.toLocaleString('fr-FR')} FCFA</span>
+
+            <div className="border-t border-border pt-4 mb-4">
+              <Label htmlFor="promo" className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+                <Tag className="h-3 w-3" /> Code promo
+              </Label>
+              {promo ? (
+                <div className="flex items-center justify-between gap-2 bg-primary/5 border border-primary/20 rounded-md px-3 py-2">
+                  <div className="text-sm">
+                    <p className="font-semibold text-primary">{promo.code}</p>
+                    <p className="text-xs text-muted-foreground">{promo.nom}</p>
+                  </div>
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPromo(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="promo"
+                    placeholder="ex: BIENVENUE10"
+                    value={promoInput}
+                    onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                    className="h-9 text-sm"
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={handleApplyPromo} disabled={promoLoading || !promoInput.trim()}>
+                    {promoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Appliquer'}
+                  </Button>
+                </div>
+              )}
             </div>
+
+            <div className="border-t border-border pt-4 space-y-2 mb-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Sous-total</span>
+                <span>{sousTotal.toLocaleString('fr-FR')} F</span>
+              </div>
+              {remise > 0 && (
+                <div className="flex justify-between text-primary">
+                  <span>Remise</span>
+                  <span>−{remise.toLocaleString('fr-FR')} F</span>
+                </div>
+              )}
+              <div className="flex justify-between font-semibold text-lg pt-2 border-t border-border">
+                <span>Total</span><span>{total.toLocaleString('fr-FR')} FCFA</span>
+              </div>
+            </div>
+
             <Button type="submit" size="lg" className="w-full font-semibold" disabled={loading}>
               {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Traitement...</> : 'Confirmer la commande'}
             </Button>
           </div>
+
         </form>
       </div>
     </div>
