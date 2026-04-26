@@ -1,6 +1,12 @@
 import { Heart, Award, Sparkles } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function AboutPage() {
+  useSEO({
+    title: 'À propos — BABYCENTER, vêtements enfants premium',
+    description: 'BABYCENTER, boutique premium fondée à Abidjan en 2020. Notre passion : habiller vos enfants avec style, qualité et confort.',
+    canonical: 'https://babycenter.lovable.app/a-propos',
+  });
   return (
     <div className="py-12 md:py-16">
       <div className="container max-w-3xl">

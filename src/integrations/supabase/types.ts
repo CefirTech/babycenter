@@ -1108,6 +1108,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      purge_old_activity_logs: { Args: never; Returns: number }
       validate_promo_code: {
         Args: { _code: string; _montant?: number }
         Returns: {

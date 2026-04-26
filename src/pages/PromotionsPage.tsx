@@ -1,7 +1,13 @@
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import ProductCard from '@/components/storefront/ProductCard';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function PromotionsPage() {
+  useSEO({
+    title: 'Promotions — Vêtements enfants en solde | BABYCENTER',
+    description: 'Profitez de nos promotions exceptionnelles sur les vêtements enfants : robes, t-shirts, ensembles à prix réduits.',
+    canonical: 'https://babycenter.lovable.app/promotions',
+  });
   const { products } = useStorefrontData();
   const promos = products.filter(p => p.prix_promo !== null && p.statut === 'actif');
 
