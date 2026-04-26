@@ -10,6 +10,7 @@ import FlashSaleBanner from '@/components/storefront/FlashSaleBanner';
 import { useFlashSale } from '@/hooks/useFlashSale';
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { flashSale } = useFlashSale(product.id);
   const hasPromo = product.prix_promo !== null;
   const prix = hasPromo ? product.prix_promo! : product.prix_vente;
   const { isFavorite, toggle } = useWishlist();
@@ -75,15 +76,21 @@ export default function ProductCard({ product }: { product: Product }) {
           <h3 className="font-medium text-sm md:text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors">
             {product.nom}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-foreground">{prix.toLocaleString('fr-FR')} FCFA</span>
-            {hasPromo && (
-              <span className="text-sm text-muted-foreground line-through">{product.prix_vente.toLocaleString('fr-FR')} FCFA</span>
-            )}
-          </div>
-          <div className="pt-1">
-            <StockProgress urgency={getStockUrgency(product)} size="sm" />
-          </div>
+          {flashSale ? (
+            <FlashSaleBanner flashSale={flashSale} prixOriginal={product.prix_vente} />
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground">{prix.toLocaleString('fr-FR')} FCFA</span>
+                {hasPromo && (
+                  <span className="text-sm text-muted-foreground line-through">{product.prix_vente.toLocaleString('fr-FR')} FCFA</span>
+                )}
+              </div>
+              <div className="pt-1">
+                <StockProgress urgency={getStockUrgency(product)} size="sm" />
+              </div>
+            </>
+          )}
         </div>
       </Link>
     </motion.div>
