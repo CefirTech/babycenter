@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, Search, User, X, Check } from 'lucide-react';
 import { fcfa } from '@/lib/format';
+
+export type CheckoutCustomer = { id: string; nom: string; telephone?: string | null };
 
 const PAYMENT_METHODS = ['especes', 'orange_money', 'moov_money', 'mtn_money', 'wave', 'carte', 'virement'] as const;
 type Mode = typeof PAYMENT_METHODS[number];
