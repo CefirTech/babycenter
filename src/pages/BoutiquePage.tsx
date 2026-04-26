@@ -14,11 +14,6 @@ const sexes = [
 ];
 
 export default function BoutiquePage() {
-  useSEO({
-    title: 'Boutique — Tous nos vêtements enfants | BABYCENTER',
-    description: 'Découvrez notre collection complète : robes, t-shirts, ensembles pour filles et garçons de 0 à 16 ans. Filtrez par âge, catégorie et genre.',
-    canonical: 'https://babycenter.lovable.app/boutique',
-  });
   const { products, categories, loading } = useStorefrontData();
   const { ageRanges } = useAgeRanges();
   const [search, setSearch] = useState('');
@@ -26,6 +21,26 @@ export default function BoutiquePage() {
   const [ageFilter, setAgeFilter] = useState('');
   const [sexeFilter, setSexeFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+
+  const itemListJsonLd = useMemo(() => ({
+    '@context': 'https://schema.org/',
+    '@type': 'ItemList',
+    name: 'Boutique BABYCENTER',
+    numberOfItems: products.filter(p => p.statut === 'actif').length,
+    itemListElement: products.filter(p => p.statut === 'actif').slice(0, 30).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://babycenter.lovable.app/produit/${p.slug}`,
+      name: p.nom,
+    })),
+  }), [products]);
+
+  useSEO({
+    title: 'Boutique — Tous nos vêtements enfants | BABYCENTER',
+    description: 'Découvrez notre collection complète : robes, t-shirts, ensembles pour filles et garçons de 0 à 16 ans. Filtrez par âge, catégorie et genre.',
+    canonical: 'https://babycenter.lovable.app/boutique',
+    jsonLd: itemListJsonLd,
+  });
 
   const filtered = useMemo(() => {
     return products.filter(p => {
