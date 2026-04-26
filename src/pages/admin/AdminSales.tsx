@@ -69,7 +69,7 @@ export default function AdminSales() {
       supabase.from('products').select('*').eq('statut', 'actif'),
       supabase.from('product_variants').select('*'),
       supabase.from('categories').select('id,nom').order('nom'),
-      supabase.from('customers').select('id,nom').order('nom'),
+      supabase.from('customers').select('id,nom,telephone').order('nom'),
       supabase.from('sales').select('*').order('created_at', { ascending: false }).limit(500),
       supabase.from('cash_sessions').select('*').eq('statut', 'ouverte').order('ouverte_le', { ascending: false }).limit(1).maybeSingle(),
     ]);
