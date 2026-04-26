@@ -128,7 +128,7 @@ export default function CheckoutDialog({
                     </Select>
                     <Input
                       type="number"
-                      className="w-36"
+                      className={`w-36 tabular-nums ${Math.abs(ecart) >= 1 ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                       value={p.montant}
                       onChange={(e) => updateSplitAmount(i, +e.target.value || 0)}
                     />
