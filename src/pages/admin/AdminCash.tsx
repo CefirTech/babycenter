@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,16 @@ import { toast } from 'sonner';
 import { fcfa, shortDateTime } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import { useAuth } from '@/contexts/AuthContext';
+
+const MODE_LABELS: Record<string, string> = {
+  especes: 'Espèces',
+  orange_money: 'Orange Money',
+  moov_money: 'Moov Money',
+  mtn_money: 'MTN Money',
+  wave: 'Wave',
+  carte: 'Carte',
+  virement: 'Virement',
+};
 
 export default function AdminCash() {
   const { user } = useAuth();
