@@ -14,7 +14,7 @@ export default function ProductDetailPage() {
   const product = products.find(p => p.slug === slug);
   useSEO({
     title: product ? `${product.nom} | BABYCENTER` : 'Produit | BABYCENTER',
-    description: product?.description || `Achetez ${product?.nom ?? 'ce produit'} sur BABYCENTER. Livraison rapide à Abidjan.`,
+    description: product?.description_courte || `Achetez ${product?.nom ?? 'ce produit'} sur BABYCENTER. Livraison rapide à Abidjan.`,
     canonical: product ? `https://babycenter.lovable.app/produit/${product.slug}` : undefined,
   });
   const { addItem } = useCart();
