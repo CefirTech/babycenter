@@ -130,7 +130,7 @@ export default function CustomerSearchSelect({
               >
                 <div className="font-medium truncate">{c.nom}</div>
                 {c.telephone && (
-                  <div className="text-xs text-muted-foreground truncate">{c.telephone}</div>
+                  <div className="text-xs text-muted-foreground truncate">{formatPhone(c.telephone)}</div>
                 )}
               </button>
             ))
