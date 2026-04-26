@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, PiggyBank, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare, Zap } from 'lucide-react';
+import { LayoutDashboard, Package, Layers, BarChart3, Users, ShoppingCart, Receipt, Wallet, Calculator, Tag, Settings, Activity, Menu, X, LogOut, UserCog, User, MessageSquare, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
