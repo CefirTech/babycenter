@@ -58,7 +58,14 @@ export default function AdminCash() {
     }
     const { data: h, error: e3 } = await supabase.from('cash_sessions').select('*').eq('statut', 'fermee').order('fermee_le', { ascending: false }).limit(10);
     if (e3) toast.error(`Historique : ${e3.message}`);
-    setHistory(h ?? []);
+    const histRows = h ?? [];
+    const closerIds = Array.from(new Set(histRows.map(r => r.fermee_par).filter(Boolean))) as string[];
+    let closerMap: Record<string, string> = {};
+    if (closerIds.length) {
+      const { data: profs } = await supabase.from('profiles').select('user_id, display_name, email').in('user_id', closerIds);
+      closerMap = Object.fromEntries((profs ?? []).map(p => [p.user_id, p.display_name || p.email || '—']));
+    }
+    setHistory(histRows.map(r => ({ ...r, _fermee_par_nom: r.fermee_par ? (closerMap[r.fermee_par] || '—') : '—' })));
     setLoading(false);
   };
   useEffect(() => {
