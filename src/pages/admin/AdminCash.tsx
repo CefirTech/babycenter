@@ -218,17 +218,19 @@ export default function AdminCash() {
       <div>
         <h2 className="font-heading text-lg font-semibold mb-3">Historique des sessions</h2>
         <Card><CardContent className="p-0"><div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-muted/50 text-left"><th className="p-4 font-medium text-muted-foreground">Ouverte</th><th className="p-4 font-medium text-muted-foreground">Fermée</th><th className="p-4 font-medium text-muted-foreground">Théorique</th><th className="p-4 font-medium text-muted-foreground">Réel</th><th className="p-4 font-medium text-muted-foreground">Écart</th></tr></thead>
+          <thead><tr className="border-b border-border bg-muted/50 text-left"><th className="p-4 font-medium text-muted-foreground">Ouverte</th><th className="p-4 font-medium text-muted-foreground">Ouverte par</th><th className="p-4 font-medium text-muted-foreground">Fermée</th><th className="p-4 font-medium text-muted-foreground">Fermée par</th><th className="p-4 font-medium text-muted-foreground">Théorique</th><th className="p-4 font-medium text-muted-foreground">Réel</th><th className="p-4 font-medium text-muted-foreground">Écart</th></tr></thead>
           <tbody>{history.map(s => (
             <tr key={s.id} className="border-b border-border last:border-0">
               <td className="p-4">{shortDateTime(s.ouverte_le)}</td>
+              <td className="p-4 text-muted-foreground">{s.ouverte_par_nom || '—'}</td>
               <td className="p-4">{s.fermee_le ? shortDateTime(s.fermee_le) : '—'}</td>
+              <td className="p-4 text-muted-foreground">{s._fermee_par_nom || '—'}</td>
               <td className="p-4">{fcfa(s.solde_theorique)}</td>
               <td className="p-4">{fcfa(s.solde_reel)}</td>
               <td className={`p-4 font-medium ${Number(s.ecart) === 0 ? '' : Number(s.ecart) > 0 ? 'text-green-600' : 'text-destructive'}`}>{fcfa(s.ecart)}</td>
             </tr>
           ))}
-          {history.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">Aucun historique</td></tr>}
+          {history.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Aucun historique</td></tr>}
           </tbody>
         </table></div></CardContent></Card>
       </div>
