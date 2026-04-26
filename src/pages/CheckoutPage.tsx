@@ -77,6 +77,30 @@ export default function CheckoutPage() {
     );
   }
 
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('validate_promo_code', { _code: code, _montant: sousTotal });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row || !row.valid) {
+        toast({ title: 'Code refusé', description: row?.reason ?? 'Code invalide', variant: 'destructive' });
+        return;
+      }
+      const remiseCalc = row.type === 'pourcentage'
+        ? Math.round((sousTotal * Number(row.valeur)) / 100)
+        : Math.min(sousTotal, Number(row.valeur));
+      setPromo({ code: row.code, nom: row.nom, type: row.type, valeur: Number(row.valeur), remise: remiseCalc });
+      toast({ title: 'Code appliqué', description: `${row.nom} : -${remiseCalc.toLocaleString('fr-FR')} FCFA` });
+    } catch (err: any) {
+      toast({ title: 'Erreur', description: err.message ?? 'Validation impossible', variant: 'destructive' });
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nom || !form.telephone || !form.adresse) {
@@ -85,40 +109,36 @@ export default function CheckoutPage() {
     }
     setLoading(true);
     try {
-      const { data: order, error } = await supabase
-        .from('orders')
-        .insert({
-          customer_nom: form.nom,
-          customer_telephone: form.telephone,
-          customer_adresse: `${form.adresse}, ${form.ville}`,
-          canal: 'site',
-          mode_paiement: form.mode_paiement,
-          sous_total: total,
-          total,
-          notes: form.notes || null,
-          user_id: user?.id ?? null,
-        })
-        .select('id, numero_commande')
-        .single();
+      const itemsPayload = items.map(i => {
+        const prix = i.product.prix_promo ?? i.product.prix_vente;
+        return {
+          product_id: i.product.id,
+          variant_id: i.variant.id,
+          product_nom: i.product.nom,
+          taille: i.variant.taille ?? null,
+          couleur: i.variant.couleur ?? null,
+          prix_unitaire: prix,
+          quantite: i.quantite,
+          total: prix * i.quantite,
+        };
+      });
 
+      const { data, error } = await supabase.rpc('create_public_order', {
+        _customer_nom: form.nom,
+        _customer_telephone: form.telephone,
+        _customer_adresse: `${form.adresse}, ${form.ville}`,
+        _mode_paiement: form.mode_paiement,
+        _sous_total: sousTotal,
+        _total: total,
+        _notes: form.notes || null,
+        _user_id: user?.id ?? null,
+        _items: itemsPayload,
+        _promo_code: promo?.code ?? null,
+        _remise: remise,
+      });
       if (error) throw error;
-
-      const orderItems = items.map(i => ({
-        order_id: order.id,
-        product_id: i.product.id,
-        variant_id: i.variant.id,
-        product_nom: i.product.nom,
-        taille: i.variant.taille,
-        couleur: i.variant.couleur,
-        prix_unitaire: i.product.prix_promo ?? i.product.prix_vente,
-        quantite: i.quantite,
-        total: (i.product.prix_promo ?? i.product.prix_vente) * i.quantite,
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      setDone(order.numero_commande);
+      const row = Array.isArray(data) ? data[0] : data;
+      setDone(row?.numero_commande ?? '—');
       clearCart();
     } catch (err: any) {
       toast({ title: 'Erreur', description: err.message ?? 'Impossible de créer la commande', variant: 'destructive' });
@@ -126,6 +146,7 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
 
   if (done) {
     return (
