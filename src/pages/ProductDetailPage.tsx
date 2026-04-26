@@ -9,6 +9,8 @@ import { ShoppingBag, MessageCircle, Heart, Truck, RotateCcw, ShieldCheck, Chevr
 import { useToast } from '@/hooks/use-toast';
 import { getStockUrgency } from '@/lib/stock-urgency';
 import StockProgress from '@/components/storefront/StockProgress';
+import FlashSaleBanner from '@/components/storefront/FlashSaleBanner';
+import { useFlashSale } from '@/hooks/useFlashSale';
 
 const SITE = 'https://babycenter.lovable.app';
 
