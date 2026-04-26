@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 import { useSEO } from '@/hooks/useSEO';
@@ -6,7 +7,7 @@ import ProductCard from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 const sexes = [
   { value: 'fille', label: 'Fille' },
   { value: 'garcon', label: 'Garçon' },
