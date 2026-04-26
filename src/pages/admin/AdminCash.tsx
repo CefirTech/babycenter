@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,12 +13,23 @@ import { fcfa, shortDateTime } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
 import { useAuth } from '@/contexts/AuthContext';
 
+const MODE_LABELS: Record<string, string> = {
+  especes: 'Espèces',
+  orange_money: 'Orange Money',
+  moov_money: 'Moov Money',
+  mtn_money: 'MTN Money',
+  wave: 'Wave',
+  carte: 'Carte',
+  virement: 'Virement',
+};
+
 export default function AdminCash() {
   const { user } = useAuth();
   const [session, setSession] = useState<any | null>(null);
   const [movements, setMovements] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessionSales, setSessionSales] = useState<any[]>([]);
   const [openInit, setOpenInit] = useState(false);
   const [openClose, setOpenClose] = useState(false);
   const [openMove, setOpenMove] = useState(false);
@@ -38,8 +49,12 @@ export default function AdminCash() {
       const { data: m, error: e2 } = await supabase.from('cash_movements').select('*').eq('session_id', openSess.id).order('created_at', { ascending: false });
       if (e2) toast.error(`Mouvements : ${e2.message}`);
       setMovements(m ?? []);
+      const { data: vs, error: e4 } = await supabase.from('sales').select('id,total,mode_paiement,paiements,statut').eq('session_id', openSess.id);
+      if (e4) toast.error(`Ventes : ${e4.message}`);
+      setSessionSales(vs ?? []);
     } else {
       setMovements([]);
+      setSessionSales([]);
     }
     const { data: h, error: e3 } = await supabase.from('cash_sessions').select('*').eq('statut', 'fermee').order('fermee_le', { ascending: false }).limit(10);
     if (e3) toast.error(`Historique : ${e3.message}`);
@@ -52,6 +67,7 @@ export default function AdminCash() {
       .channel('admin-cash-rt')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_movements' }, () => { load(); })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_sessions' }, () => { load(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => { load(); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
@@ -59,6 +75,30 @@ export default function AdminCash() {
   const totalEntrees = movements.filter(m => m.type === 'entree').reduce((s, m) => s + Number(m.montant), 0);
   const totalSorties = movements.filter(m => m.type === 'sortie').reduce((s, m) => s + Number(m.montant), 0);
   const theorique = session ? Number(session.solde_ouverture) + totalEntrees - totalSorties : 0;
+
+  // Récap encaissements par mode de paiement (ventes validées de la session)
+  const recapByMode = useMemo(() => {
+    const totals: Record<string, { montant: number; count: number }> = {};
+    let grandTotal = 0;
+    let totalCount = 0;
+    for (const s of sessionSales) {
+      if (s.statut === 'annulee') continue;
+      totalCount++;
+      grandTotal += Number(s.total) || 0;
+      const lignes = Array.isArray(s.paiements) && s.paiements.length > 0
+        ? s.paiements
+        : [{ mode: s.mode_paiement, montant: s.total }];
+      for (const p of lignes) {
+        const mode = p?.mode || s.mode_paiement || 'autre';
+        const montant = Number(p?.montant) || 0;
+        if (!totals[mode]) totals[mode] = { montant: 0, count: 0 };
+        totals[mode].montant += montant;
+        totals[mode].count += 1;
+      }
+    }
+    const entries = Object.entries(totals).sort((a, b) => b[1].montant - a[1].montant);
+    return { entries, grandTotal, totalCount };
+  }, [sessionSales]);
 
   const openSession = async () => {
     const { data, error } = await supabase.from('cash_sessions').insert({ solde_ouverture: solde, ouverte_par: user?.id, ouverte_par_nom: user?.user_metadata?.display_name || user?.email }).select().single();
@@ -105,6 +145,36 @@ export default function AdminCash() {
             <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">Entrées</p><p className="text-xl font-bold text-green-600">+{fcfa(totalEntrees)}</p></CardContent></Card>
             <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">Sorties</p><p className="text-xl font-bold text-destructive">-{fcfa(totalSorties)}</p></CardContent></Card>
             <Card className="border-primary/30"><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-1">Solde théorique</p><p className="text-xl font-bold text-primary">{fcfa(theorique)}</p></CardContent></Card>
+          </div>
+
+          {/* Récap encaissements par mode */}
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <p className="text-sm font-semibold">Récap encaissements par mode</p>
+              <div className="text-xs text-muted-foreground">
+                {recapByMode.totalCount} vente{recapByMode.totalCount > 1 ? 's' : ''} —{' '}
+                <span className="font-semibold text-foreground">{fcfa(recapByMode.grandTotal)}</span>
+              </div>
+            </div>
+            {recapByMode.entries.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Aucun encaissement sur cette session.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                {recapByMode.entries.map(([mode, info]) => {
+                  const pct = recapByMode.grandTotal > 0 ? (info.montant / recapByMode.grandTotal) * 100 : 0;
+                  return (
+                    <div key={mode} className="rounded-md border border-border bg-background px-3 py-2">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="font-medium capitalize">{MODE_LABELS[mode] ?? mode.replace(/_/g, ' ')}</span>
+                        <span>{pct.toFixed(0)}%</span>
+                      </div>
+                      <div className="font-bold tabular-nums">{fcfa(info.montant)}</div>
+                      <div className="text-[11px] text-muted-foreground">{info.count} ligne{info.count > 1 ? 's' : ''}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2 flex-wrap">
