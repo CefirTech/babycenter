@@ -40,10 +40,10 @@ export default function HomePage() {
       {/* Catégories */}
       <section className="py-16 md:py-20">
         <div className="container">
-          <div className="text-center mb-10">
+          <SectionReveal className="text-center mb-10">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">Nos catégories</h2>
             <p className="text-muted-foreground mt-2">Trouvez le look parfait pour chaque occasion</p>
-          </div>
+          </SectionReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.slice(0, 8).map((cat, i) => (
               <motion.div key={cat.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
@@ -72,7 +72,7 @@ export default function HomePage() {
       {/* Nouveautés */}
       <section className="py-16 bg-secondary/50">
         <div className="container">
-          <div className="flex items-center justify-between mb-10">
+          <SectionReveal className="flex items-center justify-between mb-10">
             <div>
               <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">Nouveautés</h2>
               <p className="text-muted-foreground mt-1">Les dernières pièces de notre collection</p>
@@ -80,7 +80,7 @@ export default function HomePage() {
             <Link to="/boutique?filtre=nouveau">
               <Button variant="outline" className="hidden md:inline-flex">Voir tout</Button>
             </Link>
-          </div>
+          </SectionReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {featured.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
@@ -93,10 +93,10 @@ export default function HomePage() {
       {/* Par âge */}
       <section className="py-16">
         <div className="container">
-          <div className="text-center mb-10">
+          <SectionReveal className="text-center mb-10">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">Par tranche d'âge</h2>
             <p className="text-muted-foreground mt-2">Trouvez les vêtements adaptés à l'âge de votre enfant</p>
-          </div>
+          </SectionReveal>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {ageRanges.slice(0, 6).map((age) => (
               <Link key={age} to={`/boutique?age=${encodeURIComponent(age)}`} className="bg-card border border-border rounded-xl p-6 text-center hover:border-primary hover:shadow-lg transition-all group">
@@ -120,10 +120,10 @@ export default function HomePage() {
       {/* Meilleures ventes */}
       <section className="py-16 bg-secondary/50">
         <div className="container">
-          <div className="text-center mb-10">
+          <SectionReveal className="text-center mb-10">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">Meilleures ventes</h2>
             <p className="text-muted-foreground mt-2">Les préférés de nos clientes</p>
-          </div>
+          </SectionReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {bestsellers.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
@@ -151,9 +151,9 @@ export default function HomePage() {
       {/* Avis */}
       <section className="py-16 bg-secondary/50">
         <div className="container">
-          <div className="text-center mb-10">
+          <SectionReveal className="text-center mb-10">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">Avis de nos clientes</h2>
-          </div>
+          </SectionReveal>
           <div className="grid md:grid-cols-3 gap-6">
             {reviews.map((r, i) => (
               <motion.div key={i} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-card rounded-xl p-6 border border-border">
@@ -178,13 +178,25 @@ export default function HomePage() {
               { icon: Headphones, title: 'Service client', desc: 'Disponible sur WhatsApp' },
               { icon: MessageCircle, title: 'Commande WhatsApp', desc: 'Simple et rapide' },
             ].map(({ icon: Icon, title, desc }, i) => (
-              <div key={i} className="text-center">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -4 }}
+                className="text-center"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                  className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3"
+                >
                   <Icon className="h-5 w-5 text-primary" />
-                </div>
+                </motion.div>
                 <h3 className="font-semibold text-sm text-foreground">{title}</h3>
                 <p className="text-xs text-muted-foreground mt-1">{desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
