@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,38 +11,46 @@ import RoleGuard from "@/components/auth/RoleGuard";
 import ScrollToTop from "@/components/ScrollToTop";
 
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
-import AdminLayout from "@/components/layout/AdminLayout";
-
 import HomePage from "@/pages/HomePage";
-import BoutiquePage from "@/pages/BoutiquePage";
-import CategoriesPage from "@/pages/CategoriesPage";
-import AgeRangesPage from "@/pages/AgeRangesPage";
-import ProductDetailPage from "@/pages/ProductDetailPage";
-import CartPage from "@/pages/CartPage";
-import CheckoutPage from "@/pages/CheckoutPage";
-import PromotionsPage from "@/pages/PromotionsPage";
-import ContactPage from "@/pages/ContactPage";
-import AboutPage from "@/pages/AboutPage";
 import NotFound from "@/pages/NotFound";
 
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminProducts from "@/pages/admin/AdminProducts";
-import AdminOrders from "@/pages/admin/AdminOrders";
-import AdminCustomers from "@/pages/admin/AdminCustomers";
-import AdminCategories from "@/pages/admin/AdminCategories";
-import AdminSales from "@/pages/admin/AdminSales";
-import AdminExpenses from "@/pages/admin/AdminExpenses";
-import AdminCash from "@/pages/admin/AdminCash";
-import AdminPromotions from "@/pages/admin/AdminPromotions";
-import AdminReports from "@/pages/admin/AdminReports";
-import AdminSettings from "@/pages/admin/AdminSettings";
-import AdminActivityLog from "@/pages/admin/AdminActivityLog";
-import AdminUsers from "@/pages/admin/AdminUsers";
-import AdminProfile from "@/pages/admin/AdminProfile";
-import AdminDiscussion from "@/pages/admin/AdminDiscussion";
-import AdminLogin from "@/pages/admin/AdminLogin";
+// Lazy storefront (secondary)
+const BoutiquePage = lazy(() => import("@/pages/BoutiquePage"));
+const CategoriesPage = lazy(() => import("@/pages/CategoriesPage"));
+const AgeRangesPage = lazy(() => import("@/pages/AgeRangesPage"));
+const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
+const CartPage = lazy(() => import("@/pages/CartPage"));
+const CheckoutPage = lazy(() => import("@/pages/CheckoutPage"));
+const PromotionsPage = lazy(() => import("@/pages/PromotionsPage"));
+const ContactPage = lazy(() => import("@/pages/ContactPage"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
+
+// Lazy admin
+const AdminLayout = lazy(() => import("@/components/layout/AdminLayout"));
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
+const AdminOrders = lazy(() => import("@/pages/admin/AdminOrders"));
+const AdminCustomers = lazy(() => import("@/pages/admin/AdminCustomers"));
+const AdminCategories = lazy(() => import("@/pages/admin/AdminCategories"));
+const AdminSales = lazy(() => import("@/pages/admin/AdminSales"));
+const AdminExpenses = lazy(() => import("@/pages/admin/AdminExpenses"));
+const AdminCash = lazy(() => import("@/pages/admin/AdminCash"));
+const AdminPromotions = lazy(() => import("@/pages/admin/AdminPromotions"));
+const AdminReports = lazy(() => import("@/pages/admin/AdminReports"));
+const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
+const AdminActivityLog = lazy(() => import("@/pages/admin/AdminActivityLog"));
+const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const AdminProfile = lazy(() => import("@/pages/admin/AdminProfile"));
+const AdminDiscussion = lazy(() => import("@/pages/admin/AdminDiscussion"));
+const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 
 const queryClient = new QueryClient();
+
+const PageFallback = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -52,57 +61,59 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Routes>
-              {/* Site Web */}
-              <Route element={<StorefrontLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/boutique" element={<BoutiquePage />} />
-                <Route path="/categories" element={<CategoriesPage />} />
-                <Route path="/tranches-age" element={<AgeRangesPage />} />
-                <Route path="/produit/:slug" element={<ProductDetailPage />} />
-                <Route path="/panier" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/promotions" element={<PromotionsPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/a-propos" element={<AboutPage />} />
-                <Route path="/faq" element={<AboutPage />} />
-                <Route path="/livraison" element={<AboutPage />} />
-                <Route path="/retours" element={<AboutPage />} />
-              </Route>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                {/* Site Web */}
+                <Route element={<StorefrontLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/boutique" element={<BoutiquePage />} />
+                  <Route path="/categories" element={<CategoriesPage />} />
+                  <Route path="/tranches-age" element={<AgeRangesPage />} />
+                  <Route path="/produit/:slug" element={<ProductDetailPage />} />
+                  <Route path="/panier" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/promotions" element={<PromotionsPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/a-propos" element={<AboutPage />} />
+                  <Route path="/faq" element={<AboutPage />} />
+                  <Route path="/livraison" element={<AboutPage />} />
+                  <Route path="/retours" element={<AboutPage />} />
+                </Route>
 
-              {/* Back-office */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route element={<ProtectedAdminRoute />}>
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<AdminDashboard />} />
-                  {/* Tous staff (admin/manager/vendeur) */}
-                  <Route path="ventes" element={<AdminSales />} />
-                  <Route path="caisse" element={<AdminCash />} />
-                  <Route path="clientes" element={<AdminCustomers />} />
-                  <Route path="discussion" element={<AdminDiscussion />} />
-                  <Route path="profil" element={<AdminProfile />} />
+                {/* Back-office */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route element={<ProtectedAdminRoute />}>
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    {/* Tous staff (admin/manager/vendeur) */}
+                    <Route path="ventes" element={<AdminSales />} />
+                    <Route path="caisse" element={<AdminCash />} />
+                    <Route path="clientes" element={<AdminCustomers />} />
+                    <Route path="discussion" element={<AdminDiscussion />} />
+                    <Route path="profil" element={<AdminProfile />} />
 
-                  {/* Admin + manager */}
-                  <Route element={<RoleGuard allow={['admin', 'manager']} />}>
-                    <Route path="produits" element={<AdminProducts />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    <Route path="commandes" element={<AdminOrders />} />
-                    <Route path="depenses" element={<AdminExpenses />} />
-                    <Route path="promotions" element={<AdminPromotions />} />
-                    <Route path="rapports" element={<AdminReports />} />
-                  </Route>
+                    {/* Admin + manager */}
+                    <Route element={<RoleGuard allow={['admin', 'manager']} />}>
+                      <Route path="produits" element={<AdminProducts />} />
+                      <Route path="categories" element={<AdminCategories />} />
+                      <Route path="commandes" element={<AdminOrders />} />
+                      <Route path="depenses" element={<AdminExpenses />} />
+                      <Route path="promotions" element={<AdminPromotions />} />
+                      <Route path="rapports" element={<AdminReports />} />
+                    </Route>
 
-                  {/* Admin uniquement */}
-                  <Route element={<RoleGuard allow={['admin']} />}>
-                    <Route path="parametres" element={<AdminSettings />} />
-                    <Route path="utilisateurs" element={<AdminUsers />} />
-                    <Route path="journal" element={<AdminActivityLog />} />
+                    {/* Admin uniquement */}
+                    <Route element={<RoleGuard allow={['admin']} />}>
+                      <Route path="parametres" element={<AdminSettings />} />
+                      <Route path="utilisateurs" element={<AdminUsers />} />
+                      <Route path="journal" element={<AdminActivityLog />} />
+                    </Route>
                   </Route>
                 </Route>
-              </Route>
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </CartProvider>
