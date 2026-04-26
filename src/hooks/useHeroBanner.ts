@@ -32,6 +32,9 @@ export const DEFAULT_SLIDE: HeroSlide = {
   cta_label: 'Découvrir la collection',
   cta_href: '/boutique',
   show_whatsapp: true,
+  show_take_button: false,
+  take_button_label: 'Je prends',
+  take_button_href: '/boutique',
 };
 
 export const DEFAULT_HERO: HeroSlide = DEFAULT_SLIDE;
