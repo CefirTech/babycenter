@@ -29,7 +29,8 @@ export default function AdminSettings() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('settings').select('*');
+    const { data, error } = await supabase.from('settings').select('*');
+    if (error) toast.error(`Paramètres : ${error.message}`);
     const v: Record<string, any> = {};
     (data ?? []).forEach((s: any) => { v[s.cle] = typeof s.valeur === 'object' && s.valeur !== null && 'v' in s.valeur ? s.valeur.v : s.valeur; });
     setValues(v);
@@ -42,7 +43,8 @@ export default function AdminSettings() {
     for (const k of KEYS) {
       const v = values[k.cle];
       if (v === undefined) continue;
-      await supabase.from('settings').upsert({ cle: k.cle, valeur: { v }, description: k.desc }, { onConflict: 'cle' });
+      const { error } = await supabase.from('settings').upsert({ cle: k.cle, valeur: { v }, description: k.desc }, { onConflict: 'cle' });
+      if (error) { toast.error(`${k.label} : ${error.message}`); setSaving(false); return; }
     }
     await logActivity('update', 'settings', undefined, { keys: KEYS.map(k => k.cle) });
     toast.success('Paramètres enregistrés');

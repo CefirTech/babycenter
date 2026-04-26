@@ -20,13 +20,16 @@ export default function AdminDashboard() {
   useEffect(() => {
     (async () => {
       const start = new Date(); start.setDate(1);
-      const [{ data: orders }, { data: sales }, { data: customers }, { data: variants }, { data: items }] = await Promise.all([
+      const results = await Promise.all([
         supabase.from('orders').select('*').gte('created_at', start.toISOString()),
         supabase.from('sales').select('*').gte('created_at', start.toISOString()),
         supabase.from('customers').select('id,created_at').gte('created_at', start.toISOString()),
         supabase.from('product_variants').select('stock,seuil_alerte'),
         supabase.from('order_items').select('product_nom,quantite,total'),
       ]);
+      const firstErr = results.find(r => r.error)?.error;
+      if (firstErr) console.error('[Dashboard]', firstErr);
+      const [{ data: orders }, { data: sales }, { data: customers }, { data: variants }, { data: items }] = results;
 
       const valid = (orders ?? []).filter(o => o.statut !== 'annulee');
       const ca = valid.reduce((s, o) => s + Number(o.total), 0) + (sales ?? []).reduce((s, x) => s + Number(x.total), 0);

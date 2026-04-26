@@ -27,7 +27,8 @@ export default function AdminPromotions() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('promotions').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('promotions').select('*').order('created_at', { ascending: false });
+    if (error) toast.error(`Promotions : ${error.message}`);
     setList(data ?? []);
     setLoading(false);
   };
@@ -53,7 +54,8 @@ export default function AdminPromotions() {
   };
 
   const toggle = async (p: any) => {
-    await supabase.from('promotions').update({ active: !p.active }).eq('id', p.id);
+    const { error } = await supabase.from('promotions').update({ active: !p.active }).eq('id', p.id);
+    if (error) { toast.error(error.message); return; }
     load();
   };
 

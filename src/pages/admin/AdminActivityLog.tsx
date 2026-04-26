@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Loader2, Activity, Search } from 'lucide-react';
 import { shortDateTime } from '@/lib/format';
+import { toast } from 'sonner';
 
 export default function AdminActivityLog() {
   const [list, setList] = useState<any[]>([]);
@@ -12,7 +13,8 @@ export default function AdminActivityLog() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200);
+      const { data, error } = await supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200);
+      if (error) toast.error(`Journal : ${error.message}`);
       setList(data ?? []); setLoading(false);
     })();
   }, []);

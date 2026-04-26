@@ -45,11 +45,14 @@ export default function AdminProducts() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: p }, { data: c }, { data: v }] = await Promise.all([
+    const [{ data: p, error: ep }, { data: c, error: ec }, { data: v, error: ev }] = await Promise.all([
       supabase.from('products').select('*').order('created_at', { ascending: false }),
       supabase.from('categories').select('*').order('nom'),
       supabase.from('product_variants').select('*'),
     ]);
+    if (ep) toast.error(`Produits : ${ep.message}`);
+    if (ec) toast.error(`Catégories : ${ec.message}`);
+    if (ev) toast.error(`Variantes : ${ev.message}`);
     const variantsByProd = (v ?? []).reduce<Record<string, any[]>>((acc, x) => {
       (acc[x.product_id] ||= []).push(x); return acc;
     }, {});
