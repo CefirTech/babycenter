@@ -425,13 +425,7 @@ export default function AdminSales() {
             <div className="flex gap-1 items-end">
               <div className="flex-1">
                 <Label>Cliente</Label>
-                <Select value={customerId} onValueChange={setCustomerId}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="walkin">Client de passage</SelectItem>
-                    {customers.map((c) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <CustomerSearchSelect customers={customers} value={customerId} onChange={setCustomerId} />
               </div>
               <Button variant="outline" size="icon" onClick={() => setQuickCustOpen(true)} title="Nouvelle cliente"><UserPlus className="h-4 w-4" /></Button>
             </div>
