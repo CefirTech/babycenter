@@ -74,7 +74,7 @@ export default function AdminCash() {
 
   const totalEntreesMouvements = movements.filter(m => m.type === 'entree').reduce((s, m) => s + Number(m.montant), 0);
   const totalSorties = movements.filter(m => m.type === 'sortie').reduce((s, m) => s + Number(m.montant), 0);
-  const totalVentes = sessionSales.filter(s => s.statut !== 'annulee').reduce((s, v) => s + (Number(v.total) || 0), 0);
+  const totalVentes = sessionSales.filter(s => s.statut === 'validee').reduce((s, v) => s + (Number(v.total) || 0), 0);
   const totalEntrees = totalEntreesMouvements + totalVentes;
   const theorique = session ? Number(session.solde_ouverture) + totalEntrees - totalSorties : 0;
 
