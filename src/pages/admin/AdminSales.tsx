@@ -467,7 +467,7 @@ export default function AdminSales() {
         onClose={() => setVariantPicker({ open: false, product: null })}
         onPick={(v) => addVariantToCart(v)}
       />
-      <CheckoutDialog open={checkoutOpen} onClose={() => setCheckoutOpen(false)} total={total} onConfirm={performCheckout} saving={saving} />
+      <CheckoutDialog open={checkoutOpen} onClose={() => setCheckoutOpen(false)} total={total} onConfirm={performCheckout} saving={saving} customers={customers} customerId={customerId} onCustomerChange={setCustomerId} />
       <SaleDetailDialog saleId={detailId} open={!!detailId} onClose={() => setDetailId(null)} onChanged={load} />
       <QuickCustomerDialog open={quickCustOpen} onClose={() => setQuickCustOpen(false)} onCreated={(c) => { setCustomers((arr) => [...arr, c]); setCustomerId(c.id); }} />
     </div>
