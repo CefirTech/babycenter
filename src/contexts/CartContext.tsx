@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { SFProduct as Product, SFVariant as ProductVariant } from '@/hooks/useStorefrontData';
+
+const STORAGE_KEY = 'babycenter_cart_v1';
 
 export interface CartItem {
   product: Product;
