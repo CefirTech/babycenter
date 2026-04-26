@@ -37,24 +37,55 @@ const needsReference = (m: Mode) =>
 
 export default function CheckoutDialog({
   open, onClose, total, onConfirm, saving,
+  customers = [], customerId = 'walkin', onCustomerChange,
 }: {
   open: boolean;
   onClose: () => void;
   total: number;
   onConfirm: (res: CheckoutResult) => void;
   saving: boolean;
+  customers?: CheckoutCustomer[];
+  customerId?: string;
+  onCustomerChange?: (id: string) => void;
 }) {
   const [split, setSplit] = useState(false);
   const [paiements, setPaiements] = useState<PaiementLigne[]>([{ mode: 'especes', montant: 0 }]);
   const [montantRecu, setMontantRecu] = useState<number>(0);
+  const [custQuery, setCustQuery] = useState('');
+  const [custOpen, setCustOpen] = useState(false);
+  const custBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
       setSplit(false);
       setPaiements([{ mode: 'especes', montant: total, reference: '' }]);
       setMontantRecu(total);
+      setCustQuery('');
+      setCustOpen(false);
     }
   }, [open, total]);
+
+  // Fermer la liste au clic extérieur
+  useEffect(() => {
+    if (!custOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (custBoxRef.current && !custBoxRef.current.contains(e.target as Node)) setCustOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [custOpen]);
+
+  const selectedCustomer = customers.find((c) => c.id === customerId);
+  const filteredCustomers = useMemo(() => {
+    const q = custQuery.trim().toLowerCase();
+    if (!q) return customers.slice(0, 8);
+    return customers
+      .filter((c) =>
+        c.nom.toLowerCase().includes(q) ||
+        (c.telephone ?? '').toLowerCase().includes(q)
+      )
+      .slice(0, 8);
+  }, [customers, custQuery]);
 
   // Toggle split en 2 modes
   const toggleSplit = (on: boolean) => {
