@@ -34,7 +34,15 @@ export default function AdminExpenses() {
     setLoading(true);
     const { data, error } = await supabase.from('expenses').select('*').order('date_depense', { ascending: false });
     if (error) toast.error(`Dépenses : ${error.message}`);
-    setList(data ?? []);
+    const rows = data ?? [];
+    // Récupère les noms des créateurs depuis profiles
+    const ids = Array.from(new Set(rows.map(r => r.created_by).filter(Boolean))) as string[];
+    let nameMap: Record<string, string> = {};
+    if (ids.length) {
+      const { data: profs } = await supabase.from('profiles').select('user_id, display_name, email').in('user_id', ids);
+      nameMap = Object.fromEntries((profs ?? []).map(p => [p.user_id, p.display_name || p.email || '—']));
+    }
+    setList(rows.map(r => ({ ...r, _created_by_nom: r.created_by ? (nameMap[r.created_by] || '—') : '—' })));
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -93,6 +101,7 @@ export default function AdminExpenses() {
               <th className="p-4 font-medium text-muted-foreground">Description</th>
               <th className="p-4 font-medium text-muted-foreground hidden md:table-cell">Catégorie</th>
               <th className="p-4 font-medium text-muted-foreground hidden md:table-cell">Mode</th>
+              <th className="p-4 font-medium text-muted-foreground hidden lg:table-cell">Effectuée par</th>
               <th className="p-4 font-medium text-muted-foreground text-right">Montant</th>
               <th className="p-4 font-medium text-muted-foreground">Actions</th>
             </tr></thead>
@@ -102,6 +111,7 @@ export default function AdminExpenses() {
                 <td className="p-4 font-medium">{e.description}</td>
                 <td className="p-4 text-muted-foreground hidden md:table-cell"><span className="text-xs px-2 py-1 rounded-full bg-secondary">{e.categorie}</span></td>
                 <td className="p-4 text-muted-foreground hidden md:table-cell">{e.mode_paiement || '—'}</td>
+                <td className="p-4 text-muted-foreground hidden lg:table-cell">{e._created_by_nom}</td>
                 <td className="p-4 text-right font-medium">{fcfa(e.montant)}</td>
                 <td className="p-4"><div className="flex gap-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(e)}><Edit className="h-4 w-4" /></Button>
@@ -109,7 +119,7 @@ export default function AdminExpenses() {
                 </div></td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">Aucune dépense</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} className="p-12 text-center text-muted-foreground">Aucune dépense</td></tr>}
             </tbody>
           </table></div>
         )}

@@ -36,7 +36,7 @@ export default function AdminCash() {
   const [solde, setSolde] = useState(0);
   const [soldeReel, setSoldeReel] = useState(0);
   const [closeNotes, setCloseNotes] = useState('');
-  const [moveType, setMoveType] = useState<'entree' | 'sortie'>('entree');
+  const [moveType, setMoveType] = useState<'sortie' | 'autre'>('sortie');
   const [moveMontant, setMoveMontant] = useState(0);
   const [moveMotif, setMoveMotif] = useState('');
 
@@ -58,7 +58,14 @@ export default function AdminCash() {
     }
     const { data: h, error: e3 } = await supabase.from('cash_sessions').select('*').eq('statut', 'fermee').order('fermee_le', { ascending: false }).limit(10);
     if (e3) toast.error(`Historique : ${e3.message}`);
-    setHistory(h ?? []);
+    const histRows = h ?? [];
+    const closerIds = Array.from(new Set(histRows.map(r => r.fermee_par).filter(Boolean))) as string[];
+    let closerMap: Record<string, string> = {};
+    if (closerIds.length) {
+      const { data: profs } = await supabase.from('profiles').select('user_id, display_name, email').in('user_id', closerIds);
+      closerMap = Object.fromEntries((profs ?? []).map(p => [p.user_id, p.display_name || p.email || '—']));
+    }
+    setHistory(histRows.map(r => ({ ...r, _fermee_par_nom: r.fermee_par ? (closerMap[r.fermee_par] || '—') : '—' })));
     setLoading(false);
   };
   useEffect(() => {
@@ -72,10 +79,10 @@ export default function AdminCash() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const totalEntreesMouvements = movements.filter(m => m.type === 'entree').reduce((s, m) => s + Number(m.montant), 0);
   const totalSorties = movements.filter(m => m.type === 'sortie').reduce((s, m) => s + Number(m.montant), 0);
+  const totalAutres = movements.filter(m => m.type === 'autre').reduce((s, m) => s + Number(m.montant), 0);
   const totalVentes = sessionSales.filter(s => s.statut === 'validee').reduce((s, v) => s + (Number(v.total) || 0), 0);
-  const totalEntrees = totalEntreesMouvements + totalVentes;
+  const totalEntrees = totalVentes;
   const theorique = session ? Number(session.solde_ouverture) + totalEntrees - totalSorties : 0;
 
   // Récap encaissements par mode de paiement (ventes validées de la session)
@@ -188,14 +195,19 @@ export default function AdminCash() {
           <Card><CardContent className="p-0">
             <div className="overflow-x-auto"><table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/50 text-left"><th className="p-4 font-medium text-muted-foreground">Heure</th><th className="p-4 font-medium text-muted-foreground">Type</th><th className="p-4 font-medium text-muted-foreground">Motif</th><th className="p-4 font-medium text-muted-foreground text-right">Montant</th></tr></thead>
-              <tbody>{movements.map(m => (
-                <tr key={m.id} className="border-b border-border last:border-0">
-                  <td className="p-4">{new Date(m.created_at).toLocaleTimeString('fr-FR')}</td>
-                  <td className="p-4">{m.type === 'entree' ? <span className="flex items-center gap-1 text-green-600"><ArrowDownCircle className="h-4 w-4" /> Entrée</span> : <span className="flex items-center gap-1 text-destructive"><ArrowUpCircle className="h-4 w-4" /> Sortie</span>}</td>
-                  <td className="p-4">{m.motif}</td>
-                  <td className={`p-4 text-right font-medium ${m.type === 'entree' ? 'text-green-600' : 'text-destructive'}`}>{m.type === 'entree' ? '+' : '-'}{fcfa(m.montant)}</td>
-                </tr>
-              ))}
+              <tbody>{movements.map(m => {
+                const isSortie = m.type === 'sortie';
+                const label = isSortie ? 'Sortie' : 'Autre';
+                const cls = isSortie ? 'text-destructive' : 'text-muted-foreground';
+                return (
+                  <tr key={m.id} className="border-b border-border last:border-0">
+                    <td className="p-4">{new Date(m.created_at).toLocaleTimeString('fr-FR')}</td>
+                    <td className="p-4"><span className={`flex items-center gap-1 ${cls}`}><ArrowUpCircle className="h-4 w-4" /> {label}</span></td>
+                    <td className="p-4">{m.motif}</td>
+                    <td className={`p-4 text-right font-medium ${cls}`}>{isSortie ? '-' : ''}{fcfa(m.montant)}</td>
+                  </tr>
+                );
+              })}
               {movements.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">Aucun mouvement</td></tr>}
               </tbody>
             </table></div>
@@ -206,17 +218,19 @@ export default function AdminCash() {
       <div>
         <h2 className="font-heading text-lg font-semibold mb-3">Historique des sessions</h2>
         <Card><CardContent className="p-0"><div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-muted/50 text-left"><th className="p-4 font-medium text-muted-foreground">Ouverte</th><th className="p-4 font-medium text-muted-foreground">Fermée</th><th className="p-4 font-medium text-muted-foreground">Théorique</th><th className="p-4 font-medium text-muted-foreground">Réel</th><th className="p-4 font-medium text-muted-foreground">Écart</th></tr></thead>
+          <thead><tr className="border-b border-border bg-muted/50 text-left"><th className="p-4 font-medium text-muted-foreground">Ouverte</th><th className="p-4 font-medium text-muted-foreground">Ouverte par</th><th className="p-4 font-medium text-muted-foreground">Fermée</th><th className="p-4 font-medium text-muted-foreground">Fermée par</th><th className="p-4 font-medium text-muted-foreground">Théorique</th><th className="p-4 font-medium text-muted-foreground">Réel</th><th className="p-4 font-medium text-muted-foreground">Écart</th></tr></thead>
           <tbody>{history.map(s => (
             <tr key={s.id} className="border-b border-border last:border-0">
               <td className="p-4">{shortDateTime(s.ouverte_le)}</td>
+              <td className="p-4 text-muted-foreground">{s.ouverte_par_nom || '—'}</td>
               <td className="p-4">{s.fermee_le ? shortDateTime(s.fermee_le) : '—'}</td>
+              <td className="p-4 text-muted-foreground">{s._fermee_par_nom || '—'}</td>
               <td className="p-4">{fcfa(s.solde_theorique)}</td>
               <td className="p-4">{fcfa(s.solde_reel)}</td>
               <td className={`p-4 font-medium ${Number(s.ecart) === 0 ? '' : Number(s.ecart) > 0 ? 'text-green-600' : 'text-destructive'}`}>{fcfa(s.ecart)}</td>
             </tr>
           ))}
-          {history.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">Aucun historique</td></tr>}
+          {history.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Aucun historique</td></tr>}
           </tbody>
         </table></div></CardContent></Card>
       </div>
@@ -251,7 +265,7 @@ export default function AdminCash() {
             <div><Label>Type</Label>
               <Select value={moveType} onValueChange={(v: any) => setMoveType(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="entree">Entrée</SelectItem><SelectItem value="sortie">Sortie</SelectItem></SelectContent>
+                <SelectContent><SelectItem value="sortie">Sortie</SelectItem><SelectItem value="autre">Autre</SelectItem></SelectContent>
               </Select>
             </div>
             <div><Label>Montant (FCFA)</Label><Input type="number" value={moveMontant} onChange={e => setMoveMontant(+e.target.value)} /></div>
