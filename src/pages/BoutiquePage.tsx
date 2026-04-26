@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useStorefrontData } from '@/hooks/useStorefrontData';
 import { useAgeRanges } from '@/hooks/useAgeRanges';
 import { useSEO } from '@/hooks/useSEO';
@@ -6,7 +7,7 @@ import ProductCard from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 const sexes = [
   { value: 'fille', label: 'Fille' },
   { value: 'garcon', label: 'Garçon' },
@@ -56,13 +57,69 @@ export default function BoutiquePage() {
   const hasFilters = catFilter || ageFilter || sexeFilter;
 
   return (
-    <div className="py-8 md:py-12">
+    <div className="relative py-8 md:py-12 overflow-hidden">
+      {/* Decorative animated background */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <motion.div
+          aria-hidden
+          className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl"
+          animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute top-40 -right-32 h-[28rem] w-[28rem] rounded-full bg-accent/10 blur-3xl"
+          animate={{ x: [0, -30, 0], y: [0, 40, 0] }}
+          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </div>
+
       <div className="container">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">Notre boutique</h1>
-          <p className="text-muted-foreground mt-2">{filtered.length} articles disponibles</p>
-        </div>
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <motion.span
+            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Sparkles className="h-3.5 w-3.5" /> Collection
+          </motion.span>
+          <h1 className="font-heading text-3xl md:text-5xl font-bold text-foreground leading-tight">
+            {'Notre boutique'.split(' ').map((word, i) => (
+              <motion.span
+                key={i}
+                className="inline-block mr-3"
+                initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.7, delay: 0.15 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {i === 1 ? <span className="text-primary italic">{word}</span> : word}
+              </motion.span>
+            ))}
+          </h1>
+          <motion.p
+            className="text-muted-foreground mt-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <motion.span
+              key={filtered.length}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-block font-semibold text-foreground"
+            >
+              {filtered.length}
+            </motion.span>{' '}
+            articles disponibles
+          </motion.p>
+        </motion.div>
 
         {/* Search + filter toggle */}
         <div className="flex gap-3 mb-6">
@@ -138,14 +195,40 @@ export default function BoutiquePage() {
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {filtered.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
+          <motion.div
+            layout
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                  transition={{
+                    duration: 0.5,
+                    delay: Math.min(i * 0.05, 0.6),
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                >
+                  <ProductCard product={p} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         ) : (
-          <div className="text-center py-20">
+          <motion.div
+            className="text-center py-20"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <p className="text-muted-foreground text-lg">Aucun produit trouvé</p>
             <p className="text-muted-foreground text-sm mt-1">Essayez de modifier vos filtres</p>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
