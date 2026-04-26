@@ -69,7 +69,7 @@ export default function AdminSales() {
       supabase.from('products').select('*').eq('statut', 'actif'),
       supabase.from('product_variants').select('*'),
       supabase.from('categories').select('id,nom').order('nom'),
-      supabase.from('customers').select('id,nom').order('nom'),
+      supabase.from('customers').select('id,nom,telephone').order('nom'),
       supabase.from('sales').select('*').order('created_at', { ascending: false }).limit(500),
       supabase.from('cash_sessions').select('*').eq('statut', 'ouverte').order('ouverte_le', { ascending: false }).limit(1).maybeSingle(),
     ]);
@@ -467,7 +467,7 @@ export default function AdminSales() {
         onClose={() => setVariantPicker({ open: false, product: null })}
         onPick={(v) => addVariantToCart(v)}
       />
-      <CheckoutDialog open={checkoutOpen} onClose={() => setCheckoutOpen(false)} total={total} onConfirm={performCheckout} saving={saving} />
+      <CheckoutDialog open={checkoutOpen} onClose={() => setCheckoutOpen(false)} total={total} onConfirm={performCheckout} saving={saving} customers={customers} customerId={customerId} onCustomerChange={setCustomerId} />
       <SaleDetailDialog saleId={detailId} open={!!detailId} onClose={() => setDetailId(null)} onChanged={load} />
       <QuickCustomerDialog open={quickCustOpen} onClose={() => setQuickCustOpen(false)} onCreated={(c) => { setCustomers((arr) => [...arr, c]); setCustomerId(c.id); }} />
     </div>
