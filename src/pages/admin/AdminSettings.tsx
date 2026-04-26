@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, Save, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activity';
+import ImageUploader from '@/components/admin/ImageUploader';
+import { DEFAULT_HERO, type HeroBanner } from '@/hooks/useHeroBanner';
 
 const KEYS = [
   { cle: 'shop_name', label: 'Nom de la boutique', type: 'text', desc: 'Nom affiché dans le header et factures' },
@@ -24,6 +27,7 @@ const KEYS = [
 
 export default function AdminSettings() {
   const [values, setValues] = useState<Record<string, any>>({});
+  const [hero, setHero] = useState<HeroBanner>(DEFAULT_HERO);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -32,8 +36,18 @@ export default function AdminSettings() {
     const { data, error } = await supabase.from('settings').select('*');
     if (error) toast.error(`Paramètres : ${error.message}`);
     const v: Record<string, any> = {};
-    (data ?? []).forEach((s: any) => { v[s.cle] = typeof s.valeur === 'object' && s.valeur !== null && 'v' in s.valeur ? s.valeur.v : s.valeur; });
+    let heroLoaded: HeroBanner | null = null;
+    (data ?? []).forEach((s: any) => {
+      const raw = s.valeur;
+      const val = raw && typeof raw === 'object' && 'v' in raw ? raw.v : raw;
+      if (s.cle === 'hero_banner' && val && typeof val === 'object') {
+        heroLoaded = { ...DEFAULT_HERO, ...val };
+      } else {
+        v[s.cle] = val;
+      }
+    });
     setValues(v);
+    if (heroLoaded) setHero(heroLoaded);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -46,7 +60,12 @@ export default function AdminSettings() {
       const { error } = await supabase.from('settings').upsert({ cle: k.cle, valeur: { v }, description: k.desc }, { onConflict: 'cle' });
       if (error) { toast.error(`${k.label} : ${error.message}`); setSaving(false); return; }
     }
-    await logActivity('update', 'settings', undefined, { keys: KEYS.map(k => k.cle) });
+    const { error: heroErr } = await supabase.from('settings').upsert(
+      { cle: 'hero_banner', valeur: { v: hero }, description: 'Bannière hero de la page d\'accueil' },
+      { onConflict: 'cle' }
+    );
+    if (heroErr) { toast.error(`Hero : ${heroErr.message}`); setSaving(false); return; }
+    await logActivity('update', 'settings', undefined, { keys: [...KEYS.map(k => k.cle), 'hero_banner'] });
     toast.success('Paramètres enregistrés');
     setSaving(false);
   };
