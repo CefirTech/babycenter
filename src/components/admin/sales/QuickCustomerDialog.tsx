@@ -7,6 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Normalise un numéro pour la comparaison : ne garde que les chiffres
+// et supprime un éventuel préfixe pays 225.
+const normalizePhone = (raw: string) => {
+  const digits = (raw || '').replace(/\D/g, '');
+  return digits.startsWith('225') ? digits.slice(3) : digits;
+};
+
 export default function QuickCustomerDialog({
   open, onClose, onCreated,
 }: { open: boolean; onClose: () => void; onCreated: (c: { id: string; nom: string; telephone?: string | null }) => void; }) {
@@ -17,7 +24,27 @@ export default function QuickCustomerDialog({
   const submit = async () => {
     if (!nom.trim()) { toast.error('Nom requis'); return; }
     setSaving(true);
-    const { data, error } = await supabase.from('customers').insert({ nom, telephone: tel || null }).select('id,nom,telephone').single();
+
+    // Vérifier les doublons de téléphone (insensible aux espaces / préfixe)
+    const telNorm = normalizePhone(tel);
+    if (telNorm) {
+      const { data: existing, error: checkErr } = await supabase
+        .from('customers')
+        .select('id, nom, telephone');
+      if (checkErr) { setSaving(false); toast.error(checkErr.message); return; }
+      const dup = (existing ?? []).find((c) => normalizePhone(c.telephone ?? '') === telNorm);
+      if (dup) {
+        setSaving(false);
+        toast.error(`Ce numéro existe déjà pour « ${dup.nom} »`);
+        return;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('customers')
+      .insert({ nom, telephone: tel || null })
+      .select('id,nom,telephone')
+      .single();
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success('Client créé');
