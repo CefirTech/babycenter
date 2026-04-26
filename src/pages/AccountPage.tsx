@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,6 +38,10 @@ export default function AccountPage() {
   useSEO({ title: 'Mon compte — BabyCenter', description: 'Gérez votre profil, adresses, commandes et favoris.' });
   const { user, signOut } = useAuth();
   const { productIds: favIds, toggle } = useWishlist();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const validTabs = ['commandes', 'favoris', 'adresses', 'profil'];
+  const activeTab = validTabs.includes(tabParam ?? '') ? tabParam! : 'commandes';
   const [profile, setProfile] = useState<Profile>({ display_name: '', email: '', telephone: '' });
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -124,11 +128,12 @@ export default function AccountPage() {
         <p className="text-muted-foreground text-sm">{profile.email}</p>
       </div>
 
-      <Tabs defaultValue="commandes">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs value={activeTab} onValueChange={(v) => setSearchParams(v === 'commandes' ? {} : { tab: v })}>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
           <TabsTrigger value="commandes"><Package className="h-4 w-4 mr-1.5" />Commandes</TabsTrigger>
           <TabsTrigger value="favoris"><Heart className="h-4 w-4 mr-1.5" />Favoris</TabsTrigger>
           <TabsTrigger value="adresses"><MapPin className="h-4 w-4 mr-1.5" />Adresses</TabsTrigger>
+          <TabsTrigger value="profil"><UserIcon className="h-4 w-4 mr-1.5" />Profil</TabsTrigger>
         </TabsList>
 
         {/* Commandes */}
@@ -275,6 +280,32 @@ export default function AccountPage() {
         </TabsContent>
 
 
+        {/* Profil */}
+        <TabsContent value="profil" className="mt-6">
+          <Card>
+            <CardHeader><CardTitle className="text-base font-heading">Mes informations</CardTitle></CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label>Nom complet</Label>
+                <Input value={profile.display_name ?? ''} onChange={e => setProfile({ ...profile, display_name: e.target.value })} />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input type="email" value={profile.email ?? ''} disabled />
+                <p className="text-xs text-muted-foreground mt-1">L'email ne peut pas être modifié ici</p>
+              </div>
+              <div>
+                <Label>Téléphone</Label>
+                <Input value={profile.telephone ?? ''} onChange={e => setProfile({ ...profile, telephone: e.target.value })} placeholder="+225 ..." />
+              </div>
+              <div className="md:col-span-2 flex justify-end">
+                <Button onClick={saveProfile} disabled={savingProfile}>
+                  {savingProfile ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}Enregistrer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
