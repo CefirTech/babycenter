@@ -10,6 +10,9 @@ export interface HeroSlide {
   cta_label: string;
   cta_href: string;
   show_whatsapp: boolean;
+  show_take_button?: boolean;
+  take_button_label?: string;
+  take_button_href?: string;
 }
 
 export interface HeroConfig {
