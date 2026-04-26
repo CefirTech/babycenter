@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingBag, Heart, User, Menu, X, Search } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 const navLinks = [
@@ -16,6 +17,8 @@ const navLinks = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { itemCount } = useCart();
+  const { user } = useAuth();
+  const accountHref = user ? '/compte' : '/connexion';
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -44,9 +47,9 @@ export default function Header() {
           <button className="hidden md:flex p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Rechercher">
             <Search className="h-5 w-5" />
           </button>
-          <button className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Favoris">
+          <Link to={user ? '/compte' : '/connexion'} className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Favoris">
             <Heart className="h-5 w-5" />
-          </button>
+          </Link>
           <Link to="/panier" className="relative p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Panier">
             <ShoppingBag className="h-5 w-5" />
             {itemCount > 0 && (
@@ -55,7 +58,7 @@ export default function Header() {
               </span>
             )}
           </Link>
-          <Link to="/admin/login" className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Administration">
+          <Link to={accountHref} className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label={user ? 'Mon compte' : 'Se connecter'}>
             <User className="h-5 w-5" />
           </Link>
         </div>
@@ -70,8 +73,8 @@ export default function Header() {
                 {l.label}
               </Link>
             ))}
-            <Link to="/admin/login" onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
-              <User className="h-4 w-4" /> Admin
+            <Link to={accountHref} onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
+              <User className="h-4 w-4" /> {user ? 'Mon compte' : 'Connexion / Inscription'}
             </Link>
           </div>
         </nav>
