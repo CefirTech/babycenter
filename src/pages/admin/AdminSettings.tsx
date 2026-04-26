@@ -28,7 +28,7 @@ const KEYS = [
 
 export default function AdminSettings() {
   const [values, setValues] = useState<Record<string, any>>({});
-  const [hero, setHero] = useState<HeroBanner>(DEFAULT_HERO);
+  const [config, setConfig] = useState<HeroConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -37,18 +37,26 @@ export default function AdminSettings() {
     const { data, error } = await supabase.from('settings').select('*');
     if (error) toast.error(`Paramètres : ${error.message}`);
     const v: Record<string, any> = {};
-    let heroLoaded: HeroBanner | null = null;
+    let cfgLoaded: HeroConfig | null = null;
     (data ?? []).forEach((s: any) => {
       const raw = s.valeur;
       const val = raw && typeof raw === 'object' && 'v' in raw ? raw.v : raw;
       if (s.cle === 'hero_banner' && val && typeof val === 'object') {
-        heroLoaded = { ...DEFAULT_HERO, ...val };
+        if (Array.isArray(val.slides)) {
+          cfgLoaded = {
+            slides: val.slides.map((sl: any) => ({ ...DEFAULT_SLIDE, ...sl })),
+            interval_seconds: Math.min(15, Math.max(3, Number(val.interval_seconds) || 6)),
+          };
+        } else {
+          // legacy single object
+          cfgLoaded = { slides: [{ ...DEFAULT_SLIDE, ...val }], interval_seconds: 6 };
+        }
       } else {
         v[s.cle] = val;
       }
     });
     setValues(v);
-    if (heroLoaded) setHero(heroLoaded);
+    if (cfgLoaded) setConfig(cfgLoaded);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -61,14 +69,33 @@ export default function AdminSettings() {
       const { error } = await supabase.from('settings').upsert({ cle: k.cle, valeur: { v }, description: k.desc }, { onConflict: 'cle' });
       if (error) { toast.error(`${k.label} : ${error.message}`); setSaving(false); return; }
     }
+    const cfgToSave: HeroConfig = {
+      slides: config.slides.length ? config.slides : [DEFAULT_SLIDE],
+      interval_seconds: Math.min(15, Math.max(3, config.interval_seconds || 6)),
+    };
     const { error: heroErr } = await supabase.from('settings').upsert(
-      { cle: 'hero_banner', valeur: { v: hero } as any, description: 'Bannière hero de la page d\'accueil' },
+      { cle: 'hero_banner', valeur: { v: cfgToSave } as any, description: 'Bannière hero (carrousel) de la page d\'accueil' },
       { onConflict: 'cle' }
     );
     if (heroErr) { toast.error(`Hero : ${heroErr.message}`); setSaving(false); return; }
-    await logActivity('update', 'settings', undefined, { keys: [...KEYS.map(k => k.cle), 'hero_banner'] });
+    await logActivity('update', 'settings', undefined, { keys: [...KEYS.map(k => k.cle), 'hero_banner'], slides: cfgToSave.slides.length });
     toast.success('Paramètres enregistrés');
     setSaving(false);
+  };
+
+  const updateSlide = (idx: number, patch: Partial<HeroSlide>) => {
+    setConfig(c => ({ ...c, slides: c.slides.map((s, i) => i === idx ? { ...s, ...patch } : s) }));
+  };
+  const addSlide = () => setConfig(c => ({ ...c, slides: [...c.slides, { ...DEFAULT_SLIDE, eyebrow: '', title_main: 'Nouvelle bannière', title_accent: '', subtitle: '' }] }));
+  const removeSlide = (idx: number) => setConfig(c => ({ ...c, slides: c.slides.length > 1 ? c.slides.filter((_, i) => i !== idx) : c.slides }));
+  const moveSlide = (idx: number, dir: -1 | 1) => {
+    setConfig(c => {
+      const j = idx + dir;
+      if (j < 0 || j >= c.slides.length) return c;
+      const arr = [...c.slides];
+      [arr[idx], arr[j]] = [arr[j], arr[idx]];
+      return { ...c, slides: arr };
+    });
   };
 
   if (loading) return <div className="p-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
