@@ -1129,6 +1129,25 @@ export type Database = {
       }
     }
     Functions: {
+      create_public_order: {
+        Args: {
+          _customer_adresse: string
+          _customer_nom: string
+          _customer_telephone: string
+          _items: Json
+          _mode_paiement: Database["public"]["Enums"]["payment_method"]
+          _notes: string
+          _promo_code?: string
+          _remise?: number
+          _sous_total: number
+          _total: number
+          _user_id: string
+        }
+        Returns: {
+          id: string
+          numero_commande: string
+        }[]
+      }
       create_sale_atomic: {
         Args: {
           _customer_id: string

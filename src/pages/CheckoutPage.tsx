@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ArrowLeft, CheckCircle2, Loader2, Banknote } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, Banknote, Tag, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import orangeMoneyLogo from '@/assets/payments/orange-money.png';
@@ -23,17 +23,32 @@ const PAIEMENTS = [
   { id: 'especes', label: 'Espèces à la livraison', logo: null },
 ] as const;
 
+interface AppliedPromo {
+  code: string;
+  nom: string;
+  type: 'pourcentage' | 'montant_fixe';
+  valeur: number;
+  remise: number;
+}
+
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
+  const { items, total: sousTotal, clearCart } = useCart();
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [form, setForm] = useState({
     nom: '', telephone: '', adresse: '', ville: 'Abidjan', notes: '',
     mode_paiement: 'orange_money' as typeof PAIEMENTS[number]['id'],
   });
+
+  const remise = promo?.remise ?? 0;
+  const total = useMemo(() => Math.max(0, sousTotal - remise), [sousTotal, remise]);
+
 
   // Pré-remplissage depuis profil + adresse par défaut
   useEffect(() => {
@@ -62,6 +77,30 @@ export default function CheckoutPage() {
     );
   }
 
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('validate_promo_code', { _code: code, _montant: sousTotal });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row || !row.valid) {
+        toast({ title: 'Code refusé', description: row?.reason ?? 'Code invalide', variant: 'destructive' });
+        return;
+      }
+      const remiseCalc = row.type === 'pourcentage'
+        ? Math.round((sousTotal * Number(row.valeur)) / 100)
+        : Math.min(sousTotal, Number(row.valeur));
+      setPromo({ code: row.code, nom: row.nom, type: row.type, valeur: Number(row.valeur), remise: remiseCalc });
+      toast({ title: 'Code appliqué', description: `${row.nom} : -${remiseCalc.toLocaleString('fr-FR')} FCFA` });
+    } catch (err: any) {
+      toast({ title: 'Erreur', description: err.message ?? 'Validation impossible', variant: 'destructive' });
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nom || !form.telephone || !form.adresse) {
@@ -70,40 +109,36 @@ export default function CheckoutPage() {
     }
     setLoading(true);
     try {
-      const { data: order, error } = await supabase
-        .from('orders')
-        .insert({
-          customer_nom: form.nom,
-          customer_telephone: form.telephone,
-          customer_adresse: `${form.adresse}, ${form.ville}`,
-          canal: 'site',
-          mode_paiement: form.mode_paiement,
-          sous_total: total,
-          total,
-          notes: form.notes || null,
-          user_id: user?.id ?? null,
-        })
-        .select('id, numero_commande')
-        .single();
+      const itemsPayload = items.map(i => {
+        const prix = i.product.prix_promo ?? i.product.prix_vente;
+        return {
+          product_id: i.product.id,
+          variant_id: i.variant.id,
+          product_nom: i.product.nom,
+          taille: i.variant.taille ?? null,
+          couleur: i.variant.couleur ?? null,
+          prix_unitaire: prix,
+          quantite: i.quantite,
+          total: prix * i.quantite,
+        };
+      });
 
+      const { data, error } = await supabase.rpc('create_public_order', {
+        _customer_nom: form.nom,
+        _customer_telephone: form.telephone,
+        _customer_adresse: `${form.adresse}, ${form.ville}`,
+        _mode_paiement: form.mode_paiement,
+        _sous_total: sousTotal,
+        _total: total,
+        _notes: form.notes || null,
+        _user_id: user?.id ?? null,
+        _items: itemsPayload,
+        _promo_code: promo?.code ?? null,
+        _remise: remise,
+      });
       if (error) throw error;
-
-      const orderItems = items.map(i => ({
-        order_id: order.id,
-        product_id: i.product.id,
-        variant_id: i.variant.id,
-        product_nom: i.product.nom,
-        taille: i.variant.taille,
-        couleur: i.variant.couleur,
-        prix_unitaire: i.product.prix_promo ?? i.product.prix_vente,
-        quantite: i.quantite,
-        total: (i.product.prix_promo ?? i.product.prix_vente) * i.quantite,
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      setDone(order.numero_commande);
+      const row = Array.isArray(data) ? data[0] : data;
+      setDone(row?.numero_commande ?? '—');
       clearCart();
     } catch (err: any) {
       toast({ title: 'Erreur', description: err.message ?? 'Impossible de créer la commande', variant: 'destructive' });
@@ -111,6 +146,7 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
 
   if (done) {
     return (
@@ -203,13 +239,58 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-border pt-4 flex justify-between font-semibold text-lg mb-6">
-              <span>Total</span><span>{total.toLocaleString('fr-FR')} FCFA</span>
+
+            <div className="border-t border-border pt-4 mb-4">
+              <Label htmlFor="promo" className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+                <Tag className="h-3 w-3" /> Code promo
+              </Label>
+              {promo ? (
+                <div className="flex items-center justify-between gap-2 bg-primary/5 border border-primary/20 rounded-md px-3 py-2">
+                  <div className="text-sm">
+                    <p className="font-semibold text-primary">{promo.code}</p>
+                    <p className="text-xs text-muted-foreground">{promo.nom}</p>
+                  </div>
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPromo(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="promo"
+                    placeholder="ex: BIENVENUE10"
+                    value={promoInput}
+                    onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                    className="h-9 text-sm"
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={handleApplyPromo} disabled={promoLoading || !promoInput.trim()}>
+                    {promoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Appliquer'}
+                  </Button>
+                </div>
+              )}
             </div>
+
+            <div className="border-t border-border pt-4 space-y-2 mb-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Sous-total</span>
+                <span>{sousTotal.toLocaleString('fr-FR')} F</span>
+              </div>
+              {remise > 0 && (
+                <div className="flex justify-between text-primary">
+                  <span>Remise</span>
+                  <span>−{remise.toLocaleString('fr-FR')} F</span>
+                </div>
+              )}
+              <div className="flex justify-between font-semibold text-lg pt-2 border-t border-border">
+                <span>Total</span><span>{total.toLocaleString('fr-FR')} FCFA</span>
+              </div>
+            </div>
+
             <Button type="submit" size="lg" className="w-full font-semibold" disabled={loading}>
               {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Traitement...</> : 'Confirmer la commande'}
             </Button>
           </div>
+
         </form>
       </div>
     </div>
