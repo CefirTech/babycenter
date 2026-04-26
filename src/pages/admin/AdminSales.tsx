@@ -191,12 +191,14 @@ export default function AdminSales() {
     if (cart.length === 0) return;
     setSaving(true);
     const numero_vente = `V-${Date.now().toString().slice(-8)}`;
+    const noteClient = res.customer_nom_libre ? `Client : ${res.customer_nom_libre}` : '';
     const { data: sale, error } = await supabase.from('sales').insert({
       numero_vente, mode_paiement: res.mode_principal, sous_total: sousTotal, remise: totalRemise, total,
       customer_id: customerId === 'walkin' ? null : customerId,
       vendeur_id: user?.id, vendeur_nom: user?.user_metadata?.display_name || user?.email,
       session_id: activeSession?.id ?? null,
       paiements: res.paiements, montant_recu: res.montant_recu,
+      notes: noteClient || null,
     }).select().single();
     if (error) { toast.error(error.message); setSaving(false); return; }
     const items = cart.map((l) => ({

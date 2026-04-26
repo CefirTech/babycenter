@@ -30,6 +30,7 @@ export type CheckoutResult = {
   mode_principal: Mode;
   montant_recu: number;
   monnaie: number;
+  customer_nom_libre?: string;
 };
 
 const needsReference = (m: Mode) =>
@@ -135,11 +136,14 @@ export default function CheckoutDialog({
       montant: p.montant,
       ...(p.reference?.trim() ? { reference: p.reference.trim() } : {}),
     }));
+    // Texte libre : si rien sélectionné mais nom tapé, on le passe en customer_nom_libre
+    const libre = (customerId === 'walkin' && custQuery.trim()) ? custQuery.trim().slice(0, 120) : undefined;
     onConfirm({
       paiements: cleanPaiements,
       mode_principal: paiements[0]?.mode ?? 'especes',
       montant_recu: showMonnaie ? montantRecu : total,
       monnaie: showMonnaie ? monnaie : 0,
+      customer_nom_libre: libre,
     });
   };
 
@@ -195,7 +199,14 @@ export default function CheckoutDialog({
                         <span className={customerId === 'walkin' ? '' : 'ml-[1.125rem]'}>Client de passage</span>
                       </button>
                       {filteredCustomers.length === 0 ? (
-                        <p className="px-3 py-3 text-sm text-muted-foreground">Aucun client trouvé</p>
+                        <div className="px-3 py-2 text-sm border-t border-border">
+                          <p className="text-muted-foreground">Aucun client existant</p>
+                          {custQuery.trim() && (
+                            <p className="text-xs text-primary mt-1">
+                              ✓ « {custQuery.trim()} » sera utilisé comme nom du client pour cette vente
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         filteredCustomers.map((c) => (
                           <button
