@@ -38,6 +38,10 @@ export default function AccountPage() {
   useSEO({ title: 'Mon compte — BabyCenter', description: 'Gérez votre profil, adresses, commandes et favoris.' });
   const { user, signOut } = useAuth();
   const { productIds: favIds, toggle } = useWishlist();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const validTabs = ['commandes', 'favoris', 'adresses', 'profil'];
+  const activeTab = validTabs.includes(tabParam ?? '') ? tabParam! : 'commandes';
   const [profile, setProfile] = useState<Profile>({ display_name: '', email: '', telephone: '' });
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<OrderRow[]>([]);
