@@ -91,7 +91,7 @@ export default function AdminSales() {
     return products
       .filter((p) => p.nom.toLowerCase().includes(search.toLowerCase()))
       .filter((p) => catFilter === 'all' || p.categorie_id === catFilter)
-      .slice(0, 16);
+      .slice(0, 8);
   }, [products, search, catFilter]);
 
   const stockOf = useCallback((productId: string) => {
