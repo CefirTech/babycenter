@@ -424,10 +424,10 @@ export default function AdminSales() {
 
             <div className="flex gap-1 items-end">
               <div className="flex-1">
-                <Label>Cliente</Label>
+                <Label>Client</Label>
                 <CustomerSearchSelect customers={customers} value={customerId} onChange={setCustomerId} />
               </div>
-              <Button variant="outline" size="icon" onClick={() => setQuickCustOpen(true)} title="Nouvelle cliente"><UserPlus className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" onClick={() => setQuickCustOpen(true)} title="Nouveau client"><UserPlus className="h-4 w-4" /></Button>
             </div>
 
             <div>
