@@ -199,7 +199,14 @@ export default function CheckoutDialog({
                         <span className={customerId === 'walkin' ? '' : 'ml-[1.125rem]'}>Client de passage</span>
                       </button>
                       {filteredCustomers.length === 0 ? (
-                        <p className="px-3 py-3 text-sm text-muted-foreground">Aucun client trouvé</p>
+                        <div className="px-3 py-2 text-sm border-t border-border">
+                          <p className="text-muted-foreground">Aucun client existant</p>
+                          {custQuery.trim() && (
+                            <p className="text-xs text-primary mt-1">
+                              ✓ « {custQuery.trim()} » sera utilisé comme nom du client pour cette vente
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         filteredCustomers.map((c) => (
                           <button
