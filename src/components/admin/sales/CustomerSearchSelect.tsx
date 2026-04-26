@@ -52,7 +52,7 @@ export default function CustomerSearchSelect({
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate leading-tight">{selected.nom}</p>
           {selected.telephone && (
-            <p className="text-[11px] text-muted-foreground truncate leading-tight">{selected.telephone}</p>
+            <p className="text-[11px] text-muted-foreground truncate leading-tight">{formatPhone(selected.telephone)}</p>
           )}
         </div>
         <Button
