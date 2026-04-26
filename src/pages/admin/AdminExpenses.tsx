@@ -34,7 +34,15 @@ export default function AdminExpenses() {
     setLoading(true);
     const { data, error } = await supabase.from('expenses').select('*').order('date_depense', { ascending: false });
     if (error) toast.error(`Dépenses : ${error.message}`);
-    setList(data ?? []);
+    const rows = data ?? [];
+    // Récupère les noms des créateurs depuis profiles
+    const ids = Array.from(new Set(rows.map(r => r.created_by).filter(Boolean))) as string[];
+    let nameMap: Record<string, string> = {};
+    if (ids.length) {
+      const { data: profs } = await supabase.from('profiles').select('user_id, display_name, email').in('user_id', ids);
+      nameMap = Object.fromEntries((profs ?? []).map(p => [p.user_id, p.display_name || p.email || '—']));
+    }
+    setList(rows.map(r => ({ ...r, _created_by_nom: r.created_by ? (nameMap[r.created_by] || '—') : '—' })));
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
