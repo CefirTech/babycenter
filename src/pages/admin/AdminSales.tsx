@@ -274,6 +274,40 @@ export default function AdminSales() {
 
   const vendeurs = useMemo(() => Array.from(new Set(sales.map((s) => s.vendeur_nom).filter(Boolean))), [sales]);
 
+  // Récap par mode de paiement (ventes validées uniquement)
+  const recapByMode = useMemo(() => {
+    const totals: Record<string, { montant: number; count: number }> = {};
+    let grandTotal = 0;
+    let totalCount = 0;
+    for (const s of filteredSales) {
+      if (s.statut === 'annulee') continue;
+      totalCount++;
+      grandTotal += Number(s.total) || 0;
+      const lignes = Array.isArray(s.paiements) && s.paiements.length > 0
+        ? s.paiements
+        : [{ mode: s.mode_paiement, montant: s.total }];
+      for (const p of lignes) {
+        const mode = p?.mode || s.mode_paiement || 'autre';
+        const montant = Number(p?.montant) || 0;
+        if (!totals[mode]) totals[mode] = { montant: 0, count: 0 };
+        totals[mode].montant += montant;
+        totals[mode].count += 1;
+      }
+    }
+    const entries = Object.entries(totals).sort((a, b) => b[1].montant - a[1].montant);
+    return { entries, grandTotal, totalCount };
+  }, [filteredSales]);
+
+  const MODE_LABELS: Record<string, string> = {
+    especes: 'Espèces',
+    orange_money: 'Orange Money',
+    moov_money: 'Moov Money',
+    mtn_money: 'MTN Money',
+    wave: 'Wave',
+    carte: 'Carte',
+    virement: 'Virement',
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
