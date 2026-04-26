@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { PiggyBank, Plus, Loader2, Lock, Unlock, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { Calculator, Plus, Loader2, Lock, Unlock, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { fcfa, shortDateTime } from '@/lib/format';
 import { logActivity } from '@/lib/activity';
