@@ -29,6 +29,7 @@ export default function AdminCash() {
   const [movements, setMovements] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessionSales, setSessionSales] = useState<any[]>([]);
   const [openInit, setOpenInit] = useState(false);
   const [openClose, setOpenClose] = useState(false);
   const [openMove, setOpenMove] = useState(false);
