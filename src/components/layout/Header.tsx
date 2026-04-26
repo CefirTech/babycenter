@@ -1,9 +1,17 @@
-import { Link } from 'react-router-dom';
-import { ShoppingBag, Heart, User, Menu, X, Search } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, UserCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 const navLinks = [
   { label: 'Accueil', href: '/' },
@@ -17,8 +25,15 @@ const navLinks = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { itemCount } = useCart();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const accountHref = user ? '/compte' : '/connexion';
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Déconnectée');
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -58,9 +73,40 @@ export default function Header() {
               </span>
             )}
           </Link>
-          <Link to={accountHref} className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label={user ? 'Mon compte' : 'Se connecter'}>
-            <User className="h-5 w-5" />
-          </Link>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="p-2 text-foreground/70 hover:text-primary transition-colors focus:outline-none"
+                  aria-label="Mon compte"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-popover">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="text-xs text-muted-foreground">Connectée en tant que</p>
+                  <p className="text-sm font-medium truncate">{user.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/compte')} className="cursor-pointer">
+                  <UserCircle className="h-4 w-4 mr-2" /> Mon profil
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to={accountHref} className="p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Se connecter">
+              <User className="h-5 w-5" />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -76,6 +122,14 @@ export default function Header() {
             <Link to={accountHref} onClick={() => setMobileOpen(false)} className="py-2 text-base font-medium text-foreground/80 hover:text-primary flex items-center gap-2">
               <User className="h-4 w-4" /> {user ? 'Mon compte' : 'Connexion / Inscription'}
             </Link>
+            {user && (
+              <button
+                onClick={() => { setMobileOpen(false); handleSignOut(); }}
+                className="py-2 text-base font-medium text-destructive hover:text-destructive/80 flex items-center gap-2 text-left"
+              >
+                <LogOut className="h-4 w-4" /> Se déconnecter
+              </button>
+            )}
           </div>
         </nav>
       )}

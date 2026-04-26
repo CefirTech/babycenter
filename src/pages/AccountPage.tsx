@@ -119,14 +119,9 @@ export default function AccountPage() {
 
   return (
     <div className="container py-8 md:py-12 max-w-5xl">
-      <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
-        <div>
-          <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">Bonjour {profile.display_name || 'cliente'} 👋</h1>
-          <p className="text-muted-foreground text-sm">{profile.email}</p>
-        </div>
-        <Button variant="outline" onClick={async () => { await signOut(); toast.success('Déconnectée'); }}>
-          <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
-        </Button>
+      <div className="mb-6">
+        <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">Bonjour {profile.display_name || 'cliente'} 👋</h1>
+        <p className="text-muted-foreground text-sm">{profile.email}</p>
       </div>
 
       <Tabs defaultValue="commandes">
