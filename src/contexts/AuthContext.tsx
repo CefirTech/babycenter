@@ -62,6 +62,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const signUp = async (email: string, password: string, displayName?: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: displayName ? { display_name: displayName } : undefined,
+      },
+    });
+    return { error: error?.message ?? null };
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/` },
+    });
+    return { error: error?.message ?? null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setRoles([]);
@@ -71,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = roles.includes('admin');
 
   return (
-    <AuthContext.Provider value={{ user, session, roles, loading, isStaff, isAdmin, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, roles, loading, isStaff, isAdmin, signIn, signUp, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
