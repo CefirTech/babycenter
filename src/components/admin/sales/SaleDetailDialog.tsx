@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, Printer, FileDown, XCircle } from 'lucide-react';
+import { Loader as Loader2, Printer, FileDown, Circle as XCircle } from 'lucide-react';
 import { fcfa, shortDateTime } from '@/lib/format';
 import { toast } from 'sonner';
 import { downloadReceiptA4, printThermalReceipt, ReceiptData } from '@/lib/receipt';

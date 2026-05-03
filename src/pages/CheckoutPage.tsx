@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ArrowLeft, CheckCircle2, Loader2, Banknote, Tag, X } from 'lucide-react';
+import { ArrowLeft, CircleCheck as CheckCircle2, Loader as Loader2, Banknote, Tag, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createPublicOrder, validatePromoCode } from '@/services/orders';
 import { fetchProfileAndAddress } from '@/services/profile';
