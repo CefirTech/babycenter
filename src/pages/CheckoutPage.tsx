@@ -9,7 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowLeft, CheckCircle2, Loader2, Banknote, Tag, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { createPublicOrder, validatePromoCode } from '@/services/orders';
+import { fetchProfileAndAddress } from '@/services/profile';
 import orangeMoneyLogo from '@/assets/payments/orange-money.png';
 import waveLogo from '@/assets/payments/wave.png';
 import mtnMoneyLogo from '@/assets/payments/mtn-money.png';
@@ -53,11 +54,7 @@ export default function CheckoutPage() {
   // Pré-remplissage depuis profil + adresse par défaut
   useEffect(() => {
     if (!user) return;
-    (async () => {
-      const [{ data: prof }, { data: addr }] = await Promise.all([
-        supabase.from('profiles').select('display_name, telephone').eq('user_id', user.id).maybeSingle(),
-        supabase.from('customer_addresses').select('*').eq('user_id', user.id).order('par_defaut', { ascending: false }).limit(1).maybeSingle(),
-      ]);
+    fetchProfileAndAddress(user.id).then(({ profile: prof, address: addr }) => {
       setForm(f => ({
         ...f,
         nom: f.nom || addr?.destinataire || prof?.display_name || '',
@@ -65,7 +62,7 @@ export default function CheckoutPage() {
         adresse: f.adresse || addr?.adresse || '',
         ville: addr?.ville || f.ville,
       }));
-    })();
+    });
   }, [user]);
 
   if (items.length === 0 && !done) {
@@ -82,10 +79,8 @@ export default function CheckoutPage() {
     if (!code) return;
     setPromoLoading(true);
     try {
-      const { data, error } = await supabase.rpc('validate_promo_code', { _code: code, _montant: sousTotal });
-      if (error) throw error;
-      const row = Array.isArray(data) ? data[0] : data;
-      if (!row || !row.valid) {
+      const row = await validatePromoCode(code, sousTotal);
+      if (!row?.valid) {
         toast({ title: 'Code refusé', description: row?.reason ?? 'Code invalide', variant: 'destructive' });
         return;
       }
@@ -94,8 +89,9 @@ export default function CheckoutPage() {
         : Math.min(sousTotal, Number(row.valeur));
       setPromo({ code: row.code, nom: row.nom, type: row.type, valeur: Number(row.valeur), remise: remiseCalc });
       toast({ title: 'Code appliqué', description: `${row.nom} : -${remiseCalc.toLocaleString('fr-FR')} FCFA` });
-    } catch (err: any) {
-      toast({ title: 'Erreur', description: err.message ?? 'Validation impossible', variant: 'destructive' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Validation impossible';
+      toast({ title: 'Erreur', description: msg, variant: 'destructive' });
     } finally {
       setPromoLoading(false);
     }
@@ -109,39 +105,36 @@ export default function CheckoutPage() {
     }
     setLoading(true);
     try {
-      const itemsPayload = items.map(i => {
-        const prix = i.product.prix_promo ?? i.product.prix_vente;
-        return {
-          product_id: i.product.id,
-          variant_id: i.variant.id,
-          product_nom: i.product.nom,
-          taille: i.variant.taille ?? null,
-          couleur: i.variant.couleur ?? null,
-          prix_unitaire: prix,
-          quantite: i.quantite,
-          total: prix * i.quantite,
-        };
+      const result = await createPublicOrder({
+        customer_nom: form.nom,
+        customer_telephone: form.telephone,
+        customer_adresse: `${form.adresse}, ${form.ville}`,
+        mode_paiement: form.mode_paiement,
+        sous_total: sousTotal,
+        total,
+        notes: form.notes || null,
+        user_id: user?.id ?? null,
+        items: items.map(i => {
+          const prix = i.product.prix_promo ?? i.product.prix_vente;
+          return {
+            product_id: i.product.id,
+            variant_id: i.variant.id,
+            product_nom: i.product.nom,
+            taille: i.variant.taille ?? null,
+            couleur: i.variant.couleur ?? null,
+            prix_unitaire: prix,
+            quantite: i.quantite,
+            total: prix * i.quantite,
+          };
+        }),
+        promo_code: promo?.code ?? null,
+        remise,
       });
-
-      const { data, error } = await supabase.rpc('create_public_order', {
-        _customer_nom: form.nom,
-        _customer_telephone: form.telephone,
-        _customer_adresse: `${form.adresse}, ${form.ville}`,
-        _mode_paiement: form.mode_paiement,
-        _sous_total: sousTotal,
-        _total: total,
-        _notes: form.notes || null,
-        _user_id: user?.id ?? null,
-        _items: itemsPayload,
-        _promo_code: promo?.code ?? null,
-        _remise: remise,
-      });
-      if (error) throw error;
-      const row = Array.isArray(data) ? data[0] : data;
-      setDone(row?.numero_commande ?? '—');
+      setDone(result?.numero_commande ?? '—');
       clearCart();
-    } catch (err: any) {
-      toast({ title: 'Erreur', description: err.message ?? 'Impossible de créer la commande', variant: 'destructive' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Impossible de créer la commande';
+      toast({ title: 'Erreur', description: msg, variant: 'destructive' });
     } finally {
       setLoading(false);
     }

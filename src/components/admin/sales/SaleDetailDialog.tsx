@@ -176,7 +176,7 @@ export default function SaleDetailDialog({
           <Button variant="outline" size="sm" onClick={() => sale && printThermalReceipt(buildReceipt()!)}>
             <Printer className="h-4 w-4 mr-2" /> Ticket 80mm
           </Button>
-          <Button variant="outline" size="sm" onClick={() => sale && downloadReceiptA4(buildReceipt()!)}>
+          <Button variant="outline" size="sm" onClick={() => { const r = sale && buildReceipt(); if (r) downloadReceiptA4(r); }}>
             <FileDown className="h-4 w-4 mr-2" /> PDF A4
           </Button>
           {sale?.statut === 'validee' && (isAdmin || true) && (

@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { fcfa } from './format';
+import { generateQRDataUrl } from './qrcode';
 
 export type ReceiptData = {
   numero_vente: string;
@@ -168,7 +169,7 @@ export function printThermalReceipt(r: ReceiptData) {
 }
 
 /** Ticket A4 (réimpression PDF) — mise en page premium */
-export function downloadReceiptA4(r: ReceiptData) {
+export async function downloadReceiptA4(r: ReceiptData) {
   const doc = new jsPDF();
   const pageW = 210;
 
@@ -256,6 +257,20 @@ export function downloadReceiptA4(r: ReceiptData) {
   doc.text(BOUTIQUE.merci, pageW / 2, 285, { align: 'center' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120);
   doc.text('Babycenter — Abidjan, Côte d\'Ivoire', pageW / 2, 290, { align: 'center' });
+
+  // QR code in bottom-right corner linking to order tracking
+  try {
+    const qrDataUrl = await generateQRDataUrl(
+      `${typeof window !== 'undefined' ? window.location.origin : ''}/compte/commandes/${safe(r.numero_vente)}`,
+      64,
+    );
+    const qrSize = 24;
+    doc.addImage(qrDataUrl, 'PNG', pageW - 14 - qrSize, 260, qrSize, qrSize);
+    doc.setFontSize(6); doc.setTextColor(120);
+    doc.text('Suivre ma commande', pageW - 14 - qrSize / 2, 285, { align: 'center' });
+  } catch {
+    // QR generation failure is non-fatal
+  }
 
   doc.save(`ticket-${safe(r.numero_vente)}.pdf`);
 }

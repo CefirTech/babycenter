@@ -49,7 +49,18 @@ const AdminProfile = lazy(() => import("@/pages/admin/AdminProfile"));
 const AdminDiscussion = lazy(() => import("@/pages/admin/AdminDiscussion"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2,     // 2 min before refetch
+      retry: 1,                      // single retry on error
+      refetchOnWindowFocus: false,   // avoid spurious refetches
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
 
 const PageFallback = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
