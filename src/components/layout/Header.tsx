@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, UserCircle } from 'lucide-react';
-import { useState } from 'react';
+import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, CircleUser as UserCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -27,6 +28,16 @@ export default function Header() {
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const prevCount = useRef(itemCount);
+  const [cartBump, setCartBump] = useState(false);
+
+  useEffect(() => {
+    if (itemCount > prevCount.current) {
+      setCartBump(true);
+      setTimeout(() => setCartBump(false), 600);
+    }
+    prevCount.current = itemCount;
+  }, [itemCount]);
   const accountHref = user ? '/compte' : '/connexion';
 
   const handleSignOut = async () => {
@@ -66,12 +77,23 @@ export default function Header() {
             <Heart className="h-5 w-5" />
           </Link>
           <Link to="/panier" className="relative p-2 text-foreground/70 hover:text-primary transition-colors" aria-label="Panier">
-            <ShoppingBag className="h-5 w-5" />
-            {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                {itemCount}
-              </span>
-            )}
+            <motion.div animate={cartBump ? { scale: [1, 1.35, 1], rotate: [0, -12, 12, 0] } : {}} transition={{ duration: 0.5, ease: 'easeInOut' }}>
+              <ShoppingBag className="h-5 w-5" />
+            </motion.div>
+            <AnimatePresence>
+              {itemCount > 0 && (
+                <motion.span
+                  key={itemCount}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                  className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold"
+                >
+                  {itemCount > 99 ? '99+' : itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
 
           {user ? (
